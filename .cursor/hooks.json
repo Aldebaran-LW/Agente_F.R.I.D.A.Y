@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\LUCAS_W\\Documents\\GitHub\\Agente_OpenClaw\\sync-workspaces.ps1\""
+      }
+    ]
+  }
+}

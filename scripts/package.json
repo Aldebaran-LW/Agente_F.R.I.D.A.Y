@@ -1,0 +1,13 @@
+{
+  "name": "agente-openclaw-scripts",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node test-env.js && node github-repo-status.js && node vercel-status.js && node macofel-count-pending.js",
+    "vercel": "node vercel-status.js",
+    "macofel": "node macofel-count-pending.js"
+  },
+  "dependencies": {
+    "mongodb": "^6.12.0"
+  }
+}
