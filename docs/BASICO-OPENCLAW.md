@@ -1,13 +1,16 @@
 # Basico OpenClaw
 
+Papeis AWS vs Vercel: [PAPEIS-AWS-VERCEL.md](./PAPEIS-AWS-VERCEL.md)
+
 ## Nao misturar
 
 | Onde | O que |
 |------|--------|
-| OpenClaw/ | Agentes, .env com 2 chaves Jarvis |
-| OpenClaw/gateway/ | Deploy Vercel ONLY |
-| Macofel_2.0 | Outro repo |
-| Telegram | Fase 2 |
+| **AWS EC2** | Jarvis: OpenClaw + Telegram (fase 2) |
+| **OpenClaw/** (repo) | Agentes + `.env` minimo (2 chaves gateway) |
+| **OpenClaw/gateway/** | Deploy Vercel ONLY — API + secrets |
+| **Macofel_2.0** | Outro repo |
+| **Telegram** | Fase 2 — so na AWS, nao na Vercel |
 
 ## Fase 1
 

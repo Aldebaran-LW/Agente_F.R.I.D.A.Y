@@ -1,0 +1,104 @@
+# Papeis: AWS (Jarvis) vs Vercel (Gateway)
+
+Objetivo: **nao misturar** Telegram/cerebro com cofre de APIs na mesma camada.
+
+## Visao rapida
+
+```mermaid
+flowchart LR
+  subgraph aws [AWS EC2 — Jarvis / OpenClaw]
+    TG[Telegram]
+    OC[OpenClaw daemon]
+    TG --> OC
+  end
+
+  subgraph vercel [Vercel — Gateway automacao]
+    API[API /openclaw/*]
+    JAPI[POST /jarvis opcional]
+  end
+
+  subgraph ext [Outros projetos]
+    MAC[Macofel Vercel/Render]
+    GH[GitHub]
+  end
+
+  OC -->|Bearer token| API
+  OC --> JAPI
+  API --> MAC
+  API --> GH
+```
+
+| Camada | Onde | Faz o que | Nao faz |
+|--------|------|-----------|---------|
+| **Jarvis** | AWS EC2 (`openclaw`) | Telegram, aprovacoes, cron, chamar gateway, LLM quando precisar | Guardar Mongo/GitHub/Macofel secrets |
+| **Gateway** | Vercel (`gateway/`) | Secrets + rotas HTTP estaveis para Macofel/GitHub/deploy | Bot Telegram, conversa livre |
+| **PC (dev)** | Teu `.env` local | Testar com `check-basico.js` | Producao |
+
+**Regra:** Telegram **nunca** fala com a Vercel diretamente.  
+Fluxo: **Telegram → AWS → Gateway → APIs externas**.
+
+---
+
+## Variaveis por ambiente
+
+### Vercel (projeto com Root Directory = `gateway`)
+
+Copiar de `gateway/.env.example`. Tudo que toca Macofel, Mongo, GitHub org, health de sites.
+
+| Variavel | Uso |
+|----------|-----|
+| `OPENCLAW_AUTOMATION_TOKEN` | Bearer nas rotas protegidas |
+| `GITHUB_TOKEN` | `GET /openclaw/github/status` |
+| `GITHUB_OWNER` | Owner dos repos |
+| `MONGODB_URI` | Fallback status Macofel |
+| `MONGODB_DB_NAME` | DB (default `macofel`) |
+| `MACOFEL_API_BASE` | API loja (sem `/api/import` duplicado) |
+| `MACOFEL_CATALOG_SECRET` | Header catalogo |
+| `MACOFEL_URL` | Health-check deploy |
+| `VP_PECAS_URL` | Health-check |
+| `VP_PRECISION_URL` | Health-check (opcional) |
+
+**Nao colocar na Vercel:** `TELEGRAM_*`, chaves LLM do OpenClaw (ficam na EC2 se usares).
+
+### AWS EC2 (`/opt/openclaw/.env` ou equivalente)
+
+Copiar da raiz `.env.example` — secao minima fase 1 + Telegram fase 2.
+
+| Variavel | Fase | Uso |
+|----------|------|-----|
+| `OPENCLAW_GATEWAY_BASE_URL` | 1 | URL do deploy Vercel (ex. dominio production) |
+| `OPENCLAW_AUTOMATION_TOKEN` | 1 | **Mesmo valor** que na Vercel |
+| `TELEGRAM_BOT_TOKEN` | 2 | Bot |
+| `TELEGRAM_ADMIN_CHAT_ID` | 2 | Teu chat |
+| `GOOGLE_API_KEY` / `OPENROUTER_*` / `DEEPSEEK_*` | 2+ | LLM so quando necessario (free tier) |
+
+**Nao precisas na EC2 (fase 1):** `MONGODB_URI`, `MACOFEL_CATALOG_SECRET`, `GITHUB_TOKEN` — o gateway ja tem.
+
+### PC local (desenvolvimento)
+
+Igual EC2 fase 1: so `OPENCLAW_GATEWAY_BASE_URL` + `OPENCLAW_AUTOMATION_TOKEN` para `node scripts/check-basico.js`.
+
+---
+
+## Rotas do gateway (Vercel)
+
+| Rota | Auth | Quem chama |
+|------|------|------------|
+| `GET /api/health` | Publico | Monitor, browser |
+| `GET\|POST /jarvis` | Bearer | AWS OpenClaw (orquestrador) |
+| `GET /openclaw/macofel/status` | Bearer | AWS ou scripts |
+| `GET /openclaw/github/status` | Bearer | AWS ou scripts |
+| `GET /openclaw/deploy/health` | Bearer | AWS ou scripts |
+
+A rota `/jarvis` e uma **API de delegacao**, nao o processo Telegram. O nome no codigo pode manter-se; o papel e **gateway**.
+
+---
+
+## Fases
+
+1. **Gateway verde** — Vercel deploy + `check-basico.js` OK (sem Telegram).
+2. **AWS** — OpenClaw na EC2 com mesmo token/URL; crons opcionais.
+3. **Telegram** — pairing no servidor; mensagens vao para OpenClaw, que chama o gateway.
+4. **Painel visual (opcional)** — pagina estatica na Vercel so para status; sem Telegram.
+
+Deploy Vercel: [GATEWAY-VERCEL.md](./GATEWAY-VERCEL.md). Basico local: [BASICO-OPENCLAW.md](./BASICO-OPENCLAW.md).
