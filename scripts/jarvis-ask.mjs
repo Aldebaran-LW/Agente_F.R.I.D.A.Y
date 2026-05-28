@@ -55,6 +55,11 @@ const res = await fetch(url, {
 clearTimeout(t);
 
 const body = await res.json().catch(() => ({}));
+if (body.telegram?.telegram_html && process.argv.includes('--telegram')) {
+  console.log('\n--- Telegram HTML ---\n');
+  console.log(body.telegram.telegram_html);
+  console.log('\n--- JSON ---\n');
+}
 console.log(JSON.stringify({ http: res.status, ...body }, null, 2));
 process.exit(res.ok && body.ok ? 0 : 1);
 

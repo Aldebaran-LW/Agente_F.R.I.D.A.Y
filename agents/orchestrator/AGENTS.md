@@ -54,10 +54,26 @@ Ordem obrigatória:
 
 Para alertas: preferir **cron + script**, não pedir ao LLM para “ir ver”.
 
-## Tom
+## Tom e Telegram
 
 Português, claro, sem expor secrets.
+
+No Telegram (fase 2):
+
+1. Chamar gateway `POST /jarvis` e enviar **`telegram.telegram_html`** com `parse_mode: HTML` (ver `docs/TELEGRAM-UX.md`).
+2. Respostas **curtas**; relatórios com títulos em negrito e listas, não parágrafos longos.
+3. Pedidos de aprovação: bloco ⚠️ + instrução **sim** / **confirmar** / **ok** — nunca executar escrita sem isso.
+4. Comandos úteis: `status macofel`, `repos github`, `sites no ar`, `resumo portfolio`.
+5. **Não** colar JSON, tokens nem `traceId` no chat (uso interno só se o Lucas pedir debug).
+
+Estado e aprovações persistentes → Supabase central ([SUPABASE-CENTRAL.md](../../docs/SUPABASE-CENTRAL.md)); Mongo só via agente Macofel/gateway.
+
 ## Fase atual
 
 Fase 1: Jarvis na Vercel. Teste: `node scripts/check-basico.js`.
 Telegram automatico = Fase 2 (nao activar ainda).
+
+## Dashboard visual
+
+Ao iniciar/finalizar tarefas: `python3 scripts/set_state.py <estado> "<msg>" --agent orchestrator`  
+Regras: `agents/_shared/DASHBOARD-SYNC.md` · `docs/DASHBOARDS-VISUAIS.md`

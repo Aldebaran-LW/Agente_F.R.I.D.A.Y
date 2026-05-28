@@ -4,6 +4,7 @@ import { executePlan } from '../lib/workflow-engine.mjs';
 import { buildReply, buildWorkflowReply } from '../lib/jarvis-reply.mjs';
 import { newTraceId, buildAuditEntry } from '../lib/audit.mjs';
 import { listSkills } from '../lib/skill-registry.mjs';
+import { buildTelegramPayload } from '../lib/telegram-format.mjs';
 
 export default async function handler(req, res) {
   setCors(res);
@@ -70,6 +71,15 @@ export default async function handler(req, res) {
 
   console.log(JSON.stringify({ event: 'jarvis.run', ...audit }));
 
+  const telegram = buildTelegramPayload({
+    plan,
+    route: execution.route,
+    payload: execution.data,
+    results: execution.results,
+    approvalBlocked: execution.approvalBlocked,
+    plainReply: reply,
+  });
+
   return res.status(200).json({
     ok: true,
     agent: 'jarvis',
@@ -88,6 +98,7 @@ export default async function handler(req, res) {
         ? plan.workflowId
         : execution.route?.skill,
     reply,
+    telegram,
     data: execution.data ?? execution.results ?? null,
     workflow: plan.kind === 'workflow'
       ? {

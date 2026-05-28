@@ -32,6 +32,8 @@ O orquestrador delega ao cérebro `macofel` — não corre Mongo diretamente.
 | GITHUB_TOKEN | ops, vp-pecas, orquestrador (leitura) |
 | VERCEL_API_TOKEN | ops, vp-pecas |
 
-## Futuro (fora deste repo até pedido)
+## Futuro (hub central)
 
-Hub Supabase para filas, aprovações e audit log. OpenClaw deixa MONGODB_URI quando o gateway expuser status Macofel.
+**Supabase** como BD do OpenClaw central (aprovações, workflows, audit). **Mongo** permanece no Macofel/API periféricos. Detalhe: [SUPABASE-CENTRAL.md](./SUPABASE-CENTRAL.md).
+
+OpenClaw deixa `MONGODB_URI` no orquestrador quando o gateway expuser todo o status Macofel.
