@@ -38,8 +38,9 @@
 - `GET /openclaw/deploy/health` — sites
 - `GET /openclaw/office/status` — snapshot dos 4 cérebros (painel)
 - `GET /office` — painel pixel-art (introduzir token na página)
+- `GET /forge` — Digital Forge 3D (WebSocket na EC2)
 
-Visualização completa: [VISUALIZACAO-AGENTES.md](./VISUALIZACAO-AGENTES.md).
+Visualização: [VISUALIZACAO-AGENTES.md](./VISUALIZACAO-AGENTES.md) · [DIGITAL-FORGE-FRIDAY.md](./DIGITAL-FORGE-FRIDAY.md).
 
 ## Erros comuns
 

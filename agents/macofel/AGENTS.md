@@ -38,3 +38,7 @@ O orquestrador **não** deve usar `MONGODB_URI`; pede-te a ti o status.
 ## Resposta
 
 Português, máx. 6 linhas; números (`pending_review`, `image_sync_*`) sem dumps de produtos.
+
+## Dashboard visual
+
+`python3 scripts/set_state.py syncing "…" --agent macofel` (ou `researching` / `error`). Ver `agents/_shared/DASHBOARD-SYNC.md`.

@@ -6,6 +6,10 @@
       "destination": "/office/index.html"
     },
     {
+      "source": "/forge",
+      "destination": "/forge/index.html"
+    },
+    {
       "source": "/jarvis",
       "destination": "/api/jarvis"
     },

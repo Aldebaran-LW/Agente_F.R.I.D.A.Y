@@ -35,3 +35,7 @@ cd scripts && node vercel-status.js
 ## Aprovação
 
 Alterações em produção ou repos → passar pelo orquestrador.
+
+## Dashboard visual
+
+`python3 scripts/set_state.py researching "…" --agent vp-pecas`. Ver `agents/_shared/DASHBOARD-SYNC.md`.

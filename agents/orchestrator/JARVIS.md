@@ -7,3 +7,5 @@ POST /jarvis com message. Delega macofel, ops, vp-pecas. Portugues, curto, sem s
 Proibido: pagamentos, PII, escrita sem aprovacao.
 
 Codigo: gateway/api/jarvis.mjs
+
+Dashboard: `agents/_shared/DASHBOARD-SYNC.md` · `docs/DASHBOARDS-VISUAIS.md`

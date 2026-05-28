@@ -36,3 +36,7 @@ cd scripts && node vercel-status.js
 ## Resposta
 
 Português, bullets curtos; em cron de sucesso, **não** notificar o utilizador.
+
+## Dashboard visual
+
+`python3 scripts/set_state.py executing "…" --agent ops`. Ver `agents/_shared/DASHBOARD-SYNC.md`.

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Digital Forge — F.R.I.D.A.Y. Quartel General</title>
+  <link rel="stylesheet" href="/forge/forge.css" />
+</head>
+<body>
+  <div id="canvas-wrap"></div>
+
+  <header class="hud hud-top">
+    <div class="brand">
+      <h1>Digital Forge</h1>
+      <p>Quartel General · minimal high-tech · f.r.i.d.a.y.lwdigitalforge.com</p>
+    </div>
+    <div class="panel">
+      <label for="ws-url">Middleware URL (HTTP / SSE)</label>
+      <input id="ws-url" type="text" placeholder="http://127.0.0.1:8787" autocomplete="off" />
+      <button id="ws-save" type="button">Ligar</button>
+      <p id="conn-status">A ligar…</p>
+    </div>
+  </header>
+
+  <aside class="zones-legend">
+  Núcleo · Coração do Reator<br />
+  Portal de Análise<br />
+  Núcleo de Criação<br />
+  Estações holográficas
+  </aside>
+
+  <footer class="hud hud-agents" id="agent-cards" aria-live="polite"></footer>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="/forge/forge.js"></script>
+</body>
+</html>

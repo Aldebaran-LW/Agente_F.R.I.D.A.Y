@@ -13,4 +13,4 @@ Dominio: https://openclaw.lwdigitalforge.com
 
 Rotas: GET/POST /jarvis, GET /openclaw/macofel/status, /openclaw/github/status, /openclaw/deploy/health, GET /openclaw/office/status
 
-Painel pixel: `/office` (token na sessão do browser). Doc: `docs/VISUALIZACAO-AGENTES.md`
+Painel pixel: `/office` · Digital Forge 3D: `/forge` (WS EC2 :8787). Docs: `docs/VISUALIZACAO-AGENTES.md`, `docs/DIGITAL-FORGE-FRIDAY.md`

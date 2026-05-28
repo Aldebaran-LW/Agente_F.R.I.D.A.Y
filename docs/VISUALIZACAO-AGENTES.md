@@ -2,6 +2,10 @@
 
 Três camadas complementares para ver o OpenClaw sem depender só do Telegram ou do terminal.
 
+**Dashboards da comunidade** (Star Office UI, AgentMonitor, tenacitOS, etc.): **[DASHBOARDS-VISUAIS.md](./DASHBOARDS-VISUAIS.md)** — tabela completa, `set_state.py`, install na EC2.
+
+**Digital Forge (F.R.I.D.A.Y.)** — Quartel General 3D cobalto/branco: **[DIGITAL-FORGE-FRIDAY.md](./DIGITAL-FORGE-FRIDAY.md)** — `/forge` + WebSocket `:8787`.
+
 | Etapa | O quê | Onde corre | Ligação |
 |-------|--------|------------|---------|
 | **1** | Gateway + rotas de status | Vercel (`gateway/`) | REST + Bearer |
@@ -153,13 +157,15 @@ cd openclaw-office && npm install && npm run dev
 
 ## Comparação rápida
 
-| | Pixel `/office` | openclaw-office | Claw3D |
-|--|-----------------|-----------------|--------|
-| Deploy | Vercel (já no gateway) | Local / self-host | Local / self-host |
-| Tempo real | ~30 s polling | WebSocket | WebSocket |
-| GPU | Não | Baixa (SVG) | 3D (Three.js) |
-| Chat / tools | Não | Sim | Sim |
-| Funciona só com gateway Vercel REST | **Sim** | Não | Não |
+| | Pixel `/office` | AgentMonitor | Star Office | openclaw-office | Claw3D |
+|--|-----------------|--------------|-------------|-----------------|--------|
+| Deploy | Vercel | EC2/local | EC2/local | EC2/local | EC2/local |
+| Tempo real | ~30 s polling | WS ~5 s | `set_state` / API | WebSocket | WebSocket |
+| GPU | Não | Baixa | Baixa | Baixa (SVG) | 3D |
+| Chat / tools | Não | Sim | Via OpenClaw | Sim | Sim |
+| Só REST Vercel | **Sim** | Não | Parcial | Não | Não |
+
+Instalar AgentMonitor ou Star Office: `./scripts/install-visual-dashboard.sh`
 
 ---
 
@@ -173,6 +179,10 @@ cd openclaw-office && npm install && npm run dev
 | `scripts/setup-claw3d-ec2.sh` | Setup EC2 |
 | `scripts/claw3d-tunnel.ps1` | Túnel SSH Windows |
 | `scripts/office-status.js` | Teste CLI do snapshot |
+| `scripts/set_state.py` | Estado para Star Office / JSON local |
+| `scripts/install-visual-dashboard.sh` | Clone AgentMonitor, Star Office, etc. |
+| `scripts/dashboard-tunnel.ps1` | Túnel HTTP :3000 / :19000 |
+| `agents/_shared/DASHBOARD-SYNC.md` | Regras para SOUL.md na EC2 |
 
 ---
 

@@ -1,0 +1,175 @@
+:root {
+  --bg: #f4f7fb;
+  --panel: rgba(255, 255, 255, 0.82);
+  --cobalt: #1d4ed8;
+  --cobalt-light: #3b82f6;
+  --text: #0f172a;
+  --muted: #64748b;
+  --glass: blur(12px);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+#canvas-wrap {
+  position: fixed;
+  inset: 0;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hud {
+  position: fixed;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.hud > * {
+  pointer-events: auto;
+}
+
+.hud-top {
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  background: linear-gradient(180deg, rgba(244, 247, 251, 0.95), transparent);
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.brand p {
+  margin: 0.2rem 0 0;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.panel {
+  background: var(--panel);
+  backdrop-filter: var(--glass);
+  border: 1px solid rgba(29, 78, 216, 0.12);
+  border-radius: 16px;
+  padding: 0.65rem 0.85rem;
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.06);
+}
+
+.panel label {
+  display: block;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 0.25rem;
+}
+
+.panel input {
+  width: min(220px, 50vw);
+  padding: 0.35rem 0.5rem;
+  border: 1px solid rgba(29, 78, 216, 0.2);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  background: #fff;
+}
+
+.panel button {
+  margin-top: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  border: none;
+  border-radius: 8px;
+  background: var(--cobalt);
+  color: #fff;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.panel button:hover {
+  background: var(--cobalt-light);
+}
+
+#conn-status {
+  font-size: 0.75rem;
+  color: var(--cobalt);
+}
+
+#conn-status.off {
+  color: #dc2626;
+}
+
+.hud-agents {
+  bottom: 1rem;
+  left: 1rem;
+  right: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.agent-card {
+  background: var(--panel);
+  backdrop-filter: var(--glass);
+  border: 1px solid rgba(29, 78, 216, 0.1);
+  border-radius: 14px;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.72rem;
+  pointer-events: auto;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.agent-card.working {
+  border-color: rgba(59, 130, 246, 0.45);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
+}
+
+.agent-card .name {
+  font-weight: 600;
+  color: var(--cobalt);
+}
+
+.agent-card .role {
+  color: var(--muted);
+  font-size: 0.65rem;
+}
+
+.agent-card .task {
+  margin-top: 0.25rem;
+  color: var(--text);
+}
+
+.zones-legend {
+  position: fixed;
+  top: 50%;
+  right: 1rem;
+  transform: translateY(-50%);
+  z-index: 10;
+  font-size: 0.65rem;
+  color: var(--muted);
+  text-align: right;
+  line-height: 1.6;
+  pointer-events: none;
+}

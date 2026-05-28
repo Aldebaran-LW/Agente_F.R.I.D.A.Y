@@ -19,4 +19,4 @@ Papeis AWS vs Vercel: [PAPEIS-AWS-VERCEL.md](./PAPEIS-AWS-VERCEL.md)
 3. node scripts/check-basico.js
 4. (opcional) Abrir `{OPENCLAW_GATEWAY_BASE_URL}/office` — painel pixel
 
-Telegram: depois de tudo verde. Claw3D: [VISUALIZACAO-AGENTES.md](./VISUALIZACAO-AGENTES.md).
+Telegram: depois de tudo verde. Visual: [VISUALIZACAO-AGENTES.md](./VISUALIZACAO-AGENTES.md) · dashboards: [DASHBOARDS-VISUAIS.md](./DASHBOARDS-VISUAIS.md).

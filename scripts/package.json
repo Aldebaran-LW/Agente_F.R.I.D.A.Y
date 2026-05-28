@@ -7,7 +7,9 @@
     "vercel": "node vercel-status.js",
     "macofel": "node macofel-status.js",
     "jarvis": "node jarvis-ask.js",
-    "basico": "node check-basico.js"
+    "basico": "node check-basico.js",
+    "forge": "node forge-ws-server.mjs",
+    "forge-push": "node forge-push.mjs"
   },
   "dependencies": {
     "mongodb": "^6.12.0"
