@@ -90,7 +90,15 @@ try {
       },
       20000
     );
-    step('POST /jarvis', res.ok && body.ok && body.reply, 'HTTP ' + res.status);
+    const postDetail =
+      'HTTP ' +
+      res.status +
+      (body.error === 'OPENCLAW_AUTOMATION_TOKEN not configured'
+        ? ' · define OPENCLAW_AUTOMATION_TOKEN na Vercel (Environment Variables) e redeploy'
+        : res.status === 401
+          ? ' · token diferente entre Vercel e .env local'
+          : '');
+    step('POST /jarvis', res.ok && body.ok && body.reply, postDetail);
     if (body.reply) console.log('\n  Jarvis: ' + body.reply + '\n');
   }
 } catch (e) { step('POST /jarvis', false, String(e.message)); }
