@@ -23,13 +23,31 @@ function step(name, ok, detail = '') {
   steps.push({ name, ok, detail });
   console.log(`  [${ok ? 'OK' : 'FALHA'}] ${name}${detail ? ' - ' + detail : ''}`);
 }
+function extraHeaders() {
+  const h = {};
+  const bypass = process.env.VERCEL_PROTECTION_BYPASS?.trim();
+  if (bypass) h['x-vercel-protection-bypass'] = bypass;
+  return h;
+}
+
 async function fetchJsonWithTimeout(url, init = {}, timeoutMs = 15000) {
   const ac = new AbortController();
   const t = setTimeout(() => ac.abort(new Error('timeout')), timeoutMs);
   try {
-    const res = await fetch(url, { ...init, signal: ac.signal });
-    const body = await res.json().catch(() => ({}));
-    return { res, body };
+    const res = await fetch(url, {
+      ...init,
+      headers: { ...extraHeaders(), ...(init.headers || {}) },
+      signal: ac.signal,
+    });
+    const text = await res.text();
+    let body = {};
+    try {
+      body = JSON.parse(text);
+    } catch {
+      body = {};
+    }
+    const vercelAuth = res.status === 401 && text.includes('Authentication Required');
+    return { res, body, vercelAuth };
   } finally {
     clearTimeout(t);
   }
@@ -42,8 +60,12 @@ if (!base) {
   process.exitCode = 1;
 } else {
 try {
-  const { res, body } = await fetchJsonWithTimeout(`${base}/api/health`, {}, 15000);
-  step('GET /api/health', res.ok && body.ok, 'HTTP ' + res.status);
+  const { res, body, vercelAuth } = await fetchJsonWithTimeout(`${base}/api/health`, {}, 15000);
+  const detail =
+    'HTTP ' +
+    res.status +
+    (vercelAuth ? ' · desliga Vercel Authentication no projeto' : '');
+  step('GET /api/health', res.ok && body.ok, detail);
 } catch (e) { step('GET /api/health', false, String(e.message)); }
 }
 if (!token) {
@@ -72,6 +94,28 @@ try {
     if (body.reply) console.log('\n  Jarvis: ' + body.reply + '\n');
   }
 } catch (e) { step('POST /jarvis', false, String(e.message)); }
+try {
+  if (base && token) {
+    const { res, body } = await fetchJsonWithTimeout(
+      `${base}/openclaw/office/status`,
+      { headers: auth },
+      25000
+    );
+    const agents = body.agents?.length ?? 0;
+    step(
+      'GET /openclaw/office/status',
+      res.ok && agents >= 4,
+      `HTTP ${res.status} · ${agents} agentes`
+    );
+    if (body.agents?.length) {
+      for (const a of body.agents) {
+        console.log(`       ${a.name}: ${a.stateLabel} — ${a.detail}`);
+      }
+    }
+  }
+} catch (e) {
+  step('GET /openclaw/office/status', false, String(e.message));
+}
 const n = steps.filter(s => !s.ok).length;
-console.log(n ? `\n${n} falha(s).` : '\nBasico OK. Telegram = fase 2.\n');
+console.log(n ? `\n${n} falha(s).` : '\nBasico OK. Painel: /office · Telegram = fase 2.\n');
 process.exitCode = process.exitCode || (n ? 1 : 0);

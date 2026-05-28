@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OpenClaw — Escritório Pixel</title>
+  <link rel="stylesheet" href="/office/office.css" />
+</head>
+<body>
+  <header class="top">
+    <h1>OpenClaw · Escritório</h1>
+    <p class="sub">Painel pixel-art (fase 4) — estados dos cérebros via gateway Vercel</p>
+    <div class="toolbar">
+      <label class="token-wrap">
+        <span>Token</span>
+        <input id="token" type="password" autocomplete="off" placeholder="OPENCLAW_AUTOMATION_TOKEN" />
+      </label>
+      <button id="save-token" type="button">Guardar sessão</button>
+      <button id="refresh" type="button">Atualizar</button>
+      <span id="clock" class="clock"></span>
+    </div>
+    <p id="status-line" class="status-line">A ligar…</p>
+  </header>
+
+  <main class="room" aria-label="Escritório dos agentes">
+    <div class="floor"></div>
+    <div class="desk desk-jarvis" data-agent="orchestrator">
+      <div class="sprite" id="sprite-orchestrator"></div>
+      <div class="bubble" id="bubble-orchestrator"></div>
+      <p class="name">Jarvis</p>
+      <p class="role">Orquestrador</p>
+    </div>
+    <div class="desk desk-macofel" data-agent="macofel">
+      <div class="sprite" id="sprite-macofel"></div>
+      <div class="bubble" id="bubble-macofel"></div>
+      <p class="name">Macofel</p>
+      <p class="role">Catálogo</p>
+    </div>
+    <div class="desk desk-vp" data-agent="vp-pecas">
+      <div class="sprite" id="sprite-vp-pecas"></div>
+      <div class="bubble" id="bubble-vp-pecas"></div>
+      <p class="name">VP-Pecas</p>
+      <p class="role">Usinagem</p>
+    </div>
+    <div class="desk desk-ops" data-agent="ops">
+      <div class="sprite" id="sprite-ops"></div>
+      <div class="bubble" id="bubble-ops"></div>
+      <p class="name">Ops</p>
+      <p class="role">GitHub · deploy</p>
+    </div>
+    <div class="plant plant-a"></div>
+    <div class="plant plant-b"></div>
+  </main>
+
+  <footer class="foot">
+    <a href="/api/health" target="_blank" rel="noopener">health</a>
+    ·
+    <a href="https://github.com/Aldebaran-LW/Agente_OpenClaw" target="_blank" rel="noopener">repo</a>
+    ·
+    Claw3D na EC2: <code>docs/VISUALIZACAO-AGENTES.md</code>
+  </footer>
+
+  <script src="/office/office.js" type="module"></script>
+</body>
+</html>

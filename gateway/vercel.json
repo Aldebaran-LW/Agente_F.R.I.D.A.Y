@@ -2,6 +2,10 @@
   "version": 2,
   "rewrites": [
     {
+      "source": "/office",
+      "destination": "/office/index.html"
+    },
+    {
       "source": "/jarvis",
       "destination": "/api/jarvis"
     },

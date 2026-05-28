@@ -1,5 +1,5 @@
 import { handleOptions, requireAuth, setCors } from '../../../lib/auth.mjs';
-import { fetchDeployHealth } from '../../../lib/deploy.mjs';
+import { fetchOfficeSnapshot } from '../../../lib/office.mjs';
 
 export default async function handler(req, res) {
   setCors(res);
@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   }
   if (!requireAuth(req, res)) return;
 
-  const data = await fetchDeployHealth();
+  const data = await fetchOfficeSnapshot();
   const status = data.ok ? 200 : 503;
   return res.status(status).json(data);
 }

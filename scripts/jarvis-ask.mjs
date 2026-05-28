@@ -40,12 +40,15 @@ if (!base || !token) {
 const url = `${base}/jarvis`;
 const ac = new AbortController();
 const t = setTimeout(() => ac.abort(new Error('timeout')), 30000);
+const headers = {
+  Authorization: `Bearer ${token}`,
+  'Content-Type': 'application/json',
+};
+const bypass = process.env.VERCEL_PROTECTION_BYPASS?.trim();
+if (bypass) headers['x-vercel-protection-bypass'] = bypass;
 const res = await fetch(url, {
   method: 'POST',
-  headers: {
-    Authorization: `Bearer ${token}`,
-    'Content-Type': 'application/json',
-  },
+  headers,
   body: JSON.stringify({ message }),
   signal: ac.signal,
 });
