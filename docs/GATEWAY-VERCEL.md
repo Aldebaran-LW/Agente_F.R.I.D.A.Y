@@ -18,6 +18,7 @@ Nao usar a raiz do repo como Root Directory na Vercel.
 | `MACOFEL_API_BASE` | `https://macofel-2-0.vercel.app` (sem sufixo `/api/import`) |
 | `MACOFEL_CATALOG_SECRET` | Do Vercel Macofel, se existir rota status |
 | `MACOFEL_URL` / `VP_PECAS_URL` | Health-check |
+| `VP_PRECISION_URL` | Health-check (opcional) |
 
 4. Deploy → anexar dominio `openclaw.lwdigitalforge.com`
 5. No PC: `.env` com `OPENCLAW_GATEWAY_BASE_URL` + mesmo token

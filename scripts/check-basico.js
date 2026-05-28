@@ -23,31 +23,55 @@ function step(name, ok, detail = '') {
   steps.push({ name, ok, detail });
   console.log(`  [${ok ? 'OK' : 'FALHA'}] ${name}${detail ? ' - ' + detail : ''}`);
 }
+async function fetchJsonWithTimeout(url, init = {}, timeoutMs = 15000) {
+  const ac = new AbortController();
+  const t = setTimeout(() => ac.abort(new Error('timeout')), timeoutMs);
+  try {
+    const res = await fetch(url, { ...init, signal: ac.signal });
+    const body = await res.json().catch(() => ({}));
+    return { res, body };
+  } finally {
+    clearTimeout(t);
+  }
+}
 console.log('=== FASE 1: Jarvis / Gateway ===\n');
 step('OPENCLAW_GATEWAY_BASE_URL', Boolean(base));
 step('OPENCLAW_AUTOMATION_TOKEN', Boolean(token));
-if (!base) { console.log('\nPare: preencha .env'); process.exit(1); }
+if (!base) {
+  console.log('\nPare: preencha .env');
+  process.exitCode = 1;
+} else {
 try {
-  const h = await fetch(`${base}/api/health`, { signal: AbortSignal.timeout(15000) });
-  const hb = await h.json().catch(() => ({}));
-  step('GET /api/health', h.ok && hb.ok, 'HTTP ' + h.status);
+  const { res, body } = await fetchJsonWithTimeout(`${base}/api/health`, {}, 15000);
+  step('GET /api/health', res.ok && body.ok, 'HTTP ' + res.status);
 } catch (e) { step('GET /api/health', false, String(e.message)); }
-if (!token) { console.log('\nToken em falta.'); process.exit(1); }
+}
+if (!token) {
+  console.log('\nToken em falta.');
+  process.exitCode = 1;
+}
 const auth = { Authorization: 'Bearer ' + token, Accept: 'application/json' };
 try {
-  const r = await fetch(`${base}/jarvis`, { headers: auth, signal: AbortSignal.timeout(15000) });
-  const b = await r.json().catch(() => ({}));
-  step('GET /jarvis', r.ok && b.agent === 'jarvis', 'HTTP ' + r.status);
+  if (base && token) {
+    const { res, body } = await fetchJsonWithTimeout(`${base}/jarvis`, { headers: auth }, 15000);
+    step('GET /jarvis', res.ok && body.agent === 'jarvis', 'HTTP ' + res.status);
+  }
 } catch (e) { step('GET /jarvis', false, String(e.message)); }
 try {
-  const r = await fetch(`${base}/jarvis`, {
-    method: 'POST', headers: { ...auth, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message: 'ajuda' }), signal: AbortSignal.timeout(20000),
-  });
-  const b = await r.json().catch(() => ({}));
-  step('POST /jarvis', r.ok && b.ok && b.reply, 'HTTP ' + r.status);
-  if (b.reply) console.log('\n  Jarvis: ' + b.reply + '\n');
+  if (base && token) {
+    const { res, body } = await fetchJsonWithTimeout(
+      `${base}/jarvis`,
+      {
+        method: 'POST',
+        headers: { ...auth, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: 'ajuda' }),
+      },
+      20000
+    );
+    step('POST /jarvis', res.ok && body.ok && body.reply, 'HTTP ' + res.status);
+    if (body.reply) console.log('\n  Jarvis: ' + body.reply + '\n');
+  }
 } catch (e) { step('POST /jarvis', false, String(e.message)); }
 const n = steps.filter(s => !s.ok).length;
 console.log(n ? `\n${n} falha(s).` : '\nBasico OK. Telegram = fase 2.\n');
-process.exit(n ? 1 : 0);
+process.exitCode = process.exitCode || (n ? 1 : 0);
