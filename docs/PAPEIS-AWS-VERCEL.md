@@ -89,6 +89,8 @@ Igual EC2 fase 1: so `OPENCLAW_GATEWAY_BASE_URL` + `OPENCLAW_AUTOMATION_TOKEN` p
 | `GET /openclaw/macofel/status` | Bearer | AWS ou scripts |
 | `GET /openclaw/github/status` | Bearer | AWS ou scripts |
 | `GET /openclaw/deploy/health` | Bearer | AWS ou scripts |
+| `GET /openclaw/office/status` | Bearer | Painel pixel, scripts |
+| `GET /office` | Publico (HTML) | Browser — token no sessionStorage |
 
 A rota `/jarvis` e uma **API de delegacao**, nao o processo Telegram. O nome no codigo pode manter-se; o papel e **gateway**.
 
@@ -99,6 +101,6 @@ A rota `/jarvis` e uma **API de delegacao**, nao o processo Telegram. O nome no 
 1. **Gateway verde** — Vercel deploy + `check-basico.js` OK (sem Telegram).
 2. **AWS** — OpenClaw na EC2 com mesmo token/URL; crons opcionais.
 3. **Telegram** — pairing no servidor; mensagens vao para OpenClaw, que chama o gateway.
-4. **Painel visual (opcional)** — pagina estatica na Vercel so para status; sem Telegram.
+4. **Painel visual** — `/office` na Vercel + Claw3D na EC2. Guia: [VISUALIZACAO-AGENTES.md](./VISUALIZACAO-AGENTES.md).
 
 Deploy Vercel: [GATEWAY-VERCEL.md](./GATEWAY-VERCEL.md). Basico local: [BASICO-OPENCLAW.md](./BASICO-OPENCLAW.md).

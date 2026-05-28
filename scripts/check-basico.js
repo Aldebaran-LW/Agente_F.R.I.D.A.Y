@@ -76,7 +76,15 @@ const auth = { Authorization: 'Bearer ' + token, Accept: 'application/json' };
 try {
   if (base && token) {
     const { res, body } = await fetchJsonWithTimeout(`${base}/jarvis`, { headers: auth }, 15000);
-    step('GET /jarvis', res.ok && body.agent === 'jarvis', 'HTTP ' + res.status);
+    const jarvisDetail =
+      'HTTP ' +
+      res.status +
+      (body.automation_token_configured === false
+        ? ' · OPENCLAW_AUTOMATION_TOKEN ausente na Vercel (nao e VERCEL_API_TOKEN)'
+        : body.automation_token_configured === true
+          ? ' · token configurado no servidor'
+          : '');
+    step('GET /jarvis', res.ok && body.agent === 'jarvis', jarvisDetail);
   }
 } catch (e) { step('GET /jarvis', false, String(e.message)); }
 try {

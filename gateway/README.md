@@ -11,4 +11,6 @@ Dominio: https://openclaw.lwdigitalforge.com
 3. curl https://openclaw.lwdigitalforge.com/api/health
 4. curl -H "Authorization: Bearer TOKEN" -X POST -d "{\"message\":\"status macofel\"}" https://openclaw.lwdigitalforge.com/jarvis
 
-Rotas: GET/POST /jarvis, GET /openclaw/macofel/status, /openclaw/github/status, /openclaw/deploy/health
+Rotas: GET/POST /jarvis, GET /openclaw/macofel/status, /openclaw/github/status, /openclaw/deploy/health, GET /openclaw/office/status
+
+Painel pixel: `/office` (token na sessão do browser). Doc: `docs/VISUALIZACAO-AGENTES.md`

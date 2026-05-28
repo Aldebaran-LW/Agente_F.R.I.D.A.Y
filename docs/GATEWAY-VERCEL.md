@@ -17,7 +17,7 @@
 
 | Variavel | Notas |
 |----------|--------|
-| `OPENCLAW_AUTOMATION_TOKEN` | Token forte; **repetir** no `.env` da EC2/PC |
+| `OPENCLAW_AUTOMATION_TOKEN` | Token forte; **repetir** no `.env` da EC2/PC. **Nao** confundir com `VERCEL_API_TOKEN` |
 | `GITHUB_TOKEN` | Recomendado |
 | `MONGODB_URI` | Fallback status Macofel |
 | `MACOFEL_API_BASE` | `https://macofel-2-0.vercel.app` (sem sufixo `/api/import`) |
@@ -36,6 +36,10 @@
 - `GET /openclaw/macofel/status` — metricas
 - `GET /openclaw/github/status` — repos
 - `GET /openclaw/deploy/health` — sites
+- `GET /openclaw/office/status` — snapshot dos 4 cérebros (painel)
+- `GET /office` — painel pixel-art (introduzir token na página)
+
+Visualização completa: [VISUALIZACAO-AGENTES.md](./VISUALIZACAO-AGENTES.md).
 
 ## Erros comuns
 
@@ -44,6 +48,7 @@
 | 404 em `/api/health` | Root Directory nao e `gateway/` ou deploy falhou |
 | 401 em tudo (HTML "Authentication Required") | Vercel Authentication ligado no **projeto errado** ou ainda ativo |
 | 401 so em `/jarvis` | Token diferente entre Vercel e `.env` EC2 |
+| 503 `OPENCLAW_AUTOMATION_TOKEN not configured` | Variavel **com este nome** nao existe no deploy (ou faltou **Redeploy** apos criar) |
 | 404 `DEPLOYMENT_NOT_FOUND` no dominio custom | Dominio aponta para projeto/deploy inexistente |
 | Macofel 503 | `MACOFEL_API_BASE` errado (path duplicado) |
 | Mongo ECONNREFUSED | Atlas IP / rede; corrigir na Vercel |
