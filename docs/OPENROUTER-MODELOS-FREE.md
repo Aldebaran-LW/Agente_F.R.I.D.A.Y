@@ -20,6 +20,8 @@ Referência consolidada dos modelos **gratuitos** na [OpenRouter](https://openro
 **Não substitui:**
 
 - `GOOGLE_API_KEY` — API direta Gemini.
+- `DEEPSEEK_API_KEY` — API direta DeepSeek ([DEEPSEEK-API.md](./DEEPSEEK-API.md))
+- `INFRON_API_KEY` — gateway Infron / OneRouter ([INFRON-API.md](./INFRON-API.md)) ([DEEPSEEK-API.md](./DEEPSEEK-API.md)); o mesmo V4 Flash free pode ir por OpenRouter.
 - `OPENAI_API_KEY` — modelos comerciais OpenAI (GPT-4o, etc.).
 - Scripts (`macofel-count-pending.js`, `github-repo-status.js`) — **zero LLM**.
 

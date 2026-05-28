@@ -1,0 +1,59 @@
+{
+  "version": "1.0.0",
+  "skills": {
+    "macofel-status": {
+      "agent": "macofel",
+      "mode": "read",
+      "permissions": ["read:catalog"],
+      "requiresApproval": false,
+      "timeoutMs": 25000,
+      "telemetry": true,
+      "description": "Estado do catalogo Macofel (leitura)"
+    },
+    "macofel-images-sync": {
+      "agent": "macofel",
+      "mode": "write",
+      "permissions": ["write:catalog", "write:images"],
+      "requiresApproval": true,
+      "timeoutMs": 60000,
+      "telemetry": true,
+      "description": "Sync de imagens no catalogo (escrita)"
+    },
+    "github-aldebaran": {
+      "agent": "ops",
+      "mode": "read",
+      "permissions": ["read:github"],
+      "requiresApproval": false,
+      "timeoutMs": 20000,
+      "telemetry": true,
+      "description": "Status dos repos Aldebaran-LW"
+    },
+    "deploy-monitor": {
+      "agent": "ops",
+      "mode": "read",
+      "permissions": ["read:deploy"],
+      "requiresApproval": false,
+      "timeoutMs": 20000,
+      "telemetry": true,
+      "description": "Health-check dos sites Vercel"
+    },
+    "politica-seguranca": {
+      "agent": "orchestrator",
+      "mode": "policy",
+      "permissions": [],
+      "requiresApproval": false,
+      "timeoutMs": 0,
+      "telemetry": false,
+      "description": "Regras obrigatorias (sempre activa)"
+    },
+    "openclaw-jarvis": {
+      "agent": "jarvis",
+      "mode": "read",
+      "permissions": [],
+      "requiresApproval": false,
+      "timeoutMs": 15000,
+      "telemetry": true,
+      "description": "Face publica do orquestrador"
+    }
+  }
+}

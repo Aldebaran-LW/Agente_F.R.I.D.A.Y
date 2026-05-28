@@ -1,0 +1,24 @@
+{
+  "id": "portfolio-status",
+  "version": "1.0.0",
+  "description": "Resumo Macofel + GitHub + sites no ar",
+  "triggers": {
+    "patterns": [
+      "resumo",
+      "portfolio",
+      "status completo",
+      "visao geral",
+      "tudo no ar",
+      "macofel.*github",
+      "macofel.*repos",
+      "macofel.*sites",
+      "github.*sites"
+    ]
+  },
+  "requiresApproval": false,
+  "tasks": [
+    { "id": "macofel", "skill": "macofel-status", "agent": "macofel", "deps": [] },
+    { "id": "github", "skill": "github-aldebaran", "agent": "ops", "deps": [] },
+    { "id": "deploy", "skill": "deploy-monitor", "agent": "ops", "deps": [] }
+  ]
+}

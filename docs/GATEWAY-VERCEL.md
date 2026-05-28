@@ -32,7 +32,7 @@
 ## Rotas apos deploy
 
 - `GET /api/health` — publico
-- `GET|POST /jarvis` — API orquestrador (Bearer) — chamada pela **AWS**, nao pelo browser anonimo
+- `GET|POST /jarvis` — API orquestrador (Bearer) — chamada pela **AWS**, nao pelo browser anonimo. v1.1: workflows (`resumo portfolio`), `traceId`, audit — ver [AGENT-OS-FASE-A.md](./AGENT-OS-FASE-A.md)
 - `GET /openclaw/macofel/status` — metricas
 - `GET /openclaw/github/status` — repos
 - `GET /openclaw/deploy/health` — sites

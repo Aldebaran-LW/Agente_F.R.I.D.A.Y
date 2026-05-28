@@ -1,0 +1,24 @@
+{
+  "id": "macofel-sync",
+  "version": "1.0.0",
+  "description": "Pre-flight catalogo antes de sync de imagens",
+  "triggers": {
+    "patterns": [
+      "sync imagem",
+      "sync imagens",
+      "sincronizar imagem",
+      "sincronizar imagens"
+    ]
+  },
+  "requiresApproval": false,
+  "tasks": [
+    { "id": "preflight", "skill": "macofel-status", "agent": "macofel", "deps": [] },
+    {
+      "id": "sync",
+      "skill": "macofel-images-sync",
+      "agent": "macofel",
+      "deps": ["preflight"],
+      "requiresApproval": true
+    }
+  ]
+}

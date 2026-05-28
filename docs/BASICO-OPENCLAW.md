@@ -17,5 +17,6 @@ Papeis AWS vs Vercel: [PAPEIS-AWS-VERCEL.md](./PAPEIS-AWS-VERCEL.md)
 1. Deploy Vercel root=gateway (GATEWAY-VERCEL.md)
 2. .env local: OPENCLAW_AUTOMATION_TOKEN + OPENCLAW_GATEWAY_BASE_URL
 3. node scripts/check-basico.js
+4. (opcional) Abrir `{OPENCLAW_GATEWAY_BASE_URL}/office` — painel pixel
 
-Telegram: depois de tudo verde.
+Telegram: depois de tudo verde. Claw3D: [VISUALIZACAO-AGENTES.md](./VISUALIZACAO-AGENTES.md).

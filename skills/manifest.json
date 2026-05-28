@@ -1,0 +1,38 @@
+{
+  "_note": "Copia de referencia. Runtime na Vercel: gateway/skills/manifest.json",
+  "version": "1.0.0",
+  "skills": {
+    "macofel-status": {
+      "agent": "macofel",
+      "mode": "read",
+      "permissions": ["read:catalog"],
+      "requiresApproval": false,
+      "timeoutMs": 25000,
+      "telemetry": true
+    },
+    "macofel-images-sync": {
+      "agent": "macofel",
+      "mode": "write",
+      "permissions": ["write:catalog", "write:images"],
+      "requiresApproval": true,
+      "timeoutMs": 60000,
+      "telemetry": true
+    },
+    "github-aldebaran": {
+      "agent": "ops",
+      "mode": "read",
+      "permissions": ["read:github"],
+      "requiresApproval": false,
+      "timeoutMs": 20000,
+      "telemetry": true
+    },
+    "deploy-monitor": {
+      "agent": "ops",
+      "mode": "read",
+      "permissions": ["read:deploy"],
+      "requiresApproval": false,
+      "timeoutMs": 20000,
+      "telemetry": true
+    }
+  }
+}

@@ -1,9 +1,9 @@
 import { handleOptions, requireAuth, setCors } from '../lib/auth.mjs';
-import { routeMessage, needsApproval } from '../lib/jarvis-router.mjs';
-import { buildReply } from '../lib/jarvis-reply.mjs';
-import { fetchMacofelStatus } from '../lib/macofel.mjs';
-import { fetchGithubStatus } from '../lib/github.mjs';
-import { fetchDeployHealth } from '../lib/deploy.mjs';
+import { planFromMessage } from '../lib/planner.mjs';
+import { executePlan } from '../lib/workflow-engine.mjs';
+import { buildReply, buildWorkflowReply } from '../lib/jarvis-reply.mjs';
+import { newTraceId, buildAuditEntry } from '../lib/audit.mjs';
+import { listSkills } from '../lib/skill-registry.mjs';
 
 export default async function handler(req, res) {
   setCors(res);
@@ -15,14 +15,17 @@ export default async function handler(req, res) {
       agent: 'jarvis',
       role: 'orchestrator',
       owner: 'Lucas / Aldebaran-LW',
-      version: '1.0.0',
+      version: '1.1.0',
+      agent_os: 'fase-a',
       endpoints: {
-        jarvis: 'POST /jarvis { "message": "..." }',
+        jarvis: 'POST /jarvis { "message": "...", "approved": false }',
         macofel: 'GET /openclaw/macofel/status',
         github: 'GET /openclaw/github/status',
         deploy: 'GET /openclaw/deploy/health',
       },
       delegates: ['macofel', 'vp-pecas', 'ops'],
+      workflows: ['portfolio-status', 'macofel-sync'],
+      skills: listSkills(),
     });
   }
 
@@ -34,37 +37,71 @@ export default async function handler(req, res) {
 
   const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};
   const message = body.message || body.text || '';
+  const approved = Boolean(body.approved);
 
-  const route = routeMessage(message);
-  const approvalBlocked = needsApproval(message);
+  const traceId = newTraceId();
+  const plan = planFromMessage(message, { approved });
+  const execution = await executePlan(plan, { message, approved });
 
-  let data = null;
-  if (!approvalBlocked) {
-    if (route.agent === 'macofel' || route.skill === 'macofel-status') {
-      data = await fetchMacofelStatus();
-    } else if (route.skill === 'github-aldebaran') {
-      data = await fetchGithubStatus();
-    } else if (route.skill === 'deploy-monitor') {
-      data = await fetchDeployHealth();
-    }
+  let reply;
+  if (plan.kind === 'workflow') {
+    reply = buildWorkflowReply({
+      workflowId: plan.workflowId,
+      results: execution.results,
+      approvalBlocked: execution.approvalBlocked,
+    });
+  } else {
+    reply = buildReply(execution.route, execution.data, {
+      approvalBlocked: execution.approvalBlocked,
+    });
   }
 
-  const reply = buildReply(route, data, { approvalBlocked });
+  const audit = buildAuditEntry({
+    traceId,
+    message,
+    plan,
+    taskRuns: execution.taskRuns,
+    approval: {
+      required: plan.approvalRequired,
+      blocked: execution.approvalBlocked,
+      approved: approved || /^(sim|confirmar|ok)\b/i.test(String(message).trim()),
+    },
+  });
+
+  console.log(JSON.stringify({ event: 'jarvis.run', ...audit }));
 
   return res.status(200).json({
     ok: true,
     agent: 'jarvis',
-    delegate: route.agent,
-    skill: route.skill,
+    traceId,
+    plan: {
+      kind: plan.kind,
+      workflowId: plan.workflowId ?? null,
+      route: plan.route ?? null,
+    },
+    delegate:
+      plan.kind === 'workflow'
+        ? 'multi'
+        : execution.route?.agent,
+    skill:
+      plan.kind === 'workflow'
+        ? plan.workflowId
+        : execution.route?.skill,
     reply,
-    data,
-    approval: approvalBlocked
+    data: execution.data ?? execution.results ?? null,
+    workflow: plan.kind === 'workflow'
       ? {
-          required: true,
-          hint: 'Responda sim, confirmar ou ok no Telegram para prosseguir.',
-          message_preview: String(message).slice(0, 200),
+          id: plan.workflowId,
+          tasks: execution.taskRuns.map((t) => ({
+            id: t.id,
+            skill: t.skill,
+            status: t.status,
+            ms: t.ms,
+          })),
         }
-      : { required: false },
-    at: new Date().toISOString(),
+      : null,
+    approval: audit.approval,
+    audit,
+    at: audit.at,
   });
 }
