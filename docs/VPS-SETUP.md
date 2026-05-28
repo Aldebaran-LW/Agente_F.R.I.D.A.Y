@@ -53,12 +53,26 @@ VPS_ROOT_PASSWORD="senha_do_painel"
 
 ---
 
+## Heartbeat (alertas de saude)
+
+Depois do `.env` com `TELEGRAM_BOT_TOKEN` e `TELEGRAM_ADMIN_CHAT_ID`:
+
+```bash
+sudo bash /opt/openclaw/scripts/install-heartbeat-timer.sh
+python3 /opt/openclaw/scripts/heartbeat.py --dry-run
+```
+
+Guia completo: `docs/HEARTBEAT.md`
+
+---
+
 ## Depois de tudo a correr
 
 | Comando | Uso |
 |---------|-----|
 | `journalctl -u openclaw-gateway -f` | Logs em tempo real |
 | `systemctl restart openclaw-gateway` | Reiniciar gateway |
+| `journalctl -u openclaw-heartbeat.service -n 20` | Ultimo heartbeat |
 | `http://45.147.46.122:18789` | UI (se firewall do provedor permitir) |
 
 **Domínio:** `openclaw.lwdigitalforge.com` fica na **Vercel**. O VPS usa o IP.

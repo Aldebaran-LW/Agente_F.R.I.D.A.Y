@@ -80,4 +80,9 @@ ufw allow 22/tcp
 ufw allow 18789/tcp
 ufw --force enable || true
 
+if [[ -f "${WORKSPACE}/scripts/install-heartbeat-timer.sh" ]]; then
+  echo "==> Heartbeat timer (opcional — requer TELEGRAM_ADMIN_CHAT_ID no .env)"
+  bash "${WORKSPACE}/scripts/install-heartbeat-timer.sh" || echo "AVISO: heartbeat nao instalado (ver docs/HEARTBEAT.md)"
+fi
+
 echo "==> Concluído. Próximo: systemctl start openclaw-gateway && systemctl status openclaw-gateway"

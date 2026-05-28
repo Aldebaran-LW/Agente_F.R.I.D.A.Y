@@ -1,0 +1,16 @@
+[Unit]
+Description=OpenClaw infrastructure heartbeat
+After=network-online.target openclaw-gateway.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/openclaw
+EnvironmentFile=-/opt/openclaw/.env
+Environment=OPENCLAW_ENV=/opt/openclaw/.env
+Environment=HEARTBEAT_STATE_FILE=/opt/openclaw/.heartbeat-state.json
+ExecStart=/usr/bin/python3 /opt/openclaw/scripts/heartbeat.py
+Nice=10
+
+[Install]
+WantedBy=multi-user.target

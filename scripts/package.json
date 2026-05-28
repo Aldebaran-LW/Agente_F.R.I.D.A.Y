@@ -3,9 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node test-env.js && node github-repo-status.js && node vercel-status.js && node macofel-count-pending.js",
+    "test": "node test-env.js && node github-repo-status.js && node vercel-status.js && node macofel-status.js",
     "vercel": "node vercel-status.js",
-    "macofel": "node macofel-count-pending.js"
+    "macofel": "node macofel-status.js",
+    "jarvis": "node jarvis-ask.js",
+    "basico": "node check-basico.js"
   },
   "dependencies": {
     "mongodb": "^6.12.0"

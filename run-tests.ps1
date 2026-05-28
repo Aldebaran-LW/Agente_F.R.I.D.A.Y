@@ -1,5 +1,25 @@
 $root = $PSScriptRoot
+$localRoot = "C:\Users\LUCAS_W\Documents\GitHub\Agente_OpenClaw"
 $envFile = Join-Path $root ".env"
+
+function Get-ScriptsDir {
+  $driveScripts = Join-Path $root "scripts"
+  $localScripts = Join-Path $localRoot "scripts"
+  $pkg = Join-Path $driveScripts "node_modules\mongodb\package.json"
+  if ((Test-Path $pkg) -and ((Get-Item $pkg -ErrorAction SilentlyContinue).Length -gt 50)) {
+    return $driveScripts
+  }
+  if (Test-Path $localScripts) {
+    if (Test-Path $envFile) {
+      $localEnv = Join-Path $localRoot ".env"
+      if (-not (Test-Path $localEnv) -or ((Get-Item $envFile).LastWriteTimeUtc -gt (Get-Item $localEnv).LastWriteTimeUtc)) {
+        Copy-Item $envFile $localEnv -Force
+      }
+    }
+    return $localScripts
+  }
+  return $driveScripts
+}
 $vars = @{}
 if (Test-Path $envFile) {
   Get-Content $envFile -Encoding UTF8 | ForEach-Object {
@@ -32,18 +52,22 @@ if ($vars.GITHUB_TOKEN) {
     } catch { Write-Host ("  $_ ERRO") }
   }
 }
+$scriptsDir = Get-ScriptsDir
+if ($scriptsDir -notlike "$root*") {
+  Write-Host "`n  (scripts na copia local; node_modules no Drive corrompe pacotes)"
+}
 if ($vars.VERCEL_API_TOKEN) {
   Write-Host "`n=== VERCEL ==="
-  Set-Location (Join-Path $root "scripts")
+  Push-Location $scriptsDir
   if (-not (Test-Path node_modules)) { npm install --silent 2>$null }
   node vercel-status.js
-  Set-Location $root
+  Pop-Location
 }
 if ($vars.MONGODB_URI) {
   Write-Host "`n=== MONGODB ==="
-  Set-Location (Join-Path $root "scripts")
-  node macofel-count-pending.js
-  Set-Location $root
+  Push-Location $scriptsDir
+  node macofel-status.js
+  Pop-Location
 }
 if (Get-Command openclaw -ErrorAction SilentlyContinue) {
   Write-Host "`n=== OPENCLAW === instalado"
