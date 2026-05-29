@@ -3,12 +3,12 @@ name: Senku
 role: Analise de viabilidade (score 0-100)
 
 llm:
-  provider: deepseek
-  env_key: DEEPSEEK_API_KEY
-  model: deepseek-v4-flash
+  provider: openrouter
+  env_key: OPENROUTER_API_KEY
+  model: deepseek/deepseek-v4-flash:free
   fallbacks:
-    - openrouter/nvidia/nemotron-3-super-120b-a12b:free
-    - openrouter/google/gemma-4-26b-a4b-it:free
+    - nvidia/nemotron-3-super-120b-a12b:free
+    - google/gemma-4-26b-a4b-it:free
 
 skills:
   - politica-seguranca

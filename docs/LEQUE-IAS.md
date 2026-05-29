@@ -39,19 +39,12 @@ Definição em `agents/<id>/config.yaml`. Aplicar na EC2: `scripts/ec2-apply-age
 
 | Cérebro | Assunto | Provedor | Chave `.env` | Modelo (primary) | Fallback |
 |---------|---------|----------|--------------|------------------|----------|
-| **orchestrator** (Jarvis / Telegram) | Chat, delegação | **deepseek** | `DEEPSEEK_API_KEY` | `deepseek-v4-flash` | OpenRouter Nemotron free |
-| **macofel** | Catálogo, EAN | openrouter | `OPENROUTER_API_KEY` | `google/gemma-4-26b-a4b-it:free` | DeepSeek OR free |
-| **ops** | GitHub, deploy | openrouter | `OPENROUTER_API_KEY` | `poolside/laguna-m.1:free` | MiniMax free |
-| **vp-pecas** | Sites usinagem | openrouter | `OPENROUTER_API_KEY` | `minimax/minimax-m2.5:free` | Laguna XS free |
-| **sophia** | Pesquisa HF/tools | openrouter | `OPENROUTER_API_KEY` | `google/gemma-4-26b-a4b-it:free` | DeepSeek OR free |
-| **rebeca** | Design /office | openrouter | `OPENROUTER_API_KEY` | `google/gemini-2.0-flash-exp:free` | Gemma free |
-| **senku** | Viabilidade | **deepseek** | `DEEPSEEK_API_KEY` | `deepseek-v4-flash` | Nemotron OR free |
-| **hefestos** | Build código | openrouter | `OPENROUTER_API_KEY` | `poolside/laguna-m.1:free` | DeepSeek OR free |
-| **icaro** | Testes | openrouter | `OPENROUTER_API_KEY` | `minimax/minimax-m2.5:free` | Laguna XS free |
-| **athena** | Monitor alertas | openrouter | `OPENROUTER_API_KEY` | `nvidia/nemotron-3-super-120b-a12b:free` | Gemma free |
-| **dedalo** | Schema dados | **deepseek** | `DEEPSEEK_API_KEY` | `deepseek-v4-flash` | — |
+| **orchestrator** (Jarvis / Telegram) | Chat, delegação | **openrouter** | `OPENROUTER_API_KEY` | `deepseek/deepseek-v4-flash:free` | MiniMax / gpt-oss-20b free |
+| **senku** / **dedalo** | Viabilidade, schema | openrouter | `OPENROUTER_API_KEY` | `deepseek/deepseek-v4-flash:free` | Nemotron free |
 
-**Telegram:** face pública = **orchestrator** (DeepSeek directo). Pedidos operacionais → skill `openclaw-jarvis` (gateway, sem LLM).
+**Telegram:** face pública = **orchestrator** (OpenRouter `deepseek-v4-flash:free`). Pedidos operacionais → skill `openclaw-jarvis` (gateway, sem LLM).
+
+> **DeepSeek directo** (`DEEPSEEK_API_KEY`): usar só com saldo em [platform.deepseek.com](https://platform.deepseek.com). Sem créditos → erro 402; manter OpenRouter free como primary.
 
 ---
 
