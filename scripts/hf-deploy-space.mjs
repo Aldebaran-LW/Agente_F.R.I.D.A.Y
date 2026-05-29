@@ -68,7 +68,7 @@ execSync(`git clone "${cloneUrl}" "${work}"`, { stdio: 'inherit' });
 
 console.log('==> Copiar', src);
 for (const name of readdirSync(src)) {
-  if (name === '.git' || name === 'desktop.ini') continue;
+  if (name === '.git' || name === 'desktop.ini' || name === '__pycache__') continue;
   cpSync(join(src, name), join(work, name), { recursive: true, force: true });
 }
 

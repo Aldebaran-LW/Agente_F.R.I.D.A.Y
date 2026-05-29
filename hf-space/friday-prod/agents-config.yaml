@@ -1,5 +1,5 @@
 # Gerado automaticamente — nao editar a mao; use generate-hf-agents-config.mjs
-# 2026-05-29T14:34:03.498Z
+# 2026-05-29T18:03:40.179Z
 
 defaults:
   max_tokens: 4096
@@ -34,12 +34,12 @@ dedalo:
   forge_alias: dedalo
   role: "Arquitetura de dados — schemas HF Dataset e hub"
   description: "Dédalo — Arquitetura de dados — schemas HF Dataset e hub"
-  model: "deepseek/deepseek-v4-flash:free"
-  model_ref: "openrouter/deepseek/deepseek-v4-flash:free"
+  model: "deepseek-v4-flash"
+  model_ref: "deepseek/deepseek-v4-flash"
   max_tokens: 4096
   temperature: 0.7
   fallbacks:
-    - "nvidia/nemotron-3-super-120b-a12b:free"
+    - "openrouter/nvidia/nemotron-3-super-120b-a12b:free"
   skills:
     - "politica-seguranca"
     - "data-schema"
@@ -90,12 +90,13 @@ macofel:
   forge_alias: lala
   role: "Catalogo e-commerce (unico cerebro com Mongo/API Macofel)"
   description: "Macofel — Catalogo e-commerce (unico cerebro com Mongo/API Macofel)"
-  model: "deepseek/deepseek-v4-flash:free"
-  model_ref: "openrouter/deepseek/deepseek-v4-flash:free"
+  model: "google/gemma-4-26b-a4b-it:free"
+  model_ref: "openrouter/google/gemma-4-26b-a4b-it:free"
   max_tokens: 4096
   temperature: 0.7
   fallbacks:
-    - "google/gemma-4-26b-a4b-it:free"
+    - "openrouter/deepseek/deepseek-v4-flash:free"
+    - "ollama/llama3.2:1b"
   skills:
     - "politica-seguranca"
     - "macofel-status"
@@ -133,12 +134,12 @@ orchestrator:
   forge_alias: friday
   role: "Orquestrador (Telegram, aprovacoes, delegacao)"
   description: "Jarvis — Orquestrador (Telegram, aprovacoes, delegacao)"
-  model: "nvidia/nemotron-3-super-120b-a12b:free"
-  model_ref: "openrouter/nvidia/nemotron-3-super-120b-a12b:free"
+  model: "deepseek-v4-flash"
+  model_ref: "deepseek/deepseek-v4-flash"
   max_tokens: 4096
   temperature: 0.7
   fallbacks:
-    - "google/gemini-2.0-flash"
+    - "openrouter/nvidia/nemotron-3-super-120b-a12b:free"
     - "ollama/llama3.2:1b"
   skills:
     - "politica-seguranca"
@@ -174,13 +175,13 @@ senku:
   forge_alias: senku
   role: "Analise de viabilidade (score 0-100)"
   description: "Senku — Analise de viabilidade (score 0-100)"
-  model: "deepseek/deepseek-v4-flash:free"
-  model_ref: "openrouter/deepseek/deepseek-v4-flash:free"
+  model: "deepseek-v4-flash"
+  model_ref: "deepseek/deepseek-v4-flash"
   max_tokens: 4096
   temperature: 0.7
   fallbacks:
-    - "nvidia/nemotron-3-super-120b-a12b:free"
-    - "google/gemma-4-26b-a4b-it:free"
+    - "openrouter/nvidia/nemotron-3-super-120b-a12b:free"
+    - "openrouter/google/gemma-4-26b-a4b-it:free"
   skills:
     - "politica-seguranca"
     - "innovation-viability"
@@ -199,7 +200,8 @@ sophia:
   temperature: 0.7
   fallbacks:
     - "deepseek/deepseek-v4-flash:free"
-    - "google/gemini-2.0-flash-exp:free"
+    - "poolside/laguna-xs.2:free"
+    - "nvidia/nemotron-3-super-120b-a12b:free"
   skills:
     - "politica-seguranca"
     - "innovation-research"

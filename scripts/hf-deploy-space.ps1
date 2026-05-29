@@ -53,7 +53,7 @@ git clone $cloneUrl $work 2>&1 | ForEach-Object { Write-Host $_ }
 
 if (-not $SkipCopy) {
   Write-Host "==> Copiar ficheiros de $src" -ForegroundColor Cyan
-  Get-ChildItem $src -Force | Where-Object { $_.Name -ne '.git' } | ForEach-Object {
+  Get-ChildItem $src -Force | Where-Object { $_.Name -notin @('.git', 'desktop.ini', '__pycache__') } | ForEach-Object {
     Copy-Item -Recurse -Force $_.FullName (Join-Path $work $_.Name)
   }
 }
