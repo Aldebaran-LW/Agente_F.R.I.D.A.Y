@@ -1,0 +1,32 @@
+id: senku
+name: Senku
+role: Analise de viabilidade (score 0-100)
+
+llm:
+  provider: openrouter
+  env_key: OPENROUTER_API_KEY
+  model: deepseek/deepseek-v4-flash:free
+  fallbacks:
+    - nvidia/nemotron-3-super-120b-a12b:free
+    - google/gemma-4-26b-a4b-it:free
+
+skills:
+  - politica-seguranca
+  - innovation-viability
+
+secrets:
+  optional: [OPENROUTER_API_KEY]
+
+deploy:
+  mode: hf_space
+  hf_space: Aldebaran-LW/friday-prod
+  hf_path: /run/senku
+  promote_to: vercel_gateway
+
+pipeline:
+  threshold_hefestos: 70
+  weights:
+    custo_implementacao: 0.30
+    retorno_lucrativo: 0.35
+    compatibilidade_stack: 0.20
+    manutenibilidade: 0.15

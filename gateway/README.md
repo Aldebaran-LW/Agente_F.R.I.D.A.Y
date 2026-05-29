@@ -11,7 +11,9 @@ Dominio: https://openclaw.lwdigitalforge.com
 3. curl https://openclaw.lwdigitalforge.com/api/health
 4. curl -H "Authorization: Bearer TOKEN" -X POST -d "{\"message\":\"status macofel\"}" https://openclaw.lwdigitalforge.com/jarvis
 
-Rotas: GET/POST /jarvis, GET /openclaw/macofel/status, /openclaw/github/status, /openclaw/deploy/health, GET /openclaw/office/status
+Rotas: GET/POST /jarvis, GET/POST /openclaw/orchestrate (broker EC2/HF), GET /openclaw/macofel/status, /openclaw/github/status, /openclaw/deploy/health, GET /openclaw/office/status
+
+Residências: `docs/MAPAS-RESIDENCIAS.md`
 
 Hub Supabase (opcional): GET /openclaw/hub/health, /openclaw/hub/recent, POST /openclaw/hub/ingest — ver `docs/SUPABASE-CENTRAL.md`
 

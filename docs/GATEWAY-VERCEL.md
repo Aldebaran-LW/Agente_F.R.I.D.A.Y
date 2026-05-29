@@ -58,8 +58,8 @@ Visualização: [VISUALIZACAO-AGENTES.md](./VISUALIZACAO-AGENTES.md) · [DIGITAL
 
 | Host | Tipico problema |
 |------|-----------------|
-| `openclaw.vercel.app` | Projeto **antigo** — pode ter Authentication ON |
-| `agente-openclaw.vercel.app` | Projeto **novo** — usar esta URL no `.env` quando deploy verde |
-| `openclaw.lwdigitalforge.com` | So funciona se ligado ao projeto gateway ativo |
+| `agente-openclaw.vercel.app` | Projeto gateway — URL Vercel default |
+| `openclaw.lwdigitalforge.com` | **Canonico** — `OPENCLAW_GATEWAY_BASE_URL` (API Jarvis, HF, EC2) |
+| `f.r.i.d.a.y.lwdigitalforge.com` | Alias marca F.R.I.D.A.Y. — mesmo deploy que `openclaw` |
 
 Telegram: [BASICO-OPENCLAW.md](./BASICO-OPENCLAW.md) fase 2.

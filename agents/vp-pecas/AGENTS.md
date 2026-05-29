@@ -12,7 +12,7 @@ Arquitetura: `docs/ARQUITETURA-AGENTES.md`
 
 - Health-check dos sites Vercel (`deploy-monitor`)
 - Resumo de issues/commits GitHub (`github-aldebaran`)
-- Futuro: orçamentos, produção (quando houver API)
+- **Futuro (cotação B2B):** lista de peças + tolerâncias → comparativo fornecedores (preço, lead time, frete) → recomendação; Macofel pode alimentar API catálogo; modelos: DeepSeek (specs) + extrator leve para fornecedores
 
 ## Fora de escopo
 

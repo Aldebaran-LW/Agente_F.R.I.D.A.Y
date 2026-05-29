@@ -1,0 +1,23 @@
+id: dedalo
+name: Dédalo
+role: Arquitetura de dados — schemas HF Dataset e hub
+
+llm:
+  provider: openrouter
+  env_key: OPENROUTER_API_KEY
+  model: deepseek/deepseek-v4-flash:free
+  fallbacks:
+    - nvidia/nemotron-3-super-120b-a12b:free
+
+skills:
+  - politica-seguranca
+  - data-schema
+
+secrets:
+  optional: [HF_TOKEN, HF_BACKUP_DATASET, OPENROUTER_API_KEY]
+
+pipeline:
+  datasets:
+    - Aldebaran-LW/openclaw-backup
+  paths:
+    - learnings/{agent}/{date}.jsonl

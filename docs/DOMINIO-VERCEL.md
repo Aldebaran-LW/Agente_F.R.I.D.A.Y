@@ -1,42 +1,51 @@
 # Dominio customizado (Vercel)
 
-Ligar `f.r.i.d.a.y.lwdigitalforge.com` ou `openclaw.lwdigitalforge.com` ao projeto gateway.
+Projeto **agente-openclaw** (Root Directory = `gateway`).
+
+## Dominios em producao
+
+| Dominio | Papel |
+|---------|--------|
+| **`openclaw.lwdigitalforge.com`** | **API / gateway** — usar em `OPENCLAW_GATEWAY_BASE_URL` |
+| **`f.r.i.d.a.y.lwdigitalforge.com`** | Marca F.R.I.D.A.Y. (mesmo deploy; `/office`, `/forge`) |
+| `agente-openclaw.vercel.app` | URL Vercel default (testes) |
+
+Todos apontam ao **mesmo** projeto; escolhe **um** host no `.env` (recomendado: `openclaw`).
 
 ## Pre-requisitos
 
-- Projeto Vercel com **Root Directory = `gateway`**
-- Deploy verde (`agente-openclaw.vercel.app` ou similar)
+- Deploy verde no projeto gateway
+- **Vercel Authentication OFF** (senao `/api/health` da 401)
 
-## Passos (painel Vercel)
+## Adicionar dominio (painel)
 
-1. Projeto -> **Settings** -> **Domains**
-2. **Add** -> `f.r.i.d.a.y.lwdigitalforge.com` (ou subdominio desejado)
-3. Copiar instrucoes DNS (CNAME ou A record)
-4. No registrador (Cloudflare, etc.):
-   - Subdominio: **CNAME** -> `cname.vercel-dns.com` (valor exacto do painel)
-   - Apex: **A** 76.76.21.21 (confirmar no painel — pode variar)
-5. Aguardar SSL (automatico)
-6. **Vercel Authentication OFF** no projeto gateway (senao /api/health da 401)
+1. Projeto **agente-openclaw** → **Settings** → **Domains**
+2. **Add** → `openclaw.lwdigitalforge.com` ou `f.r.i.d.a.y.lwdigitalforge.com`
+3. DNS no registrador (CNAME → valor do painel Vercel)
+4. Aguardar **Valid Configuration** + SSL
 
 ## Apos DNS activo
 
-Actualizar em **EC2** `/opt/openclaw/.env` e PC `.env`:
+Actualizar **PC `.env`**, **EC2** `~/.openclaw/.env` e **Secrets HF**:
 
 ```env
-OPENCLAW_GATEWAY_BASE_URL=https://f.r.i.d.a.y.lwdigitalforge.com
+OPENCLAW_GATEWAY_BASE_URL=https://openclaw.lwdigitalforge.com
 ```
+
+(`f.r.i.d.a.y...` tambem funciona — mesmo backend — mas mantem `openclaw` como canonico para scripts/HF/EC2.)
 
 Testar:
 
 ```powershell
+Invoke-WebRequest -Uri "https://openclaw.lwdigitalforge.com/api/health" -UseBasicParsing
 .\run-basico.ps1
 ```
 
 ## CLI (opcional)
 
 ```bash
-vercel domains add f.r.i.d.a.y.lwdigitalforge.com nome-do-projeto
-vercel domains inspect f.r.i.d.a.y.lwdigitalforge.com
+vercel domains add openclaw.lwdigitalforge.com agente-openclaw
+vercel domains inspect openclaw.lwdigitalforge.com
 ```
 
 Documentacao: https://vercel.com/docs/domains/set-up-custom-domain

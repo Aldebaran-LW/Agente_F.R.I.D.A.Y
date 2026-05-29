@@ -1,0 +1,20 @@
+# Esquema de saída — Sophia (pesquisa)
+# Ficheiros em data/innovation/YYYY-MM-DD/sophia_YYYYMMDD_NNN.yaml
+
+pesquisa_id: sophia_20260529_001
+gerado_em: "2026-05-29T12:00:00.000Z"
+agente: sophia
+topico: "descrição do tema pesquisado"
+
+ferramenta:
+  nome: "Nome da ferramenta"
+  categoria: [gratuita, api, lib, dataset, space]
+  link: "https://..."
+  caso_uso: "Como aplicar no projeto OpenClaw"
+  retorno_estimado: baixa | media | alta
+  fonte: "GitHub Trending | HF Hub | Reddit | ..."
+
+notas: |
+  Contexto adicional, riscos, dependências.
+
+proximo_passo: rebeca | senku | arquivar

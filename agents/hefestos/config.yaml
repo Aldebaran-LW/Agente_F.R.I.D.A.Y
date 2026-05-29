@@ -1,0 +1,32 @@
+id: hefestos
+name: Hefestos
+role: Construtor — skills, scripts, docs (apos Senku >= 70)
+
+llm:
+  provider: openrouter
+  env_key: OPENROUTER_API_KEY
+  model: poolside/laguna-m.1:free
+  fallbacks:
+    - deepseek/deepseek-v4-flash:free
+    - minimax/minimax-m2.5:free
+
+skills:
+  - politica-seguranca
+  - innovation-build
+
+secrets:
+  gateway: [OPENCLAW_GATEWAY_BASE_URL, OPENCLAW_AUTOMATION_TOKEN]
+  optional: [GITHUB_TOKEN, OPENROUTER_API_KEY]
+
+deploy:
+  mode: hf_space
+  hf_space: Aldebaran-LW/friday-prod
+  hf_path: /run/hefestos
+  promote_to: aws_ec2
+
+pipeline:
+  min_viabilidade_score: 70
+  subroles:
+    - integrador_skills
+    - otimizador_sistemas
+    - gerador_documentacao

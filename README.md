@@ -93,5 +93,7 @@ Ler primeiro: **`POLITICA-SEGURANCA.md`** — pagamentos e PII proibidos; produc
 
 - Painel pixel: `{OPENCLAW_GATEWAY_BASE_URL}/office`
 - Digital Forge 3D: `{OPENCLAW_GATEWAY_BASE_URL}/forge`
-- HF Space demo: `docs/HUGGINGFACE-SPACES.md`
+- HF Spaces (demo + friday-prod): `docs/HF-DEPLOY-FRIDAY.md` · resumo `docs/HUGGINGFACE-SPACES.md`
+- Inovação (Sophia → Senku → Hefestos): `docs/ARQUITETURA-INOVACAO.md`
+- EC2 webhook + nginx: `docs/EC2-ORCHESTRATE-WEBHOOK.md` · mapa `docs/MAPAS-RESIDENCIAS.md`
 - Domínio custom: Vercel → Domains → `f.r.i.d.a.y.lwdigitalforge.com` (ou `openclaw.lwdigitalforge.com`)

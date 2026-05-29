@@ -10,6 +10,8 @@
 | **Periférico Macofel** | `macofel` | Catálogo: API Macofel, gateway Vercel, ou script Mongo (fallback dev). |
 | **Periférico VP** | `vp-pecas` | Sites usinagem, GitHub, health-check. |
 | **Periférico Ops** | `ops` | GitHub org, Vercel deploy, cron. |
+| **Inovação** | `sophia`, `rebeca`, `senku`, `hefestos` | Pesquisa → design → viabilidade → build. Ver [ARQUITETURA-INOVACAO.md](./ARQUITETURA-INOVACAO.md). |
+| **Suporte** | `icaro`, `athena`, `dedalo` | Testes, monitor, schemas HF. |
 
 ## Fluxo de pedidos
 

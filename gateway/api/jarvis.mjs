@@ -25,6 +25,7 @@ export default async function handler(req, res) {
         github: 'GET /openclaw/github/status',
         deploy: 'GET /openclaw/deploy/health',
         hub: 'GET /openclaw/hub/recent · POST /openclaw/hub/ingest',
+        orchestrate: 'GET/POST /openclaw/orchestrate { "agent", "task" }',
       },
       delegates: ['macofel', 'vp-pecas', 'ops'],
       workflows: ['portfolio-status', 'macofel-sync'],

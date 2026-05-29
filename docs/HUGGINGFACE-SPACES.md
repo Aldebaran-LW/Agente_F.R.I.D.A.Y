@@ -3,6 +3,8 @@
 Integracao opcional: demo Space Docker + Dataset privado de backup.
 Nao substitui EC2 (Jarvis) nem Vercel (gateway).
 
+**Guia completo de deploy:** [`HF-DEPLOY-FRIDAY.md`](./HF-DEPLOY-FRIDAY.md)
+
 ## Recursos configurados
 
 | Recurso | URL |
@@ -29,12 +31,22 @@ HF_BACKUP_DATASET=Aldebaran-LW/openclaw-backup
 node scripts/test-hf-token.mjs
 node scripts/hf-configure-space.mjs
 node scripts/hf-backup-upload.mjs
+node scripts/generate-hf-agents-config.mjs
 ```
 
-## Rotas do Space
+## Spaces
 
-- `/health` — status local
-- `/gateway` — health + office/status do gateway Vercel (4 agentes)
+| Space | Pasta repo | URL app |
+|-------|------------|---------|
+| `openclaw-demo` | `hf-space/demo/` | https://aldebaran-lw-openclaw-demo.hf.space |
+| `friday-prod` (criar) | `hf-space/friday-prod/` | protótipo smolagents |
+
+## Rotas do Space demo
+
+- `/` — painel HTML (4 cérebros, refresh 60s)
+- `/health` — status local (UptimeRobot)
+- `/api/status` — JSON agregado
+- `/gateway` — health + office/status do gateway Vercel
 
 ## Arquitectura
 

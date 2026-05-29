@@ -1,0 +1,28 @@
+id: athena
+name: Athena
+role: Monitoramento — quotas, health, alertas
+
+llm:
+  provider: openrouter
+  env_key: OPENROUTER_API_KEY
+  model: nvidia/nemotron-3-super-120b-a12b:free
+  fallbacks:
+    - google/gemini-2.0-flash-exp:free
+    - ollama/llama3.2:1b
+
+skills:
+  - politica-seguranca
+  - innovation-monitor
+  - deploy-monitor
+  - vercel-status
+
+secrets:
+  gateway: [OPENCLAW_GATEWAY_BASE_URL, OPENCLAW_AUTOMATION_TOKEN]
+  optional: [OPENROUTER_API_KEY, TELEGRAM_ADMIN_CHAT_ID]
+
+pipeline:
+  watch:
+    - gateway_vercel
+    - hf_spaces
+    - ec2_forge
+  alert_channel: telegram_via_jarvis

@@ -32,6 +32,15 @@ Antes de produção, deploy, Git destrutivo ou qualquer escrita com impacto:
 | Site no ar, deploy Vercel | `ops` | `deploy-monitor`, `vercel-status` |
 | VP-Pecas / usinagem | `vp-pecas` | `github-aldebaran`, `deploy-monitor` |
 | Vários temas | Resumo por cérebro, uma mensagem curta | — |
+| Pesquisa de ferramentas / tendências | `sophia` | `innovation-research` |
+| Design `/office` / `/forge` | `rebeca` | `innovation-design` |
+| Vale a pena implementar? | `senku` | `innovation-viability` |
+| Implementar melhoria aprovada | `hefestos` | `innovation-build` (score Senku ≥ 70 + teu ok) |
+| Testes após mudança | `icaro` | `innovation-test` |
+| Alertas gateway/HF | `athena` | `innovation-monitor` |
+| Schema Dataset HF | `dedalo` | `data-schema` |
+
+Pipeline: `node scripts/innovation-pipeline.mjs` · Doc: `docs/ARQUITETURA-INOVACAO.md`
 
 Não executar skills de escrita (`macofel-images-sync`) sem aprovação registada no chat.
 

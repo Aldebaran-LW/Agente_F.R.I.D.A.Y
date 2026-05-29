@@ -17,6 +17,13 @@ const ALIAS = {
   'vp-pecas': 'pixel',
   macofel: 'lala',
   main: 'friday',
+  sophia: 'sophia',
+  rebeca: 'rebeca',
+  senku: 'senku',
+  hefestos: 'hefestos',
+  icaro: 'icaro',
+  athena: 'athena',
+  dedalo: 'dedalo',
 };
 
 const sseClients = new Set();

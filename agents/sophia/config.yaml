@@ -1,0 +1,36 @@
+id: sophia
+name: Sophia
+role: Pesquisa de ferramentas, tendencias e oportunidades (inovacao)
+
+llm:
+  provider: openrouter
+  env_key: OPENROUTER_API_KEY
+  model: google/gemma-4-26b-a4b-it:free
+  fallbacks:
+    - deepseek/deepseek-v4-flash:free
+    - google/gemini-2.0-flash-exp:free
+
+skills:
+  - politica-seguranca
+  - innovation-research
+
+secrets:
+  optional: [OPENROUTER_API_KEY, GOOGLE_API_KEY, HF_TOKEN]
+
+deploy:
+  mode: hf_space
+  hf_space: Aldebaran-LW/friday-prod
+  hf_path: /run/sophia
+  dataset: Aldebaran-LW/openclaw-backup
+  promote_to: aws_ec2
+  schedule: "0 */6 * * *"
+
+pipeline:
+  output_schema: agents/_shared/schemas/pesquisa-entry.yaml
+  sources:
+    - web
+    - huggingface_hub
+    - github_trending
+    - papers_with_code
+    - product_hunt
+    - reddit

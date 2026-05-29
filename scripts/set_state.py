@@ -39,6 +39,13 @@ VALID_STATES = frozenset(
 
 FORGE_ALIAS = {
     "orchestrator": "friday",
+    "sophia": "sophia",
+    "rebeca": "rebeca",
+    "senku": "senku",
+    "hefestos": "hefestos",
+    "icaro": "icaro",
+    "athena": "athena",
+    "dedalo": "dedalo",
     "ops": "byte",
     "vp-pecas": "pixel",
     "macofel": "lala",

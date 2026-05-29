@@ -1,0 +1,28 @@
+id: rebeca
+name: Rebeca
+role: Design, layout e prototipos visuais (office, forge, HF)
+
+llm:
+  provider: openrouter
+  env_key: OPENROUTER_API_KEY
+  model: google/gemini-2.0-flash-exp:free
+  fallbacks:
+    - google/gemma-4-26b-a4b-it:free
+    - minimax/minimax-m2.5:free
+
+skills:
+  - politica-seguranca
+  - innovation-design
+
+secrets:
+  optional: [OPENROUTER_API_KEY, GOOGLE_API_KEY]
+
+deploy:
+  mode: hf_space
+  hf_space: Aldebaran-LW/friday-prod
+  hf_path: /run/rebeca
+  promote_to: aws_ec2
+
+pipeline:
+  inputs: [sophia_pesquisa_yaml]
+  outputs: [design_brief_yaml]

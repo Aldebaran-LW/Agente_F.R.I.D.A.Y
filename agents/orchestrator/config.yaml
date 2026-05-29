@@ -21,6 +21,11 @@ skills:
   - deploy-monitor
   - vercel-status
 
+deploy:
+  mode: aws_ec2
+  gateway: vercel
+  webhook_path: /task
+
 secrets:
   gateway: [OPENCLAW_GATEWAY_BASE_URL, OPENCLAW_AUTOMATION_TOKEN]
   optional: [OPENROUTER_API_KEY, GOOGLE_API_KEY]
