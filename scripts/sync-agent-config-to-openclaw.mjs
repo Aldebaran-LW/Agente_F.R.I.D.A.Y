@@ -44,10 +44,12 @@ const patch = agents.map((a) => ({
   skills: a.skills,
 }));
 
-console.log('=== Sync agent config -> OpenClaw daemon ===\n');
-for (const p of patch) {
-  console.log(`  ${p.id}: primary=${p.model.primary}`);
-  if (p.model.fallbacks.length) console.log(`           fallbacks=${p.model.fallbacks.join(', ')}`);
+if (!emitSh) {
+  console.log('=== Sync agent config -> OpenClaw daemon ===\n');
+  for (const p of patch) {
+    console.log(`  ${p.id}: primary=${p.model.primary}`);
+    if (p.model.fallbacks.length) console.log(`           fallbacks=${p.model.fallbacks.join(', ')}`);
+  }
 }
 
 if (emitSh) {

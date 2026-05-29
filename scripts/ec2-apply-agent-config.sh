@@ -7,5 +7,10 @@ set -a
 source .env 2>/dev/null || true
 set +a
 export PATH="/usr/local/bin:$PATH"
-node scripts/sync-agent-config-to-openclaw.mjs --emit-sh | bash
-echo "OK modelos por cerebro aplicados"
+export OPENCLAW_CONFIG="${OPENCLAW_CONFIG:-/root/.openclaw/openclaw.json}"
+if [[ ! -f "$OPENCLAW_CONFIG" ]]; then
+  echo "ERRO: $OPENCLAW_CONFIG nao existe. Corra openclaw onboard primeiro."
+  exit 1
+fi
+node scripts/sync-agent-config-to-openclaw.mjs --apply
+echo "OK modelos por cerebro aplicados em $OPENCLAW_CONFIG"

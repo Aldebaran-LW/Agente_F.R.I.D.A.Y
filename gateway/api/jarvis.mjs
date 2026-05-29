@@ -5,6 +5,7 @@ import { buildReply, buildWorkflowReply } from '../lib/jarvis-reply.mjs';
 import { newTraceId, buildAuditEntry } from '../lib/audit.mjs';
 import { listSkills } from '../lib/skill-registry.mjs';
 import { buildTelegramPayload } from '../lib/telegram-format.mjs';
+import { persistWorkflowRun, touchConversationSession } from '../lib/hub-store.mjs';
 
 export default async function handler(req, res) {
   setCors(res);
@@ -23,6 +24,7 @@ export default async function handler(req, res) {
         macofel: 'GET /openclaw/macofel/status',
         github: 'GET /openclaw/github/status',
         deploy: 'GET /openclaw/deploy/health',
+        hub: 'GET /openclaw/hub/recent · POST /openclaw/hub/ingest',
       },
       delegates: ['macofel', 'vp-pecas', 'ops'],
       workflows: ['portfolio-status', 'macofel-sync'],
@@ -70,6 +72,21 @@ export default async function handler(req, res) {
   });
 
   console.log(JSON.stringify({ event: 'jarvis.run', ...audit }));
+
+  persistWorkflowRun({ traceId, message, plan, audit, execution }).catch((e) => {
+    console.warn(JSON.stringify({ event: 'hub.workflow_run_failed', traceId, error: e.message }));
+  });
+
+  const peerId = body.peer_id || body.chat_id || body.telegram_chat_id;
+  if (peerId) {
+    touchConversationSession({
+      peerId: String(peerId),
+      messagePreview: message,
+      contextPatch: { last_trace_id: traceId, last_plan_kind: plan.kind },
+    }).catch((e) => {
+      console.warn(JSON.stringify({ event: 'hub.session_failed', error: e.message }));
+    });
+  }
 
   const telegram = buildTelegramPayload({
     plan,
