@@ -1,0 +1,20 @@
+id: vp-pecas
+name: VP-Pecas
+role: Sites usinagem (VP-Pecas, vp-precision-studio)
+
+llm:
+  provider: openrouter
+  env_key: OPENROUTER_API_KEY
+  model: minimax/minimax-m2.5:free
+  fallbacks:
+    - poolside/laguna-xs.2:free
+
+skills:
+  - politica-seguranca
+  - github-aldebaran
+  - deploy-monitor
+  - vercel-status
+
+secrets:
+  gateway: [OPENCLAW_GATEWAY_BASE_URL, OPENCLAW_AUTOMATION_TOKEN]
+  optional: [GITHUB_TOKEN, VP_PECAS_URL, VP_PRECISION_URL]

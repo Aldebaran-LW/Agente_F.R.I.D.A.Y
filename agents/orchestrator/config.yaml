@@ -1,0 +1,26 @@
+# Jarvis / orquestrador — ver agents/orchestrator/AGENTS.md
+id: orchestrator
+name: Jarvis
+role: Orquestrador (Telegram, aprovacoes, delegacao)
+
+llm:
+  provider: openrouter
+  env_key: OPENROUTER_API_KEY
+  model: nvidia/nemotron-3-super-120b-a12b:free
+  fallbacks:
+    - google/gemini-2.0-flash
+    - ollama/llama3.2:1b
+
+llm_policy:
+  order: [scripts, ollama, openrouter_free, paid_explicit_only]
+
+skills:
+  - politica-seguranca
+  - openclaw-jarvis
+  - github-aldebaran
+  - deploy-monitor
+  - vercel-status
+
+secrets:
+  gateway: [OPENCLAW_GATEWAY_BASE_URL, OPENCLAW_AUTOMATION_TOKEN]
+  optional: [OPENROUTER_API_KEY, GOOGLE_API_KEY]

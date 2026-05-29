@@ -1,0 +1,20 @@
+id: ops
+name: Ops
+role: GitHub org + deploy + Vercel
+
+llm:
+  provider: openrouter
+  env_key: OPENROUTER_API_KEY
+  model: poolside/laguna-m.1:free
+  fallbacks:
+    - minimax/minimax-m2.5:free
+
+skills:
+  - politica-seguranca
+  - github-aldebaran
+  - deploy-monitor
+  - vercel-status
+
+secrets:
+  gateway: [OPENCLAW_GATEWAY_BASE_URL, OPENCLAW_AUTOMATION_TOKEN]
+  optional: [GITHUB_TOKEN, VERCEL_API_TOKEN]

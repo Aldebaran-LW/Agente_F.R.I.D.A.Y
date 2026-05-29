@@ -1,0 +1,23 @@
+id: macofel
+name: Macofel
+role: Catalogo e-commerce (unico cerebro com Mongo/API Macofel)
+
+llm:
+  provider: openrouter
+  env_key: OPENROUTER_API_KEY
+  model: deepseek/deepseek-v4-flash:free
+  fallbacks:
+    - google/gemma-4-26b-a4b-it:free
+
+skills:
+  - politica-seguranca
+  - macofel-status
+  - macofel-images-sync
+
+secrets:
+  local_or_gateway:
+    - OPENCLAW_GATEWAY_BASE_URL
+    - OPENCLAW_AUTOMATION_TOKEN
+    - MONGODB_URI
+    - MACOFEL_API_BASE
+    - MACOFEL_CATALOG_SECRET

@@ -37,3 +37,18 @@ O orquestrador delega ao cérebro `macofel` — não corre Mongo diretamente.
 **Supabase** como BD do OpenClaw central (aprovações, workflows, audit). **Mongo** permanece no Macofel/API periféricos. Detalhe: [SUPABASE-CENTRAL.md](./SUPABASE-CENTRAL.md).
 
 OpenClaw deixa `MONGODB_URI` no orquestrador quando o gateway expuser todo o status Macofel.
+
+## Config por cérebro (`config.yaml`)
+
+Cada pasta `agents/<id>/` inclui **`config.yaml`**: modelo LLM (OpenRouter free), skills e secrets esperados.
+
+| Ficheiro | Modelo recomendado |
+|----------|-------------------|
+| `agents/orchestrator/config.yaml` | Nemotron 3 Super (free) |
+| `agents/macofel/config.yaml` | DeepSeek V4 Flash (free) |
+| `agents/ops/config.yaml` | Laguna M.1 (free) |
+| `agents/vp-pecas/config.yaml` | MiniMax M2.5 (free) |
+
+Esquema: `agents/_shared/CONFIG-SCHEMA.md`. Validar: `node scripts/validate-agent-config.mjs`.
+
+Fase 1: uma `OPENROUTER_API_KEY` partilhada (`llm.env_key`). Chaves por cérebro só se houver rate limit.
