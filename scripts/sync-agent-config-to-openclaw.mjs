@@ -60,6 +60,10 @@ if (emitSh) {
   if (process.env.OPENROUTER_API_KEY) {
     console.log('openclaw config set models.providers.openrouter.apiKey "$OPENROUTER_API_KEY" 2>/dev/null || true');
   }
+  if (process.env.DEEPSEEK_API_KEY) {
+    console.log('openclaw config set models.providers.deepseek.apiKey "$DEEPSEEK_API_KEY" 2>/dev/null || true');
+    console.log('openclaw config set models.providers.deepseek.baseUrl "https://api.deepseek.com" 2>/dev/null || true');
+  }
   for (const p of patch) {
     console.log(`openclaw config set agents.list.${p.id}.model.primary "${p.model.primary}" 2>/dev/null || true`);
     if (p.model.fallbacks.length) {
@@ -89,6 +93,22 @@ for (const p of patch) {
   }
   entry.model = p.model;
   if (p.skills?.length) entry.skills = p.skills;
+}
+
+doc.models = doc.models || {};
+doc.models.providers = doc.models.providers || {};
+if (process.env.OPENROUTER_API_KEY) {
+  doc.models.providers.openrouter = doc.models.providers.openrouter || {};
+  doc.models.providers.openrouter.apiKey = process.env.OPENROUTER_API_KEY;
+}
+if (process.env.DEEPSEEK_API_KEY) {
+  doc.models.providers.deepseek = doc.models.providers.deepseek || {};
+  doc.models.providers.deepseek.apiKey = process.env.DEEPSEEK_API_KEY;
+  doc.models.providers.deepseek.baseUrl = 'https://api.deepseek.com';
+}
+if (process.env.GOOGLE_API_KEY) {
+  doc.models.providers.google = doc.models.providers.google || {};
+  doc.models.providers.google.apiKey = process.env.GOOGLE_API_KEY;
 }
 
 if (dryRun) {

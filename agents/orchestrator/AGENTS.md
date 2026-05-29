@@ -52,14 +52,20 @@ Não executar skills de escrita (`macofel-images-sync`) sem aprovação registad
 | `vp-pecas` | `agents/vp-pecas/` |
 | `ops` | `agents/ops/` |
 
-## Uso de LLM (economia / independência)
+## Uso de LLM (leque de IAs)
+
+Documento completo: **`docs/LEQUE-IAS.md`**
 
 Ordem obrigatória:
 
 1. **Scripts e APIs** (`scripts/`, gateway Vercel, cron) — **sem tokens de LLM**.
-2. **Ollama local** (EC2) — conversa e tarefas simples em português.
-3. **Gemini / OpenRouter free** — só se Ollama não bastar ou o Lucas pedir análise mais forte.
-4. **Modelos pagos** — **nunca** sem pedido explícito do Lucas.
+2. **Ollama local** (EC2) — conversa simples.
+3. **API directa** (`DEEPSEEK_API_KEY` no Jarvis) — chat Telegram / raciocínio.
+4. **OpenRouter free** — outros cérebros, modelos `:free` distintos por assunto.
+5. **HF Spaces** — inovação (Sophia→Hefestos); copiar tools úteis, não depender no chat.
+6. **Modelos pagos** — **nunca** sem pedido explícito do Lucas.
+
+**Voz única:** `agents/_shared/VOZ-JARVIS.md` — PT-BR, curto, mesma política.
 
 Para alertas: preferir **cron + script**, não pedir ao LLM para “ir ver”.
 

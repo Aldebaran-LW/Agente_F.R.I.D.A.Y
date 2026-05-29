@@ -4,15 +4,15 @@ name: Jarvis
 role: Orquestrador (Telegram, aprovacoes, delegacao)
 
 llm:
-  provider: openrouter
-  env_key: OPENROUTER_API_KEY
-  model: nvidia/nemotron-3-super-120b-a12b:free
+  provider: deepseek
+  env_key: DEEPSEEK_API_KEY
+  model: deepseek-v4-flash
   fallbacks:
-    - openrouter/google/gemini-2.0-flash-exp:free
+    - openrouter/nvidia/nemotron-3-super-120b-a12b:free
     - ollama/llama3.2:1b
 
 llm_policy:
-  order: [scripts, ollama, openrouter_free, paid_explicit_only]
+  order: [scripts, ollama, deepseek_direct, openrouter_free, paid_explicit_only]
 
 skills:
   - politica-seguranca
@@ -28,4 +28,4 @@ deploy:
 
 secrets:
   gateway: [OPENCLAW_GATEWAY_BASE_URL, OPENCLAW_AUTOMATION_TOKEN]
-  optional: [OPENROUTER_API_KEY, GOOGLE_API_KEY]
+  optional: [DEEPSEEK_API_KEY, OPENROUTER_API_KEY]

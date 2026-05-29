@@ -3,11 +3,11 @@ name: Dédalo
 role: Arquitetura de dados — schemas HF Dataset e hub
 
 llm:
-  provider: openrouter
-  env_key: OPENROUTER_API_KEY
-  model: deepseek/deepseek-v4-flash:free
+  provider: deepseek
+  env_key: DEEPSEEK_API_KEY
+  model: deepseek-v4-flash
   fallbacks:
-    - nvidia/nemotron-3-super-120b-a12b:free
+    - openrouter/nvidia/nemotron-3-super-120b-a12b:free
 
 skills:
   - politica-seguranca

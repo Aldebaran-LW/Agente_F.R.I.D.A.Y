@@ -18,7 +18,7 @@ if (-not $key -or -not (Test-Path $key)) { throw "AWS_EC2_KEY_PATH invalido: $ke
 
 $prefixes = @(
   "TELEGRAM_", "OPENROUTER_", "OPENCLAW_", "GOOGLE_", "GITHUB_",
-  "MONGODB_", "RENDER_", "HF_", "HEARTBEAT_", "OLLAMA_"
+  "MONGODB_", "RENDER_", "HF_", "HEARTBEAT_", "OLLAMA_", "DEEPSEEK_"
 )
 $ec2Env = Join-Path $env:TEMP "openclaw-ec2.env"
 $lines = Get-Content $envFile -Encoding UTF8 | Where-Object {

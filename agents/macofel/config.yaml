@@ -5,9 +5,9 @@ role: Catalogo e-commerce (unico cerebro com Mongo/API Macofel)
 llm:
   provider: openrouter
   env_key: OPENROUTER_API_KEY
-  model: deepseek/deepseek-v4-flash:free
+  model: google/gemma-4-26b-a4b-it:free
   fallbacks:
-    - openrouter/google/gemma-4-26b-a4b-it:free
+    - openrouter/deepseek/deepseek-v4-flash:free
     - ollama/llama3.2:1b
 
 skills:

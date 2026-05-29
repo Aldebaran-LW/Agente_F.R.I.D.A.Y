@@ -34,6 +34,10 @@ export function modelRef(cfg) {
   if (provider === 'openrouter') return `openrouter/${model}`;
   if (provider === 'ollama') return `ollama/${model}`;
   if (provider === 'google') return model.startsWith('google/') ? model : `google/${model}`;
+  if (provider === 'deepseek') {
+    if (model.startsWith('deepseek/')) return model;
+    return `deepseek/${model}`;
+  }
   return model;
 }
 

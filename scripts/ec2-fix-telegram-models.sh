@@ -27,8 +27,8 @@ if (doc.agents.defaults?.models) {
   }
 }
 
-fixModel(doc.agents.defaults, 'openrouter/nvidia/nemotron-3-super-120b-a12b:free', [
-  'openrouter/deepseek/deepseek-v4-flash:free',
+fixModel(doc.agents.defaults, 'deepseek/deepseek-v4-flash', [
+  'openrouter/nvidia/nemotron-3-super-120b-a12b:free',
   'ollama/llama3.2:1b',
 ]);
 
@@ -41,15 +41,15 @@ for (const entry of doc.agents.list) {
     return m;
   });
   if (entry.id === 'macofel') {
-    fixModel(entry, 'openrouter/deepseek/deepseek-v4-flash:free', [
-      'openrouter/google/gemma-4-26b-a4b-it:free',
+    fixModel(entry, 'openrouter/google/gemma-4-26b-a4b-it:free', [
+      'openrouter/deepseek/deepseek-v4-flash:free',
       'ollama/llama3.2:1b',
     ]);
   }
   if (entry.id === 'orchestrator') {
-    fixModel(entry, 'openrouter/nvidia/nemotron-3-super-120b-a12b:free', [
-      'openrouter/deepseek/deepseek-v4-flash:free',
-      'openrouter/google/gemini-2.0-flash-exp:free',
+    fixModel(entry, 'deepseek/deepseek-v4-flash', [
+      'openrouter/nvidia/nemotron-3-super-120b-a12b:free',
+      'openrouter/google/gemma-4-26b-a4b-it:free',
       'ollama/llama3.2:1b',
     ]);
     entry.skills = [
