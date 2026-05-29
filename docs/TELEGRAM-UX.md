@@ -2,6 +2,8 @@
 
 Telegram corre na **AWS EC2** (OpenClaw). O gateway Vercel devolve texto pronto para enviar.
 
+**Corrigir bot em inglês / comportamento:** [TELEGRAM-EC2-AGORA.md](./TELEGRAM-EC2-AGORA.md) · SOUL: `agents/_shared/SOUL-TELEGRAM-JARVIS.md`
+
 ## Formato das mensagens
 
 O `POST /jarvis` inclui:

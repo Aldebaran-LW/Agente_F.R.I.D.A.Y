@@ -54,6 +54,15 @@
       "timeoutMs": 15000,
       "telemetry": true,
       "description": "Face publica do orquestrador"
+    },
+    "help": {
+      "agent": "jarvis",
+      "mode": "read",
+      "permissions": [],
+      "requiresApproval": false,
+      "timeoutMs": 0,
+      "telemetry": false,
+      "description": "Menu de ajuda Jarvis"
     }
   }
 }

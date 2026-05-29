@@ -21,45 +21,50 @@ function loadEnv() {
   }
 }
 
-loadEnv();
+async function main() {
+  loadEnv();
 
-const message = process.argv.slice(2).join(' ') || 'ajuda';
-const base = process.env.OPENCLAW_GATEWAY_BASE_URL?.replace(/\/$/, '');
-const token = process.env.OPENCLAW_AUTOMATION_TOKEN;
+  const message = process.argv.slice(2).join(' ') || 'ajuda';
+  const base = process.env.OPENCLAW_GATEWAY_BASE_URL?.replace(/\/$/, '');
+  const token = process.env.OPENCLAW_AUTOMATION_TOKEN;
 
-if (!base || !token) {
-  console.log(
-    JSON.stringify({
-      ok: false,
-      error: 'OPENCLAW_GATEWAY_BASE_URL and OPENCLAW_AUTOMATION_TOKEN required',
-    })
-  );
-  process.exit(1);
+  if (!base || !token) {
+    console.log(
+      JSON.stringify({
+        ok: false,
+        error: 'OPENCLAW_GATEWAY_BASE_URL and OPENCLAW_AUTOMATION_TOKEN required',
+      })
+    );
+    process.exitCode = 1;
+    return;
+  }
+
+  const url = `${base}/jarvis`;
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json',
+  };
+  const bypass = process.env.VERCEL_PROTECTION_BYPASS?.trim();
+  if (bypass) headers['x-vercel-protection-bypass'] = bypass;
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ message }),
+    signal: AbortSignal.timeout(30000),
+  });
+
+  const body = await res.json().catch(() => ({}));
+  if (body.telegram?.telegram_html && process.argv.includes('--telegram')) {
+    console.log('\n--- Telegram HTML ---\n');
+    console.log(body.telegram.telegram_html);
+    console.log('\n--- JSON ---\n');
+  }
+  console.log(JSON.stringify({ http: res.status, ...body }, null, 2));
+  process.exitCode = res.ok && body.ok ? 0 : 1;
 }
 
-const url = `${base}/jarvis`;
-const ac = new AbortController();
-const t = setTimeout(() => ac.abort(new Error('timeout')), 30000);
-const headers = {
-  Authorization: `Bearer ${token}`,
-  'Content-Type': 'application/json',
-};
-const bypass = process.env.VERCEL_PROTECTION_BYPASS?.trim();
-if (bypass) headers['x-vercel-protection-bypass'] = bypass;
-const res = await fetch(url, {
-  method: 'POST',
-  headers,
-  body: JSON.stringify({ message }),
-  signal: ac.signal,
+main().catch((err) => {
+  console.log(JSON.stringify({ ok: false, error: String(err.message || err) }));
+  process.exitCode = 1;
 });
-clearTimeout(t);
-
-const body = await res.json().catch(() => ({}));
-if (body.telegram?.telegram_html && process.argv.includes('--telegram')) {
-  console.log('\n--- Telegram HTML ---\n');
-  console.log(body.telegram.telegram_html);
-  console.log('\n--- JSON ---\n');
-}
-console.log(JSON.stringify({ http: res.status, ...body }, null, 2));
-process.exit(res.ok && body.ok ? 0 : 1);
-

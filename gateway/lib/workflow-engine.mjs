@@ -69,6 +69,23 @@ async function executeSingle(plan, { message, approved }) {
   const taskRuns = [];
   let data = null;
 
+  // Ajuda e respostas estaticas — sem executor externo
+  if (route.skill === 'help') {
+    taskRuns.push({
+      id: 'single',
+      skill: route.skill,
+      status: 'done',
+      ms: 0,
+    });
+    return {
+      route,
+      approvalBlocked: blocked,
+      taskRuns,
+      data: null,
+      results: {},
+    };
+  }
+
   if (!blocked) {
     const allowed = assertSkillAllowed(route.skill, {
       write: route.skill?.includes('sync'),
