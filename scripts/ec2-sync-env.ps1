@@ -1,0 +1,51 @@
+# Envia chaves LLM/Telegram do .env local para /opt/openclaw/.env na EC2
+$ErrorActionPreference = "Stop"
+$root = Resolve-Path (Join-Path $PSScriptRoot "..")
+$envFile = Join-Path $root ".env"
+$vars = @{}
+Get-Content $envFile -Encoding UTF8 | ForEach-Object {
+  $t = $_.Trim()
+  if ($t -and -not $t.StartsWith("#") -and $t.Contains("=")) {
+    $i = $t.IndexOf("=")
+    $vars[$t.Substring(0, $i).Trim()] = $t.Substring($i + 1).Trim().Trim('"').Trim("'")
+  }
+}
+$host_ = $vars.AWS_EC2_HOST
+if (-not $host_) { $host_ = $vars.OPENCLAW_EC2_HOST }
+$user = if ($vars.AWS_EC2_USER) { $vars.AWS_EC2_USER } elseif ($vars.OPENCLAW_EC2_USER) { $vars.OPENCLAW_EC2_USER } else { "ubuntu" }
+$key = $vars.AWS_EC2_KEY_PATH
+if (-not $key) { $key = $vars.OPENCLAW_EC2_KEY_PATH }
+if (-not $key) {
+  $defaultKey = Join-Path $root "Chaves\OpenClaw.pem"
+  if (Test-Path $defaultKey) { $key = $defaultKey }
+}
+if (-not $host_) { $host_ = "18.191.36.145" }
+if (-not $key -or -not (Test-Path $key)) { throw "Chave PEM nao encontrada" }
+
+$prefixes = @("TELEGRAM_", "OPENROUTER_", "OPENCLAW_", "GOOGLE_", "DEEPSEEK_")
+$lines = Get-Content $envFile -Encoding UTF8 | Where-Object {
+  $line = $_.Trim()
+  if (-not $line -or $line.StartsWith("#")) { return $false }
+  foreach ($p in $prefixes) { if ($line.StartsWith($p)) { return $true } }
+  $false
+}
+$ec2Env = Join-Path $env:TEMP "openclaw-ec2-sync.env"
+$utf8NoBom = New-Object System.Text.UTF8Encoding $false
+[System.IO.File]::WriteAllText($ec2Env, ($lines -join "`n") + "`n", $utf8NoBom)
+
+Write-Host "==> Sync env LLM/Telegram para EC2"
+scp -i $key -o StrictHostKeyChecking=accept-new $ec2Env "${user}@${host_}:/tmp/openclaw-sync.env"
+ssh -i $key -o StrictHostKeyChecking=accept-new "${user}@${host_}" @'
+set -e
+cd /opt/openclaw
+touch .env
+while IFS= read -r line || [ -n "$line" ]; do
+  [ -z "$line" ] && continue
+  key="${line%%=*}"
+  sudo sed -i "/^${key}=/d" .env 2>/dev/null || true
+  echo "$line" | sudo tee -a .env >/dev/null
+done < /tmp/openclaw-sync.env
+rm -f /tmp/openclaw-sync.env
+echo OK env merged
+'@
+Remove-Item $ec2Env -Force -ErrorAction SilentlyContinue
