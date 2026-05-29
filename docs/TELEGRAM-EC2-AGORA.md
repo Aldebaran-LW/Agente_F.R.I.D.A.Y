@@ -122,12 +122,22 @@ sudo journalctl -u openclaw-gateway -f
 
 Erros comuns:
 
-| Sintoma | Causa |
-|---------|--------|
-| Inglês genérico | Falta SOUL.md ou LLM sem instrução PT |
-| Silêncio | Gemini 429 / sem OpenRouter |
-| "access not configured" | Pairing não aprovado |
-| Números errados | Não usou gateway — pedir `status macofel` |
+| Sintoma | Causa | Fix |
+|---------|--------|-----|
+| `Something went wrong` (inglês) | Gemini **429** + fallback inválido | `sudo bash scripts/ec2-fix-telegram-models.sh` |
+| `Unknown model: google/gemma...:free` | Fallback sem prefixo `openrouter/` | idem |
+| `gemini-3.1-pro-preview` nos logs | Override em `agents.defaults.models` | idem (remove override) |
+| Inglês genérico | Falta SOUL.md | `ec2-apply-agent-config.sh` |
+| Silêncio | Pairing não aprovado | `openclaw pairing approve telegram CODIGO` |
+
+Script de correção rápida na EC2:
+
+```bash
+cd /opt/openclaw && git pull
+sudo bash scripts/ec2-fix-telegram-models.sh
+```
+
+Depois no Telegram: **`/new`** → **`ajuda`**
 
 ---
 

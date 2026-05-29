@@ -28,8 +28,10 @@ if (!agents.length) {
 
 function fallbackRefs(cfg) {
   return (cfg.fallbacks || []).map((m) => {
-    if (m.startsWith('openrouter/') || m.startsWith('ollama/') || m.startsWith('google/')) return m;
-    if (m.startsWith('ollama/')) return m;
+    if (m.startsWith('openrouter/') || m.startsWith('ollama/')) return m;
+    // Modelos :free sao OpenRouter, nao API Google directa
+    if (m.includes(':free')) return m.startsWith('openrouter/') ? m : `openrouter/${m}`;
+    if (m.startsWith('google/')) return m;
     return `openrouter/${m}`;
   });
 }

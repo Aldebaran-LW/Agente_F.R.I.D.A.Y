@@ -7,7 +7,8 @@ llm:
   env_key: OPENROUTER_API_KEY
   model: deepseek/deepseek-v4-flash:free
   fallbacks:
-    - google/gemma-4-26b-a4b-it:free
+    - openrouter/google/gemma-4-26b-a4b-it:free
+    - ollama/llama3.2:1b
 
 skills:
   - politica-seguranca
