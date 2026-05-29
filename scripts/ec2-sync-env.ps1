@@ -33,19 +33,9 @@ $ec2Env = Join-Path $env:TEMP "openclaw-ec2-sync.env"
 $utf8NoBom = New-Object System.Text.UTF8Encoding $false
 [System.IO.File]::WriteAllText($ec2Env, ($lines -join "`n") + "`n", $utf8NoBom)
 
+$mergeSh = Join-Path $PSScriptRoot "ec2-merge-env.sh"
 Write-Host "==> Sync env LLM/Telegram para EC2"
 scp -i $key -o StrictHostKeyChecking=accept-new $ec2Env "${user}@${host_}:/tmp/openclaw-sync.env"
-ssh -i $key -o StrictHostKeyChecking=accept-new "${user}@${host_}" @'
-set -e
-cd /opt/openclaw
-touch .env
-while IFS= read -r line || [ -n "$line" ]; do
-  [ -z "$line" ] && continue
-  key="${line%%=*}"
-  sudo sed -i "/^${key}=/d" .env 2>/dev/null || true
-  echo "$line" | sudo tee -a .env >/dev/null
-done < /tmp/openclaw-sync.env
-rm -f /tmp/openclaw-sync.env
-echo OK env merged
-'@
+scp -i $key -o StrictHostKeyChecking=accept-new $mergeSh "${user}@${host_}:/tmp/ec2-merge-env.sh"
+ssh -i $key -o StrictHostKeyChecking=accept-new "${user}@${host_}" "sed -i 's/\r$//' /tmp/ec2-merge-env.sh && chmod +x /tmp/ec2-merge-env.sh && bash /tmp/ec2-merge-env.sh"
 Remove-Item $ec2Env -Force -ErrorAction SilentlyContinue
