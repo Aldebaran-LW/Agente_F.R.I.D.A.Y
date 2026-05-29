@@ -55,8 +55,18 @@ Deploy gateway: `docs/GATEWAY-VERCEL.md` (Root Directory = `gateway`).
 .\run-basico.ps1              # gateway + Jarvis + 4 agentes
 .\run-tests.ps1               # chaves, Telegram, GitHub
 node scripts/validate-agent-config.mjs
+node scripts/sync-agent-config-to-openclaw.mjs --emit-sh   # bash EC2
 node scripts/test-hf-token.mjs   # opcional HF
 ```
+
+## Novo agente + aprendizagem HF
+
+```powershell
+node scripts/scaffold-agent.mjs --id meu-bot --name "Meu Bot"
+node scripts/hf-ingest-learning.mjs --agent meu-bot --text "nota do HF"
+```
+
+Docs: `docs/SYNC-AGENT-CONFIG.md` · `docs/DOMINIO-VERCEL.md` · `docs/ROADMAP-RENDER-PARA-HF.md`
 
 ## Pastas principais
 

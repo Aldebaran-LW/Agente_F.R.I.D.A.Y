@@ -34,3 +34,12 @@ Alterar `env_key` no config.yaml do cerebro correspondente.
 4. Pago — so pedido explicito do Lucas
 
 Ver `docs/OPENROUTER-MODELOS-FREE.md`.
+
+## Aplicar no daemon OpenClaw
+
+```powershell
+node scripts/sync-agent-config-to-openclaw.mjs --dry-run
+node scripts/sync-agent-config-to-openclaw.mjs --apply
+```
+
+EC2: `sudo bash scripts/ec2-apply-agent-config.sh` — ver `docs/SYNC-AGENT-CONFIG.md`.
