@@ -37,6 +37,10 @@ export function modelRef(cfg) {
     if (model.startsWith('deepseek/')) return model;
     return `deepseek/${model}`;
   }
+  if (provider === 'huggingface') {
+    if (model.startsWith('huggingface/')) return model;
+    return `huggingface/${model}`;
+  }
   return model;
 }
 

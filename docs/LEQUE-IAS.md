@@ -13,7 +13,8 @@ Relacionado: [DEEPSEEK-API.md](./DEEPSEEK-API.md) · [OPENROUTER-MODELOS-FREE.md
 | **Scripts primeiro** | Status Macofel, GitHub, deploy → gateway Vercel / cron — **zero LLM** |
 | **Ollama na EC2** | Telegram e agentes locais → `ollama/smollm2:360m` (sem quota externa) |
 | **OpenRouter** | **Removido** (quota `:free` esgotava e bloqueava o bot) — doc histórica em OPENROUTER-MODELOS-FREE.md |
-| **API directa opcional** | DeepSeek → `DEEPSEEK_API_KEY` só com créditos em platform.deepseek.com |
+| **API directa opcional** | DeepSeek → `DEEPSEEK_API_KEY` (402 se sem saldo) |
+| **HF Inference Router** | `HF_TOKEN` + providers HF → fallback complexo Telegram |
 | **Mesma linha de raciocínio** | `agents/_shared/VOZ-JARVIS.md` + `POLITICA-SEGURANCA.md` em todos |
 | **HF = laboratório** | Sophia/Rebeca/Senku/Hefestos no Space; copiar padrões úteis para EC2/scripts |
 
@@ -24,7 +25,7 @@ Relacionado: [DEEPSEEK-API.md](./DEEPSEEK-API.md) · [OPENROUTER-MODELOS-FREE.md
 ```
 1. scripts + POST /jarvis     → 0 tokens
 2. Ollama (EC2)               → smollm2:360m (Telegram)
-3. APIs directas (opcional)   → DEEPSEEK_API_KEY com créditos
+3. APIs directas (opcional)   → DEEPSEEK_API_KEY; HF Router se DeepSeek falhar
 4. HF Spaces (inovação)       → HF_TOKEN + stub/scripts
 5. Pago                       → só pedido explícito do Lucas
 ```
@@ -37,12 +38,12 @@ Definição em `agents/<id>/config.yaml`. Aplicar na EC2: `scripts/ec2-apply-age
 
 | Cérebro | Assunto | Provedor | Modelo (primary) |
 |---------|---------|----------|------------------|
-| **orchestrator** (Jarvis / Telegram) | Simples / complexo | ollama → deepseek | `smollm2:360m` → `deepseek-v4-flash` |
+| **orchestrator** (Jarvis / Telegram) | Simples / complexo | ollama → deepseek → hf | `smollm2:360m` → `deepseek-v4-flash` → `Qwen2.5-7B:fastest` |
 | **macofel, ops, vp-pecas…** | Operações | ollama | `smollm2:360m` |
 
-**Telegram:** operacional → gateway (zero LLM). Conversa **simples** → Ollama. **Complexo** (análise, plano, código) → DeepSeek directo.
+**Telegram:** operacional → gateway (zero LLM). Conversa **simples** → Ollama. **Complexo** → DeepSeek; se 402, **HF Inference Router** (`docs/HF-INFERENCE-ROUTER.md`).
 
-> **DeepSeek** (`DEEPSEEK_API_KEY`): [api-docs.deepseek.com](https://api-docs.deepseek.com/) — requer saldo (402 se esgotado). Ollama cobre o resto.
+> **DeepSeek** (`DEEPSEEK_API_KEY`): [api-docs.deepseek.com](https://api-docs.deepseek.com/) — requer saldo (402 se esgotado). **HF Router** cobre fallback complexo com `HF_TOKEN` + [Inference Providers](https://huggingface.co/settings/inference-providers).
 
 ---
 

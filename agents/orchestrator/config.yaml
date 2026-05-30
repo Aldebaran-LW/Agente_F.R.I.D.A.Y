@@ -3,17 +3,19 @@ id: orchestrator
 name: Jarvis
 role: Orquestrador (Telegram, aprovacoes, delegacao)
 
-# Telegram: Ollama (simples) + DeepSeek directo (complexo) + gateway (operacional)
+# Telegram: Ollama (simples) + DeepSeek/HF Router (complexo) + gateway (operacional)
 llm:
   provider: ollama
   model: smollm2:360m
   fallbacks:
     - deepseek/deepseek-v4-flash
+    - huggingface/Qwen/Qwen2.5-7B-Instruct:fastest
 
 llm_policy:
-  order: [scripts, ollama, deepseek_direct, paid_explicit_only]
+  order: [scripts, ollama, deepseek_direct, hf_inference, paid_explicit_only]
   simple: ollama/smollm2:360m
   complex: deepseek/deepseek-v4-flash
+  complex_fallback: huggingface/Qwen/Qwen2.5-7B-Instruct:fastest
 
 skills:
   - politica-seguranca
@@ -29,4 +31,4 @@ deploy:
 
 secrets:
   gateway: [OPENCLAW_GATEWAY_BASE_URL, OPENCLAW_AUTOMATION_TOKEN]
-  optional: [DEEPSEEK_API_KEY]
+  optional: [DEEPSEEK_API_KEY, HF_TOKEN, HF_INFERENCE_MODEL]

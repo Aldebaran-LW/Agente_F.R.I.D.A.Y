@@ -1,6 +1,11 @@
 import { readFileSync, existsSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import {
+  hfTokenFromEnv,
+  hfInferenceModelFromEnv,
+  HF_ROUTER_BASE_URL,
+} from './lib/hf-inference-config.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -18,7 +23,8 @@ function loadEnv() {
 }
 
 loadEnv();
-const token = process.env.HF_TOKEN?.trim();
+const token = hfTokenFromEnv();
+const inferModel = hfInferenceModelFromEnv().replace(/^huggingface\//, '');
 const steps = [];
 function step(name, ok, detail = '') {
   steps.push({ name, ok, detail });
@@ -70,15 +76,15 @@ try {
 } catch (e) { step('webhooks API', false, e.message); }
 
 try {
-  const res = await fetch('https://router.huggingface.co/v1/chat/completions', {
+  const res = await fetch(HF_ROUTER_BASE_URL + '/chat/completions', {
     method: 'POST',
     headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model: 'google/gemma-2-2b-it', messages: [{ role: 'user', content: 'ok' }], max_tokens: 3 }),
+    body: JSON.stringify({ model: inferModel, messages: [{ role: 'user', content: 'ok' }], max_tokens: 3 }),
     signal: AbortSignal.timeout(25000),
   });
   const body = await res.json().catch(() => ({}));
   const noProvider = body?.error?.message?.includes('not supported by any provider');
-  step('inference router', res.ok, res.ok ? 'ok' : noProvider ? 'sem provider activo na conta HF' : 'HTTP ' + res.status);
+  step('inference router', res.ok, res.ok ? ('model=' + inferModel) : noProvider ? 'sem provider activo na conta HF' : 'HTTP ' + res.status);
 } catch (e) { step('inference router', false, e.message); }
 
 const fails = steps.filter((s) => !s.ok).length;
