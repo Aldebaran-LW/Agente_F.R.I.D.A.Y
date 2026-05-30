@@ -3,18 +3,17 @@ id: orchestrator
 name: Jarvis
 role: Orquestrador (Telegram, aprovacoes, delegacao)
 
-# Primary: OpenRouter FREE (DeepSeek directo so quando houver creditos)
+# Telegram: Ollama (simples) + DeepSeek directo (complexo) + gateway (operacional)
 llm:
-  provider: openrouter
-  env_key: OPENROUTER_API_KEY
-  model: deepseek/deepseek-v4-flash:free
+  provider: ollama
+  model: smollm2:360m
   fallbacks:
-    - minimax/minimax-m2.5:free
-    - openai/gpt-oss-20b:free
-    - google/gemma-4-26b-a4b-it:free
+    - deepseek/deepseek-v4-flash
 
 llm_policy:
-  order: [scripts, ollama, openrouter_free, deepseek_direct, paid_explicit_only]
+  order: [scripts, ollama, deepseek_direct, paid_explicit_only]
+  simple: ollama/smollm2:360m
+  complex: deepseek/deepseek-v4-flash
 
 skills:
   - politica-seguranca
@@ -30,4 +29,4 @@ deploy:
 
 secrets:
   gateway: [OPENCLAW_GATEWAY_BASE_URL, OPENCLAW_AUTOMATION_TOKEN]
-  optional: [OPENROUTER_API_KEY, DEEPSEEK_API_KEY]
+  optional: [DEEPSEEK_API_KEY]

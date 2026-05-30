@@ -3,12 +3,9 @@ name: Hefestos
 role: Construtor — skills, scripts, docs (apos Senku >= 70)
 
 llm:
-  provider: openrouter
-  env_key: OPENROUTER_API_KEY
-  model: poolside/laguna-m.1:free
-  fallbacks:
-    - deepseek/deepseek-v4-flash:free
-    - minimax/minimax-m2.5:free
+  provider: ollama
+  model: smollm2:360m
+  fallbacks: []
 
 skills:
   - politica-seguranca
@@ -16,7 +13,7 @@ skills:
 
 secrets:
   gateway: [OPENCLAW_GATEWAY_BASE_URL, OPENCLAW_AUTOMATION_TOKEN]
-  optional: [GITHUB_TOKEN, OPENROUTER_API_KEY]
+  optional: [GITHUB_TOKEN]
 
 deploy:
   mode: hf_space

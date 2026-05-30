@@ -3,19 +3,16 @@ name: Rebeca
 role: Design, layout e prototipos visuais (office, forge, HF)
 
 llm:
-  provider: openrouter
-  env_key: OPENROUTER_API_KEY
-  model: google/gemini-2.0-flash-exp:free
-  fallbacks:
-    - google/gemma-4-26b-a4b-it:free
-    - minimax/minimax-m2.5:free
+  provider: ollama
+  model: smollm2:360m
+  fallbacks: []
 
 skills:
   - politica-seguranca
   - innovation-design
 
 secrets:
-  optional: [OPENROUTER_API_KEY, GOOGLE_API_KEY]
+  optional: [GOOGLE_API_KEY]
 
 deploy:
   mode: hf_space

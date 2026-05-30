@@ -1,6 +1,6 @@
 # Instala dashboards em %USERPROFILE%\.openclaw\dashboards\
 param(
-    [ValidateSet("agent-monitor", "star-office", "monitor3d", "all")]
+    [ValidateSet("agent-monitor", "star-office", "monitor3d", "clawmetry", "all")]
     [string]$Dashboard = "agent-monitor"
 )
 
@@ -38,6 +38,21 @@ function Install-StarOffice {
     Write-Host "[star-office] OK → cd backend; python app.py → http://127.0.0.1:19000"
 }
 
+function Install-Clawmetry {
+    python -m pip install --upgrade clawmetry
+    $dir = Join-Path $workDir "clawmetry"
+    New-Item -ItemType Directory -Force -Path $dir | Out-Null
+    $start = Join-Path $dir "openclaw-start.ps1"
+    @'
+$hostAddr = if ($env:OPENCLAW_CLAWMETRY_HOST) { $env:OPENCLAW_CLAWMETRY_HOST } else { "127.0.0.1" }
+$port = if ($env:OPENCLAW_CLAWMETRY_PORT) { $env:OPENCLAW_CLAWMETRY_PORT } else { "8900" }
+$cmd = Get-Command clawmetry -ErrorAction SilentlyContinue
+if ($cmd) { & clawmetry --host $hostAddr --port $port } else { python -m clawmetry --host $hostAddr --port $port }
+'@ | Set-Content -Encoding UTF8 $start
+    Write-Host "[clawmetry] OK → $start → http://127.0.0.1:8900"
+    Write-Host "  Túnel EC2: .\scripts\dashboard-tunnel.ps1 -Port 8900"
+}
+
 function Link-SetState {
     $ws = Join-Path $env:USERPROFILE ".openclaw\workspace"
     New-Item -ItemType Directory -Force -Path $ws | Out-Null
@@ -49,7 +64,8 @@ function Link-SetState {
 switch ($Dashboard) {
     "agent-monitor" { Install-AgentMonitor }
     "star-office" { Install-StarOffice }
-    "all" { Install-AgentMonitor; Install-StarOffice }
+    "clawmetry" { Install-Clawmetry }
+    "all" { Install-AgentMonitor; Install-StarOffice; Install-Clawmetry }
     default { Write-Host "monitor3d: usar install-visual-dashboard.sh na EC2"; exit 1 }
 }
 

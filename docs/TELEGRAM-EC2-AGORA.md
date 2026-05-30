@@ -44,21 +44,14 @@ sudo systemctl restart openclaw-gateway
 
 ---
 
-## Passo 3 — Modelo e sync agentes
+## Passo 3 — Modelo Ollama (sem OpenRouter)
 
-Evitar Gemini em quota (429); preferir OpenRouter free:
+Stack actual: **Ollama local** na EC2 — sem quota externa.
 
 ```bash
-set -a; source /opt/openclaw/.env; set +a
-
-# Sync modelos dos agents/*/config.yaml
-node scripts/sync-agent-config-to-openclaw.mjs --emit-sh | sudo bash
-
-# Ou manualmente orquestrador:
-sudo openclaw config set agents.list.orchestrator.model.primary "openrouter/nvidia/nemotron-3-super-120b-a12b:free"
-sudo openclaw config set agents.list.orchestrator.model.fallbacks '["openrouter/google/gemini-2.0-flash","ollama/llama3.2:1b"]'
-
-sudo systemctl restart openclaw-gateway
+cd /opt/openclaw
+git pull
+sudo bash scripts/ec2-fix-telegram-models.sh
 ```
 
 Garantir no `.env` da EC2:
@@ -66,7 +59,7 @@ Garantir no `.env` da EC2:
 ```env
 OPENCLAW_GATEWAY_BASE_URL=https://openclaw.lwdigitalforge.com
 OPENCLAW_AUTOMATION_TOKEN=...
-OPENROUTER_API_KEY=...
+# OPENROUTER_API_KEY=   # removido — nao usar
 ```
 
 ---
@@ -124,9 +117,8 @@ Erros comuns:
 
 | Sintoma | Causa | Fix |
 |---------|--------|-----|
-| `Something went wrong` (inglês) | Gemini **429** + fallback inválido | `sudo bash scripts/ec2-fix-telegram-models.sh` |
-| `Unknown model: google/gemma...:free` | Fallback sem prefixo `openrouter/` | idem |
-| `gemini-3.1-pro-preview` nos logs | Override em `agents.defaults.models` | idem (remove override) |
+| Rate limit / all models failed | OpenRouter quota esgotada | `sudo bash scripts/ec2-fix-telegram-models.sh` (Ollama only) |
+| Auto-compaction error | Sessão longa | `/new` + `reserveTokensFloor: 20000` (script acima) |
 | Inglês genérico | Falta SOUL.md | `ec2-apply-agent-config.sh` |
 | Silêncio | Pairing não aprovado | `openclaw pairing approve telegram CODIGO` |
 

@@ -9,7 +9,7 @@ Três camadas complementares para ver o OpenClaw sem depender só do Telegram ou
 | Etapa | O quê | Onde corre | Ligação |
 |-------|--------|------------|---------|
 | **1** | Gateway + rotas de status | Vercel (`gateway/`) | REST + Bearer |
-| **2** | Painel pixel-art | Vercel `/office` | `GET /openclaw/office/status` |
+| **2** | Landing + painel pixel-art | Vercel `/` e `/office` | `GET /api/health` · `GET /openclaw/office/status` |
 | **3** | Claw3D / openclaw-office | PC browser → EC2 | WebSocket OpenClaw `:18789` |
 
 Telegram **nunca** fala com estes painéis. Fluxo de produção: **Telegram → AWS → Gateway → APIs**.
@@ -157,15 +157,16 @@ cd openclaw-office && npm install && npm run dev
 
 ## Comparação rápida
 
-| | Pixel `/office` | AgentMonitor | Star Office | openclaw-office | Claw3D |
-|--|-----------------|--------------|-------------|-----------------|--------|
-| Deploy | Vercel | EC2/local | EC2/local | EC2/local | EC2/local |
-| Tempo real | ~30 s polling | WS ~5 s | `set_state` / API | WebSocket | WebSocket |
-| GPU | Não | Baixa | Baixa | Baixa (SVG) | 3D |
-| Chat / tools | Não | Sim | Via OpenClaw | Sim | Sim |
-| Só REST Vercel | **Sim** | Não | Parcial | Não | Não |
+| | Pixel `/office` | ClawMetry | AgentMonitor | Star Office | openclaw-office | Claw3D |
+|--|-----------------|-----------|--------------|-------------|-----------------|--------|
+| Deploy | Vercel | EC2/local | EC2/local | EC2/local | EC2/local | EC2/local |
+| Tempo real | ~30 s polling | Live logs/flow | WS ~5 s | `set_state` / API | WebSocket | WebSocket |
+| Tokens / custos | Não | **Sim** | Parcial | Não | Sim | Sim |
+| GPU | Não | Não | Baixa | Baixa | Baixa (SVG) | 3D |
+| Chat / tools | Não | Transcripts | Sim | Via OpenClaw | Sim | Sim |
+| Só REST Vercel | **Sim** | Não | Não | Parcial | Não | Não |
 
-Instalar AgentMonitor ou Star Office: `./scripts/install-visual-dashboard.sh`
+Instalar dashboards na EC2: `./scripts/install-visual-dashboard.sh` (`agent-monitor`, `clawmetry`, `star-office`, …)
 
 ---
 
@@ -180,8 +181,9 @@ Instalar AgentMonitor ou Star Office: `./scripts/install-visual-dashboard.sh`
 | `scripts/claw3d-tunnel.ps1` | Túnel SSH Windows |
 | `scripts/office-status.js` | Teste CLI do snapshot |
 | `scripts/set_state.py` | Estado para Star Office / JSON local |
-| `scripts/install-visual-dashboard.sh` | Clone AgentMonitor, Star Office, etc. |
-| `scripts/dashboard-tunnel.ps1` | Túnel HTTP :3000 / :19000 |
+| `scripts/install-visual-dashboard.sh` | Clone AgentMonitor, Star Office, ClawMetry, etc. |
+| `scripts/setup-clawmetry-ec2.sh` | systemd user `openclaw-clawmetry` |
+| `scripts/dashboard-tunnel.ps1` | Túnel HTTP :3000 / :8900 / :19000 |
 | `agents/_shared/DASHBOARD-SYNC.md` | Regras para SOUL.md na EC2 |
 
 ---

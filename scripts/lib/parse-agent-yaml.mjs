@@ -29,9 +29,8 @@ function parseAgentYaml(text) {
 }
 
 export function modelRef(cfg) {
-  const provider = cfg.provider || 'openrouter';
-  const model = cfg.model || '';
-  if (provider === 'openrouter') return `openrouter/${model}`;
+  const provider = cfg.provider || 'ollama';
+  const model = cfg.model || 'smollm2:360m';
   if (provider === 'ollama') return `ollama/${model}`;
   if (provider === 'google') return model.startsWith('google/') ? model : `google/${model}`;
   if (provider === 'deepseek') {

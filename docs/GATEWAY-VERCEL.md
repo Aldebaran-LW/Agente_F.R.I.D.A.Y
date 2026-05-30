@@ -29,6 +29,19 @@
 6. Na EC2 ou PC: `.env` com `OPENCLAW_GATEWAY_BASE_URL` = URL **deste** deploy + mesmo token
 7. `cd scripts && node check-basico.js`
 
+### Landing `/` (apos alterar `public/index.html`)
+
+Ficheiros: `gateway/public/index.html`, `landing.css`. Config: `gateway/.vercel/project.json` (projeto **agente-openclaw**).
+
+```powershell
+vercel login                    # uma vez no PC
+.\scripts\deploy-gateway-vercel.ps1
+```
+
+Ou **git push** para `main` se a integração GitHub da Vercel estiver activa.
+
+**Google Drive:** ficheiros em `gateway/public/` devem estar em **UTF-8** (não UTF-16), senão a landing quebra no deploy.
+
 ## Rotas apos deploy
 
 - `GET /api/health` — publico
@@ -37,6 +50,7 @@
 - `GET /openclaw/github/status` — repos
 - `GET /openclaw/deploy/health` — sites
 - `GET /openclaw/office/status` — snapshot dos 4 cérebros (painel)
+- `GET /` — landing (links para `/office`, `/forge`)
 - `GET /office` — painel pixel-art (introduzir token na página)
 - `GET /forge` — Digital Forge 3D (WebSocket na EC2)
 
@@ -46,6 +60,7 @@ Visualização: [VISUALIZACAO-AGENTES.md](./VISUALIZACAO-AGENTES.md) · [DIGITAL
 
 | Sintoma | Causa |
 |---------|--------|
+| 404 em `/` mas `/office` OK | Landing ainda nao deployada — correr `deploy-gateway-vercel.ps1` ou push Git |
 | 404 em `/api/health` | Root Directory nao e `gateway/` ou deploy falhou |
 | 401 em tudo (HTML "Authentication Required") | Vercel Authentication ligado no **projeto errado** ou ainda ativo |
 | 401 so em `/jarvis` | Token diferente entre Vercel e `.env` EC2 |
@@ -58,8 +73,8 @@ Visualização: [VISUALIZACAO-AGENTES.md](./VISUALIZACAO-AGENTES.md) · [DIGITAL
 
 | Host | Tipico problema |
 |------|-----------------|
-| `agente-openclaw.vercel.app` | Projeto gateway — URL Vercel default |
-| `openclaw.lwdigitalforge.com` | **Canonico** — `OPENCLAW_GATEWAY_BASE_URL` (API Jarvis, HF, EC2) |
-| `f.r.i.d.a.y.lwdigitalforge.com` | Alias marca F.R.I.D.A.Y. — mesmo deploy que `openclaw` |
+| `openclaw.vercel.app` | Projeto **antigo** — pode ter Authentication ON |
+| `agente-openclaw.vercel.app` | Projeto **novo** — usar esta URL no `.env` quando deploy verde |
+| `openclaw.lwdigitalforge.com` | So funciona se ligado ao projeto gateway ativo |
 
 Telegram: [BASICO-OPENCLAW.md](./BASICO-OPENCLAW.md) fase 2.

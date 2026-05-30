@@ -11,6 +11,7 @@ Mapa geral: [MAPAS-RESIDENCIAS.md](./MAPAS-RESIDENCIAS.md)
 | Porta | Serviço | Exposição |
 |-------|---------|-----------|
 | **8787** | Digital Forge (`forge-ws-server.mjs`) | `127.0.0.1` + túnel SSH |
+| **8900** | ClawMetry (`openclaw-clawmetry.service`) | `127.0.0.1` + túnel SSH |
 | **8790** | Orchestrate hook (`ec2-orchestrate-hook.mjs`) | `127.0.0.1` + nginx **443** |
 | **443** | nginx | Público (`/orchestrate/*`) |
 
@@ -22,13 +23,14 @@ Mapa geral: [MAPAS-RESIDENCIAS.md](./MAPAS-RESIDENCIAS.md)
 export OPENCLAW_REPO=$HOME/Agente_OpenClaw   # ou /opt/openclaw
 cd "$OPENCLAW_REPO"
 
-# Forge + Orchestrate (systemd user)
+# Forge + Orchestrate + ClawMetry (systemd user)
 bash scripts/setup-ec2-hooks.sh
 
 # Ativar orchestrate
 systemctl --user daemon-reload
 systemctl --user enable --now openclaw-orchestrate
-systemctl --user enable --now openclaw-forge   # opcional
+systemctl --user enable --now openclaw-forge        # opcional
+systemctl --user enable --now openclaw-clawmetry    # opcional — :8900
 
 # Teste local
 curl -s http://127.0.0.1:8790/health
@@ -128,6 +130,7 @@ Unidades **user** em `~/.config/systemd/user/`:
 
 - `openclaw-forge.service` — porta 8787
 - `openclaw-orchestrate.service` — porta 8790
+- `openclaw-clawmetry.service` — porta 8900 ([DASHBOARDS-VISUAIS.md](./DASHBOARDS-VISUAIS.md))
 
 ```bash
 systemctl --user status openclaw-orchestrate

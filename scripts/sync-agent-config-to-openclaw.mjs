@@ -28,11 +28,9 @@ if (!agents.length) {
 
 function fallbackRefs(cfg) {
   return (cfg.fallbacks || []).map((m) => {
-    if (m.startsWith('openrouter/') || m.startsWith('ollama/')) return m;
-    // Modelos :free sao OpenRouter, nao API Google directa
-    if (m.includes(':free')) return m.startsWith('openrouter/') ? m : `openrouter/${m}`;
-    if (m.startsWith('google/')) return m;
-    return `openrouter/${m}`;
+    if (m.startsWith('ollama/') || m.startsWith('deepseek/') || m.startsWith('google/')) return m;
+    if (m.startsWith('openrouter/')) return m.replace(/^openrouter\//, 'ollama/');
+    return `ollama/${m}`;
   });
 }
 
@@ -57,9 +55,6 @@ if (!emitSh) {
 if (emitSh) {
   console.log('\n# Cole na EC2 (root) apos git pull:\n');
   console.log('export PATH="/usr/local/bin:$PATH"');
-  if (process.env.OPENROUTER_API_KEY) {
-    console.log('openclaw config set models.providers.openrouter.apiKey "$OPENROUTER_API_KEY" 2>/dev/null || true');
-  }
   if (process.env.DEEPSEEK_API_KEY) {
     console.log('openclaw config set models.providers.deepseek.apiKey "$DEEPSEEK_API_KEY" 2>/dev/null || true');
     console.log('openclaw config set models.providers.deepseek.baseUrl "https://api.deepseek.com" 2>/dev/null || true');
@@ -97,9 +92,8 @@ for (const p of patch) {
 
 doc.models = doc.models || {};
 doc.models.providers = doc.models.providers || {};
-if (process.env.OPENROUTER_API_KEY) {
-  doc.models.providers.openrouter = doc.models.providers.openrouter || {};
-  doc.models.providers.openrouter.apiKey = process.env.OPENROUTER_API_KEY;
+if (doc.models.providers.openrouter) {
+  delete doc.models.providers.openrouter;
 }
 if (process.env.DEEPSEEK_API_KEY) {
   doc.models.providers.deepseek = doc.models.providers.deepseek || {};

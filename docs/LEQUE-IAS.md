@@ -11,10 +11,9 @@ Relacionado: [DEEPSEEK-API.md](./DEEPSEEK-API.md) · [OPENROUTER-MODELOS-FREE.md
 | Regra | Detalhe |
 |-------|---------|
 | **Scripts primeiro** | Status Macofel, GitHub, deploy → gateway Vercel / cron — **zero LLM** |
-| **Uma chave ≠ um modelo** | Cada **provedor** (DeepSeek, Google, OpenRouter…) tem quota própria |
-| **OpenRouter = leque** | Uma `OPENROUTER_API_KEY` → dezenas de modelos `:free` |
-| **API directa quando fizer sentido** | DeepSeek chat → `DEEPSEEK_API_KEY` + `api.deepseek.com` (não gastar slot OpenRouter) |
-| **Partição por assunto** | Cada cérebro usa **modelo + chave** diferentes → mais pedidos/dia no total |
+| **Ollama na EC2** | Telegram e agentes locais → `ollama/smollm2:360m` (sem quota externa) |
+| **OpenRouter** | **Removido** (quota `:free` esgotava e bloqueava o bot) — doc histórica em OPENROUTER-MODELOS-FREE.md |
+| **API directa opcional** | DeepSeek → `DEEPSEEK_API_KEY` só com créditos em platform.deepseek.com |
 | **Mesma linha de raciocínio** | `agents/_shared/VOZ-JARVIS.md` + `POLITICA-SEGURANCA.md` em todos |
 | **HF = laboratório** | Sophia/Rebeca/Senku/Hefestos no Space; copiar padrões úteis para EC2/scripts |
 
@@ -24,11 +23,10 @@ Relacionado: [DEEPSEEK-API.md](./DEEPSEEK-API.md) · [OPENROUTER-MODELOS-FREE.md
 
 ```
 1. scripts + POST /jarvis     → 0 tokens
-2. Ollama (EC2)               → 0 API externa
-3. APIs directas (free tier)  → DEEPSEEK_API_KEY, GOOGLE_API_KEY, …
-4. OpenRouter :free           → um leque por chave
-5. HF Spaces (inovação)       → HF_TOKEN + modelos hosted
-6. Pago                       → só pedido explícito do Lucas
+2. Ollama (EC2)               → smollm2:360m (Telegram)
+3. APIs directas (opcional)   → DEEPSEEK_API_KEY com créditos
+4. HF Spaces (inovação)       → HF_TOKEN + stub/scripts
+5. Pago                       → só pedido explícito do Lucas
 ```
 
 ---
@@ -37,14 +35,14 @@ Relacionado: [DEEPSEEK-API.md](./DEEPSEEK-API.md) · [OPENROUTER-MODELOS-FREE.md
 
 Definição em `agents/<id>/config.yaml`. Aplicar na EC2: `scripts/ec2-apply-agent-config.sh`.
 
-| Cérebro | Assunto | Provedor | Chave `.env` | Modelo (primary) | Fallback |
-|---------|---------|----------|--------------|------------------|----------|
-| **orchestrator** (Jarvis / Telegram) | Chat, delegação | **openrouter** | `OPENROUTER_API_KEY` | `deepseek/deepseek-v4-flash:free` | MiniMax / gpt-oss-20b free |
-| **senku** / **dedalo** | Viabilidade, schema | openrouter | `OPENROUTER_API_KEY` | `deepseek/deepseek-v4-flash:free` | Nemotron free |
+| Cérebro | Assunto | Provedor | Modelo (primary) |
+|---------|---------|----------|------------------|
+| **orchestrator** (Jarvis / Telegram) | Simples / complexo | ollama → deepseek | `smollm2:360m` → `deepseek-v4-flash` |
+| **macofel, ops, vp-pecas…** | Operações | ollama | `smollm2:360m` |
 
-**Telegram:** face pública = **orchestrator** (OpenRouter `deepseek-v4-flash:free`). Pedidos operacionais → skill `openclaw-jarvis` (gateway, sem LLM).
+**Telegram:** operacional → gateway (zero LLM). Conversa **simples** → Ollama. **Complexo** (análise, plano, código) → DeepSeek directo.
 
-> **DeepSeek directo** (`DEEPSEEK_API_KEY`): usar só com saldo em [platform.deepseek.com](https://platform.deepseek.com). Sem créditos → erro 402; manter OpenRouter free como primary.
+> **DeepSeek** (`DEEPSEEK_API_KEY`): [api-docs.deepseek.com](https://api-docs.deepseek.com/) — requer saldo (402 se esgotado). Ollama cobre o resto.
 
 ---
 

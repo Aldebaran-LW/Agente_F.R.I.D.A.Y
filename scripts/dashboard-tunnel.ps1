@@ -43,6 +43,7 @@ if (-not $key -and $env:AWS_EC2_KEY_PATH) { $key = $env:AWS_EC2_KEY_PATH }
 $urls = @{
     3000 = "AgentMonitor"
     3200 = "AgentMonitor (plugin)"
+    8900 = "ClawMetry"
     19000 = "Star Office UI"
 }
 

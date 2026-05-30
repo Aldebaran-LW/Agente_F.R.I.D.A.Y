@@ -3,11 +3,9 @@ name: Ops
 role: GitHub org + deploy + Vercel
 
 llm:
-  provider: openrouter
-  env_key: OPENROUTER_API_KEY
-  model: poolside/laguna-m.1:free
-  fallbacks:
-    - minimax/minimax-m2.5:free
+  provider: ollama
+  model: smollm2:360m
+  fallbacks: []
 
 skills:
   - politica-seguranca

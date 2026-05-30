@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Instala dashboards visuais em ~/.openclaw/dashboards/
-# Uso: ./scripts/install-visual-dashboard.sh [agent-monitor|star-office|monitor3d|all]
+# Uso: ./scripts/install-visual-dashboard.sh [agent-monitor|star-office|monitor3d|clawmetry|all]
 set -euo pipefail
 
 DASH="${1:-agent-monitor}"
@@ -51,6 +51,26 @@ install_star_office() {
   echo "  set_state: export OPENCLAW_STAR_OFFICE_DIR=$dir"
 }
 
+install_clawmetry() {
+  python3 -m pip install --user --upgrade clawmetry 2>/dev/null \
+    || python3 -m pip install --upgrade clawmetry
+  local dir="$WORKDIR/clawmetry"
+  mkdir -p "$dir"
+  cat > "$dir/openclaw-start.sh" <<'EOF'
+#!/usr/bin/env bash
+HOST="${OPENCLAW_CLAWMETRY_HOST:-127.0.0.1}"
+PORT="${OPENCLAW_CLAWMETRY_PORT:-8900}"
+if command -v clawmetry >/dev/null 2>&1; then
+  exec clawmetry --host "$HOST" --port "$PORT"
+fi
+exec python3 -m clawmetry --host "$HOST" --port "$PORT"
+EOF
+  chmod +x "$dir/openclaw-start.sh"
+  echo "[clawmetry] OK → $dir/openclaw-start.sh → http://${OPENCLAW_CLAWMETRY_HOST:-127.0.0.1}:${OPENCLAW_CLAWMETRY_PORT:-8900}"
+  echo "  Túnel PC: .\\scripts\\dashboard-tunnel.ps1 -Port 8900"
+  echo "  Repo: https://github.com/vivekchand/clawmetry"
+}
+
 install_monitor3d() {
   local dir="$WORKDIR/openclaw-monitor"
   if [[ -d "$dir/.git" ]]; then
@@ -76,13 +96,15 @@ case "$DASH" in
   agent-monitor|monitor|am) install_agent_monitor ;;
   star-office|star|office) install_star_office ;;
   monitor3d|3d) install_monitor3d ;;
+  clawmetry|cm|metrics) install_clawmetry ;;
   all)
     install_agent_monitor
     install_star_office
     install_monitor3d
+    install_clawmetry
     ;;
   *)
-    echo "Uso: $0 [agent-monitor|star-office|monitor3d|all]"
+    echo "Uso: $0 [agent-monitor|star-office|monitor3d|clawmetry|all]"
     exit 1
     ;;
 esac

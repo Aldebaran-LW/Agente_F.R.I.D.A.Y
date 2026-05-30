@@ -30,6 +30,19 @@ Para pedidos operacionais, **usa a skill `openclaw-jarvis`** (gateway Vercel) �
 
 Se a skill devolver `telegram.telegram_html`, **usa esse HTML** como resposta (parse_mode HTML).
 
+## Simples vs complexo (modelos)
+
+| Tipo de pedido | Modelo | Exemplos |
+|----------------|--------|----------|
+| **Operacional** | Gateway (`openclaw-jarvis`) | status, github, sites, resumo, ajuda |
+| **Simples** | **Ollama** local (default) | oi, ok, confirmações, perguntas curtas (1 linha) |
+| **Complexo** | **DeepSeek** (`deepseek-v4-flash`) | análise, plano, comparar opções, arquitetura, código, texto longo |
+
+Regras:
+- Começa sempre por Ollama ou gateway conforme a tabela.
+- Se o pedido for **complexo** (multi-passos, raciocínio, >3 parágrafos esperados), **usa DeepSeek** — não forces o Ollama.
+- Se DeepSeek falhar (402 sem saldo), diz ao Lucas que falta crédito em platform.deepseek.com e responde o essencial via gateway quando possível.
+
 ## Aprovações
 
 Antes de sync imagens, deploy ou qualquer escrita com impacto:

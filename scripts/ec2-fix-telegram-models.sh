@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# EC2: remover Gemini 429 e fallbacks invalidos (sem alterar bindings)
+# EC2: Ollama (simples) + DeepSeek (complexo) + gateway (operacional). Sem OpenRouter.
 set -euo pipefail
 OPENCLAW_CONFIG="${OPENCLAW_CONFIG:-/root/.openclaw/openclaw.json}"
 cd "${OPENCLAW_ROOT:-/opt/openclaw}"
@@ -15,43 +15,22 @@ const doc = JSON.parse(fs.readFileSync(path, 'utf8'));
 doc.agents = doc.agents || {};
 doc.agents.list = doc.agents.list || [];
 
+const SIMPLE = 'ollama/smollm2:360m';
+const COMPLEX = 'deepseek/deepseek-v4-flash';
+
 function fixModel(entry, primary, fallbacks) {
   entry.model = { primary, fallbacks };
 }
 
-// Remover override Gemini pago/quota esgotada
 if (doc.agents.defaults?.models) {
-  delete doc.agents.defaults.models['google/gemini-3.1-pro-preview'];
-  if (Object.keys(doc.agents.defaults.models).length === 0) {
-    delete doc.agents.defaults.models;
-  }
+  delete doc.agents.defaults.models;
 }
 
-fixModel(doc.agents.defaults, 'openrouter/deepseek/deepseek-v4-flash:free', [
-  'openrouter/minimax/minimax-m2.5:free',
-  'openrouter/openai/gpt-oss-20b:free',
-]);
+fixModel(doc.agents.defaults, SIMPLE, []);
 
 for (const entry of doc.agents.list) {
-  if (!entry.model?.fallbacks) continue;
-  entry.model.fallbacks = entry.model.fallbacks.map((m) => {
-    if (m.startsWith('openrouter/') || m.startsWith('ollama/')) return m;
-    if (m.includes(':free')) return `openrouter/${m.replace(/^openrouter\//, '')}`;
-    if (m === 'google/gemini-2.0-flash') return 'openrouter/google/gemini-2.0-flash-exp:free';
-    return m;
-  });
-  if (entry.id === 'macofel') {
-    fixModel(entry, 'openrouter/google/gemma-4-26b-a4b-it:free', [
-      'openrouter/deepseek/deepseek-v4-flash:free',
-      'openrouter/minimax/minimax-m2.5:free',
-    ]);
-  }
   if (entry.id === 'orchestrator') {
-    fixModel(entry, 'openrouter/deepseek/deepseek-v4-flash:free', [
-      'openrouter/minimax/minimax-m2.5:free',
-      'openrouter/openai/gpt-oss-20b:free',
-      'openrouter/google/gemma-4-26b-a4b-it:free',
-    ]);
+    fixModel(entry, SIMPLE, [COMPLEX]);
     entry.skills = [
       'politica-seguranca',
       'openclaw-jarvis',
@@ -59,30 +38,53 @@ for (const entry of doc.agents.list) {
       'deploy-monitor',
       'vercel-status',
     ];
+  } else {
+    fixModel(entry, SIMPLE, []);
   }
 }
 
-// orchestrator primeiro na lista (default implicito)
 const orch = doc.agents.list.find((x) => x.id === 'orchestrator');
 if (orch) {
   doc.agents.list = [orch, ...doc.agents.list.filter((x) => x.id !== 'orchestrator')];
 }
 
-fs.writeFileSync(path + '.bak-models-fix', fs.readFileSync(path));
+doc.tools = doc.tools || {};
+doc.tools.profile = 'messaging';
+
+doc.models = doc.models || {};
+doc.models.providers = doc.models.providers || {};
+delete doc.models.providers.openrouter;
+
+if (process.env.DEEPSEEK_API_KEY) {
+  doc.models.providers.deepseek = doc.models.providers.deepseek || {};
+  doc.models.providers.deepseek.apiKey = process.env.DEEPSEEK_API_KEY;
+  doc.models.providers.deepseek.baseUrl = 'https://api.deepseek.com';
+}
+
+doc.agents.defaults.compaction = doc.agents.defaults.compaction || {};
+doc.agents.defaults.compaction.reserveTokensFloor = 20000;
+
+fs.writeFileSync(path + '.bak-tiered-llm', fs.readFileSync(path));
 fs.writeFileSync(path, JSON.stringify(doc, null, 2) + '\n');
-console.log('OK models fix (sem bindings)');
+console.log('OK tiered: ollama simple + deepseek complex (orchestrator)');
 NODE
 
 WORKSPACE_DIR="$(dirname "$OPENCLAW_CONFIG")/workspace"
 SOUL_SRC="/opt/openclaw/agents/_shared/SOUL-TELEGRAM-JARVIS.md"
 [[ -f "$SOUL_SRC" ]] && mkdir -p "$WORKSPACE_DIR" && cp "$SOUL_SRC" "$WORKSPACE_DIR/SOUL.md"
 
-if [[ -n "${OPENROUTER_API_KEY:-}" ]]; then
-  openclaw config set models.providers.openrouter.apiKey "$OPENROUTER_API_KEY" 2>/dev/null || true
+if [[ -n "${DEEPSEEK_API_KEY:-}" ]]; then
+  openclaw config set models.providers.deepseek.apiKey "$DEEPSEEK_API_KEY" 2>/dev/null || true
+  openclaw config set models.providers.deepseek.baseUrl "https://api.deepseek.com" 2>/dev/null || true
 fi
+
+openclaw config set agents.list.0.model.primary "ollama/smollm2:360m" 2>/dev/null || true
+openclaw config set agents.list.0.model.fallbacks '["deepseek/deepseek-v4-flash"]' 2>/dev/null || true
+openclaw config set agents.defaults.compaction.reserveTokensFloor 20000 2>/dev/null || true
+openclaw config set tools.profile messaging 2>/dev/null || true
 
 openclaw config validate
 systemctl restart openclaw-gateway
 sleep 4
 systemctl is-active openclaw-gateway
-echo "Telegram: /new depois ajuda"
+echo "Telegram: /new | simples=Ollama | complexo=DeepSeek | ops=gateway"

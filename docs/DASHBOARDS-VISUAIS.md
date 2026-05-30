@@ -17,6 +17,7 @@ Não é obrigatório construir UI do zero. Estes projetos ligam-se ao OpenClaw (
 | [OpenClaw-Monitor3D](https://github.com/ccperdst-lab/openclaw-monitor) | 3D | Mapa continental, personagens | `./scripts/install-visual-dashboard.sh monitor3d` |
 | [openclaw-office](https://github.com/WW-AI-Lab/openclaw-office) | Isométrico 2D SVG | WebSocket gateway, tokens/custos | Ver [VISUALIZACAO-AGENTES.md](./VISUALIZACAO-AGENTES.md) |
 | [Claw3D](https://www.claw3d.ai/) | 3D escritório | Standups, review PR | Túnel `scripts/claw3d-tunnel.ps1` |
+| [ClawMetry](https://github.com/vivekchand/clawmetry) | Dashboard técnico | Tokens, crons, aba **Flow**, memória, OTLP | `./scripts/install-visual-dashboard.sh clawmetry` |
 | **OpenClaw `/office`** (este repo) | Pixel mínimo | Só REST, 4 cérebros, Vercel | Deploy `gateway/` → `/office` |
 | **Digital Forge** (este repo) | 3D minimal cobalto | Reator, feixes, personas FRIDAY | `/forge` + WS `:8787` — [DIGITAL-FORGE-FRIDAY.md](./DIGITAL-FORGE-FRIDAY.md) |
 
@@ -24,9 +25,10 @@ Não é obrigatório construir UI do zero. Estes projetos ligam-se ao OpenClaw (
 
 | Prioridade | Projeto | Porquê |
 |------------|---------|--------|
-| 1 | **AgentMonitor** | Auto-liga ao gateway local `:18789`, comunidade ativa |
-| 2 | **Star Office UI** | `set_state.py` simples, PT, multi-agente com join key |
-| 3 | **Painel `/office`** | Já no deploy Vercel — zero install na EC2 |
+| 1 | **Painel `/office`** | Já no deploy Vercel — zero install na EC2 |
+| 2 | **ClawMetry** | Observabilidade completa na EC2; `pip` + auto-detect do workspace OpenClaw |
+| 3 | **AgentMonitor** | Auto-liga ao gateway local `:18789`, pixel + chat |
+| 4 | **Star Office UI** | `set_state.py` simples, PT, multi-agente com join key |
 
 ---
 
@@ -43,6 +45,7 @@ flowchart LR
   subgraph ui [Dashboards]
     AM[AgentMonitor]
     SO[Star Office]
+    CM[ClawMetry]
     OFF["/office"]
   end
 
@@ -50,11 +53,14 @@ flowchart LR
   WS --> Claw3D
   FILE --> SO
   REST --> OFF
+  WS --> CM
+  LOGS[Logs / sessions OpenClaw] --> CM
 ```
 
 | Modo | Dashboards | O agente precisa de… |
 |------|------------|---------------------|
 | **WebSocket** | AgentMonitor, Claw3D, openclaw-office | OpenClaw a correr; túnel SSH se aceder do PC |
+| **Logs / workspace local** | ClawMetry | OpenClaw na mesma máquina; lê `~/.openclaw/` |
 | **Ficheiro JSON** | Star Office, scripts custom | Correr `set_state.py` ao mudar tarefa |
 | **REST** | `/office` Vercel | Nada na EC2 (estado inferido de Macofel/GitHub/deploy) |
 
@@ -105,7 +111,7 @@ No servidor (clone do Agente_OpenClaw):
 ```bash
 chmod +x scripts/install-visual-dashboard.sh
 ./scripts/install-visual-dashboard.sh agent-monitor
-# ou: star-office | monitor3d | all
+# ou: star-office | monitor3d | clawmetry | all
 ```
 
 Dashboards ficam em `~/.openclaw/dashboards/`.
@@ -114,6 +120,8 @@ Dashboards ficam em `~/.openclaw/dashboards/`.
 
 ```bash
 ~/.openclaw/dashboards/agent-monitor/startup.sh
+# ClawMetry (só bind local — não usar 0.0.0.0 na EC2):
+~/.openclaw/dashboards/clawmetry/openclaw-start.sh
 # Star Office:
 # cd ~/.openclaw/dashboards/Star-Office-UI/backend && python3 app.py
 ```
@@ -122,6 +130,7 @@ Dashboards ficam em `~/.openclaw/dashboards/`.
 |---------|--------------|---------------|
 | AgentMonitor | 3000 | http://127.0.0.1:3000 |
 | AgentMonitor plugin | 3200 | http://127.0.0.1:3200 |
+| **ClawMetry** | **8900** | http://127.0.0.1:8900 |
 | Star Office UI | 19000 | http://127.0.0.1:19000 |
 | OpenClaw gateway | 18789 | ws://127.0.0.1:18789 |
 
@@ -133,6 +142,7 @@ Dashboards ficam em `~/.openclaw/dashboards/`.
 
 # Dashboard HTTP (Star Office ou AgentMonitor)
 .\scripts\dashboard-tunnel.ps1 -Port 3000
+.\scripts\dashboard-tunnel.ps1 -Port 8900
 .\scripts\dashboard-tunnel.ps1 -Port 19000
 ```
 
@@ -140,7 +150,26 @@ Dashboards ficam em `~/.openclaw/dashboards/`.
 
 Incluir regras de `agents/_shared/DASHBOARD-SYNC.md` no workspace OpenClaw.
 
-### 5. Plugin OpenClaw (opcional)
+### 5. systemd user (EC2 — sempre ligado)
+
+```bash
+chmod +x scripts/setup-clawmetry-ec2.sh
+bash scripts/setup-clawmetry-ec2.sh
+
+loginctl enable-linger "$USER"   # uma vez — sobrevive ao logout SSH
+systemctl --user daemon-reload
+systemctl --user enable --now openclaw-clawmetry
+journalctl --user -u openclaw-clawmetry -f
+```
+
+Incluído em `scripts/setup-ec2-hooks.sh` (junto com Forge + Orchestrate).
+
+| Variável | Default | Função |
+|----------|---------|--------|
+| `OPENCLAW_CLAWMETRY_HOST` | `127.0.0.1` | Bind local (não expor na internet) |
+| `OPENCLAW_CLAWMETRY_PORT` | `8900` | Porta do dashboard |
+
+### 6. Plugin OpenClaw (opcional)
 
 ```bash
 openclaw plugins install @openclaw/agent-monitor
@@ -161,13 +190,24 @@ npm run dev
 
 ## Comparação com o painel `/office` (Vercel)
 
-| | `/office` | AgentMonitor | Star Office |
-|--|------------|--------------|-------------|
-| Deploy | Vercel | EC2 / local | EC2 / local |
-| Tempo real | ~30 s | ~5 s (WS/SSE) | Push / poll |
-| Chat com agentes | Não | Sim | Via OpenClaw |
-| `set_state.py` | Opcional | Opcional | **Sim** |
-| Multi-agente Aldebaran | 4 cérebros fixos | Dinâmico (gateway) | join key + push |
+| | `/office` | ClawMetry | AgentMonitor | Star Office |
+|--|------------|-----------|--------------|-------------|
+| Deploy | Vercel | EC2 / local | EC2 / local | EC2 / local |
+| Tempo real | ~30 s | Live (logs/flow) | ~5 s (WS/SSE) | Push / poll |
+| Tokens / custos | Não | **Sim** | Parcial | Não |
+| Tool-calls / Flow | Não | **Sim** | Sim | Não |
+| Chat com agentes | Não | Transcripts | Sim | Via OpenClaw |
+| `set_state.py` | Opcional | Não precisa | Opcional | **Sim** |
+| Multi-agente Aldebaran | 4 cérebros fixos | Tudo no OpenClaw | Dinâmico (gateway) | join key + push |
+
+### ClawMetry — notas rápidas
+
+- **Onde corre:** na **mesma máquina** que o daemon OpenClaw (EC2 ou PC dev).
+- **Instalação:** `pip install clawmetry` ou `./scripts/install-visual-dashboard.sh clawmetry`.
+- **Acesso remoto:** túnel SSH — `dashboard-tunnel.ps1 -Port 8900` — **não** abrir porta 8900 no Security Group.
+- **Produção contínua (EC2):** `bash scripts/setup-clawmetry-ec2.sh` → `systemctl --user enable --now openclaw-clawmetry` (ver abaixo).
+- **Alternativa:** `clawmetry setup` + supervisord ([clawmetry.com](https://clawmetry.com/)).
+- **Export OTLP:** opcional para Grafana/Datadog (vendor-neutral).
 
 ---
 
@@ -188,6 +228,8 @@ npm run dev
 | `scripts/set_state.py` | Estado multi-agente |
 | `scripts/install-visual-dashboard.sh` | Install EC2/Linux |
 | `scripts/install-visual-dashboard.ps1` | Install Windows |
+| `scripts/setup-clawmetry-ec2.sh` | Install + unit `openclaw-clawmetry` |
+| `scripts/systemd/openclaw-clawmetry.service` | Template da unit user |
 | `scripts/dashboard-tunnel.ps1` | SSH tunnel porta do dashboard |
 | `agents/_shared/DASHBOARD-SYNC.md` | Regras SOUL.md |
 
@@ -195,7 +237,7 @@ npm run dev
 
 ## Segurança
 
-- Não expor portas `3000` / `19000` / `18789` na internet sem auth ou túnel.
+- Não expor portas `3000` / `8900` / `19000` / `18789` na internet sem auth ou túnel.
 - Mensagens em `set_state.py`: sem PII, tokens ou secrets.
 - Star Office em produção: `.env` com `FLASK_SECRET_KEY` forte.
 

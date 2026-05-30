@@ -3,11 +3,9 @@ name: VP-Pecas
 role: Sites usinagem (VP-Pecas, vp-precision-studio)
 
 llm:
-  provider: openrouter
-  env_key: OPENROUTER_API_KEY
-  model: minimax/minimax-m2.5:free
-  fallbacks:
-    - poolside/laguna-xs.2:free
+  provider: ollama
+  model: smollm2:360m
+  fallbacks: []
 
 skills:
   - politica-seguranca

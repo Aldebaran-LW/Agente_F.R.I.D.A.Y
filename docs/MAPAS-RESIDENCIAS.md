@@ -98,8 +98,9 @@ ORCHESTRATE_TIMEOUT_MS=8000
 ### EC2
 
 ```bash
-bash scripts/setup-ec2-hooks.sh          # Forge :8787 + Orchestrate :8790
+bash scripts/setup-ec2-hooks.sh          # Forge :8787 + Orchestrate :8790 + ClawMetry :8900
 systemctl --user enable --now openclaw-orchestrate
+systemctl --user enable --now openclaw-clawmetry   # opcional
 sudo bash scripts/install-nginx-ec2-hooks.sh   # HTTPS publico
 ```
 

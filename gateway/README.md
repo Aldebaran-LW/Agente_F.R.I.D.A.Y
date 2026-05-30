@@ -17,4 +17,4 @@ Residências: `docs/MAPAS-RESIDENCIAS.md`
 
 Hub Supabase (opcional): GET /openclaw/hub/health, /openclaw/hub/recent, POST /openclaw/hub/ingest — ver `docs/SUPABASE-CENTRAL.md`
 
-Painel pixel: `/office` · Digital Forge 3D: `/forge` (WS EC2 :8787). Docs: `docs/VISUALIZACAO-AGENTES.md`, `docs/DIGITAL-FORGE-FRIDAY.md`
+Landing: `/` · Painel pixel: `/office` · Digital Forge 3D: `/forge` (WS EC2 :8787). Docs: `docs/VISUALIZACAO-AGENTES.md`, `docs/DIGITAL-FORGE-FRIDAY.md`

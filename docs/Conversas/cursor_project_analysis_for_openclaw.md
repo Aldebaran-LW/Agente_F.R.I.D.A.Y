@@ -1,5 +1,5 @@
 # Project analysis for OpenClaw
-_Exported on 27/05/2026 at 20:30:00 BRT from Cursor (3.2.16)_
+_Exported on 27/05/2026 at 21:16:45 BRT from Cursor (3.2.16)_
 
 ---
 
@@ -686,4 +686,220 @@ O `macofel-status.js` deixa de dar **404** no gateway e o Jarvis passa a respond
 ---
 
 Queres que no próximo passo eu te guie no deploy passo a passo na Vercel (screens/variáveis) ou que ligue o bot Telegram para chamar o Jarvis automaticamente?
+
+---
+
+**User**
+
+ igue o bot Telegram para chamar o Jarvis automaticamente -> vamos com calma primeiro vamos deixar tudo certo para ele funcionar o basico, nao mistura os projetos, vc vai acabar se confundindo, e nao funcionando nada
+
+---
+
+**Cursor**
+
+Concordo: primeiro o básico do Jarvis no OpenClaw, sem misturar projetos nem ligar o Telegram ainda. Vou auditar e corrigir só o essencial.
+
+
+Organizando em camadas claras: OpenClaw (PC) só fala com o gateway; secrets pesados só na Vercel. Sem Telegram por agora.
+
+
+Perfeito — **com calma, só o básico**, sem Telegram e sem misturar projetos.
+
+---
+
+## Regra simples (para não confundir)
+
+| Sítio | O que é | O que pões lá |
+|--------|---------|----------------|
+| **`OpenClaw/`** (este repo) | Agentes + testes no PC | Só **2 variáveis** para o Jarvis |
+| **`OpenClaw/gateway/`** | API na Vercel | GitHub, Mongo, Macofel, etc. |
+| **Macofel / LW_Digital_Forge** | Outros projetos | **Não mexer agora** |
+| **Telegram** | Bot | **Fase 2** — depois do Jarvis OK |
+
+---
+
+## O que organizei no OpenClaw
+
+1. **`gateway/.env.example`** — variáveis **só da Vercel** (não copiar para a raiz).
+2. **`.env.example`** (raiz) — secção clara **“OpenClaw + Jarvis”** com 2 chaves; resto opcional/fase 2.
+3. **`scripts/check-basico.js`** — testa **apenas** gateway + Jarvis (sem Telegram, sem Mongo local).
+4. **`run-basico.ps1`** — atalho: `.\run-basico.ps1`
+5. **`docs/BASICO-OPENCLAW.md`** — ordem dos passos.
+6. **`docs/GATEWAY-VERCEL.md`** — deploy da pasta `gateway`.
+7. Orquestrador — nota: **Telegram = fase 2, não activar ainda**.
+
+---
+
+## O que falta (1 coisa de cada lado)
+
+Corri `check-basico.js`: tens **token e URL no `.env`**, mas tudo dá **404** — o domínio `openclaw.lwdigitalforge.com` **ainda não tem** o projeto `gateway/` publicado (ou o deploy não usa `gateway` como Root Directory).
+
+### No teu PC (já quase)
+
+No `.env` da raiz OpenClaw, só precisas disto para a fase 1:
+
+```env
+OPENCLAW_AUTOMATION_TOKEN=...   # mesmo valor que vais pôr na Vercel
+OPENCLAW_GATEWAY_BASE_URL=https://openclaw.lwdigitalforge.com
+```
+
+### Na Vercel (o passo que desbloqueia tudo)
+
+1. Projeto → **Root Directory = `gateway`**
+2. Copiar variáveis de **`gateway/.env.example`** (não da raiz)
+3. **Deploy**
+4. Testar:
+
+```powershell
+cd "C:\Users\LUCAS_W\Documents\GitHub\Agente_OpenClaw"
+.\run-basico.ps1
+```
+
+Quando estiver certo, vês algo como:
+
+```
+[OK] GET /api/health
+[OK] GET /jarvis
+[OK] POST /jarvis
+  Jarvis: Jarvis online. Diga: status macofel...
+```
+
+---
+
+## O que **não** vamos fazer agora
+
+- Ligar Telegram ao Jarvis  
+- Mexer em `LW_Digital_Forge` ou `Macofel_2.0`  
+- Encher o `.env` local com Mongo/GitHub (fica na Vercel)
+
+---
+
+## Depois do básico verde (fase 2)
+
+Aí sim: Telegram → `POST /jarvis` com a mensagem do utilizador. Só quando `run-basico.ps1` passar sem falhas.
+
+---
+
+**Próximo passo único:** deploy na Vercel com root `gateway` e as env vars de `gateway/.env.example`. Quando fizeres o deploy, diz “deploy feito” e corro o teste outra vez contigo — ainda **sem** Telegram.
+
+---
+
+**User**
+
+git push commit https://github.com/Aldebaran-LW/Agente_OpenClaw 
+
+---
+
+**Cursor**
+
+Preparando commit e push para o GitHub — verificando o estado do repositório e excluindo ficheiros sensíveis.
+
+
+Corrigindo `.gitignore` corrompido e fazendo commit sem secrets (`Chaves/`, `.env`).
+
+
+Corrigindo o staging: removendo `node_modules`, `desktop.ini` e pasta duplicada.
+
+
+**Commit e push concluídos** para [github.com/Aldebaran-LW/Agente_OpenClaw](https://github.com/Aldebaran-LW/Agente_OpenClaw)
+
+---
+
+## Commit
+
+**`547ac11`** — *Adiciona gateway Jarvis na Vercel e arquitetura multi-agente.*
+
+Inclui, entre outro:
+
+- Pasta **`gateway/`** (API Jarvis + rotas `/openclaw/...`)
+- Agentes atualizados + `JARVIS.md`
+- Scripts `check-basico.js`, `jarvis-ask.js`, `macofel-status.js`
+- Docs `BASICO-OPENCLAW.md`, `GATEWAY-VERCEL.md`, `ARQUITETURA-AGENTES.md`
+- Skill `openclaw-jarvis`
+
+---
+
+## O que **não** foi para o GitHub (de propósito)
+
+| Ficheiro/pasta | Motivo |
+|----------------|--------|
+| `.env` | Secrets |
+| `Chaves/` | PEM / tokens |
+| `scripts/node_modules/` | Dependências npm |
+| `desktop.ini` | Lixo do Windows / Drive |
+| `.heartbeat-state.json`, `.sync-state.json` | Estado local |
+
+`.gitignore` foi corrigido para ignorar isto no futuro.
+
+---
+
+## Notas técnicas
+
+- O remoto já tinha commits (`d669992`); fiz **rebase** e push em `main`.
+- Limpei refs `desktop.ini` corrompidas dentro de `.git` (Google Drive).
+- Removi pasta duplicada `gateway/gateway/` no Drive.
+
+---
+
+## No teu PC (opcional)
+
+Ainda tens alteração local em `docs/VARIAVEIS-AMBIENTE.md` e um **stash** antigo. Se quiseres alinhar:
+
+```powershell
+cd "G:\Meu Drive\Projetos\OpenClaw"
+git stash drop   # se nao precisares do stash
+```
+
+---
+
+## Próximo passo (Vercel)
+
+No projeto Vercel, confirma **Root Directory = `gateway`** e faz redeploy a partir deste commit. Depois: `.\run-basico.ps1`.
+
+---
+
+**User**
+
+<system_notification>
+The following task has finished. If you were already aware, ignore this notification and do not restate prior responses.
+
+<task>
+kind: shell
+status: error
+task_id: 570636
+title: Fix broken git refs and pull rebase from origin
+detail: exit_code=1
+output_path: C:\Users\LUCAS_W\.cursor\projects\g-Meu-Drive-Projetos-OpenClaw\terminals\570636.txt
+</task>
+</system_notification>
+<user_query>Briefly inform the user about the task result and perform any follow-up actions (if needed). If there's no follow-ups needed, don't explicitly say that.</user_query>
+
+<system_notification>
+The following task has finished. If you were already aware, ignore this notification and do not restate prior responses.
+
+<task>
+kind: shell
+status: success
+task_id: 459901
+title: Stash changes, pull rebase, push to origin
+output_path: C:\Users\LUCAS_W\.cursor\projects\g-Meu-Drive-Projetos-OpenClaw\terminals\459901.txt
+</task>
+</system_notification>
+<user_query>Briefly inform the user about the task result and perform any follow-up actions (if needed). If there's no follow-ups needed, don't explicitly say that.</user_query>
+
+---
+
+**Cursor**
+
+**Resumo das tarefas Git**
+
+1. **Primeira tentativa (falhou)** — O `git pull` bloqueou por refs `desktop.ini` corrompidas dentro de `.git` (efeito comum do Google Drive).
+
+2. **Segunda tentativa (ok)** — Refs limpas, rebase em `origin/main`, **push concluído**.
+
+**Remoto:** [github.com/Aldebaran-LW/Agente_OpenClaw](https://github.com/Aldebaran-LW/Agente_OpenClaw) em `main`, commit **`547ac11`** (*gateway Jarvis + multi-agente*).
+
+**Local (só no teu PC, não no GitHub):** alterações por commitar em alguns `.md` / `.env.example`, ficheiros ignorados (`.env`, `Chaves/`, `node_modules`) e um `stash` antigo (`wip pre-pull`). Nada disso impede o que já está no GitHub.
+
+**Próximo passo útil:** na Vercel, **Root Directory = `gateway`** e redeploy a partir deste commit; depois `.\run-basico.ps1`.
 

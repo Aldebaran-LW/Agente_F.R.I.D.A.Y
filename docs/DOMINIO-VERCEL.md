@@ -7,7 +7,7 @@ Projeto **agente-openclaw** (Root Directory = `gateway`).
 | Dominio | Papel |
 |---------|--------|
 | **`openclaw.lwdigitalforge.com`** | **API / gateway** — usar em `OPENCLAW_GATEWAY_BASE_URL` |
-| **`f.r.i.d.a.y.lwdigitalforge.com`** | Marca F.R.I.D.A.Y. (mesmo deploy; `/office`, `/forge`) |
+| **`f.r.i.d.a.y.lwdigitalforge.com`** | Marca F.R.I.D.A.Y. (mesmo deploy; `/` landing, `/office`, `/forge`) |
 | `agente-openclaw.vercel.app` | URL Vercel default (testes) |
 
 Todos apontam ao **mesmo** projeto; escolhe **um** host no `.env` (recomendado: `openclaw`).

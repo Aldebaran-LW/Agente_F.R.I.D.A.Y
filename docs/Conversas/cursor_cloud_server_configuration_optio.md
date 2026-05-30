@@ -1,5 +1,5 @@
 # Cloud server configuration options
-_Exported on 27/05/2026 at 15:18:05 BRT from Cursor (3.5.17)_
+_Exported on 28/05/2026 at 15:55:12 BRT from Cursor (3.5.17)_
 
 ---
 
