@@ -11,7 +11,7 @@ import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { homedir } from 'os';
 import { loadAllAgentConfigs, modelRef } from './lib/parse-agent-yaml.mjs';
-import { applyHfProvider, orchestratorComplexFallbacks } from './lib/hf-inference-config.mjs';
+import { applyProviderContextWindows, orchestratorComplexFallbacks } from './lib/hf-inference-config.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
@@ -110,7 +110,7 @@ if (process.env.GOOGLE_API_KEY) {
   doc.models.providers.google = doc.models.providers.google || {};
   doc.models.providers.google.apiKey = process.env.GOOGLE_API_KEY;
 }
-applyHfProvider(doc);
+applyProviderContextWindows(doc);
 
 if (dryRun) {
   console.log('\n[DRY-RUN] Ficheiro alvo: ' + configPath);

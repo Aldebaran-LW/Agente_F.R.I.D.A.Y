@@ -3,26 +3,24 @@ id: orchestrator
 name: Jarvis
 role: Orquestrador (Telegram, aprovacoes, delegacao)
 
-# Telegram: Ollama (simples) + DeepSeek/HF Router (complexo) + gateway (operacional)
+# Telegram: Groq (128k) + fallbacks cloud; operacional via skill openclaw-jarvis
 llm:
-  provider: ollama
-  model: smollm2:360m
+  provider: groq
+  model: llama-3.3-70b-versatile
   fallbacks:
+    - infron/deepseek/deepseek-v3.2
     - deepseek/deepseek-v4-flash
     - huggingface/Qwen/Qwen2.5-7B-Instruct:fastest
 
 llm_policy:
-  order: [scripts, ollama, deepseek_direct, hf_inference, paid_explicit_only]
-  simple: ollama/smollm2:360m
-  complex: deepseek/deepseek-v4-flash
-  complex_fallback: huggingface/Qwen/Qwen2.5-7B-Instruct:fastest
+  order: [scripts, groq, infron, deepseek_direct, hf_inference, paid_explicit_only]
+  simple: groq/llama-3.3-70b-versatile
+  complex: groq/llama-3.3-70b-versatile
+  complex_fallback: infron/deepseek/deepseek-v3.2
 
 skills:
   - politica-seguranca
   - openclaw-jarvis
-  - github-aldebaran
-  - deploy-monitor
-  - vercel-status
 
 deploy:
   mode: aws_ec2
@@ -31,4 +29,4 @@ deploy:
 
 secrets:
   gateway: [OPENCLAW_GATEWAY_BASE_URL, OPENCLAW_AUTOMATION_TOKEN]
-  optional: [DEEPSEEK_API_KEY, HF_TOKEN, HF_INFERENCE_MODEL]
+  optional: [GROQ_API_KEY, DEEPSEEK_API_KEY, HF_TOKEN, HF_INFERENCE_MODEL, INFRON_API_KEY]

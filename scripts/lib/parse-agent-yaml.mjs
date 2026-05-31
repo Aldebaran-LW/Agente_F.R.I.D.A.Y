@@ -46,6 +46,14 @@ export function modelRef(cfg) {
     if (model.startsWith('huggingface/')) return model;
     return `huggingface/${model}`;
   }
+  if (provider === 'groq') {
+    if (model.startsWith('groq/')) return model;
+    return `groq/${model}`;
+  }
+  if (provider === 'infron') {
+    if (model.startsWith('infron/')) return model;
+    return `infron/${model}`;
+  }
   if (provider === 'kilo') return model;
   return model;
 }
