@@ -27,6 +27,7 @@ if (!token) {
 
 const secrets = [
   ['OPENROUTER_API_KEY', process.env.OPENROUTER_API_KEY?.trim()],
+  ['KILO_API_KEY', process.env.KILO_API_KEY?.trim()],
   ['HF_TOKEN', token],
   ['OPENCLAW_GATEWAY_BASE_URL', process.env.OPENCLAW_GATEWAY_BASE_URL?.trim()],
   ['OPENCLAW_AUTOMATION_TOKEN', process.env.OPENCLAW_AUTOMATION_TOKEN?.trim()],
@@ -34,6 +35,7 @@ const secrets = [
 
 const variables = [
   ['HF_BACKUP_DATASET', process.env.HF_BACKUP_DATASET || 'Aldebaran-LW/openclaw-backup'],
+  ['KILO_GATEWAY_BASE_URL', process.env.KILO_GATEWAY_BASE_URL?.trim() || 'https://api.kilo.ai/api/gateway'],
 ];
 
 console.log('Space', SPACE);

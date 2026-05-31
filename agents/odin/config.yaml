@@ -1,0 +1,19 @@
+id: odin
+name: Odin
+role: Agente de Seguranca — politica, aprovacoes e auditoria
+
+llm:
+  provider: ollama
+  model: smollm2:360m
+  fallbacks: []
+
+skills:
+  - politica-seguranca
+
+secrets:
+  gateway: [OPENCLAW_GATEWAY_BASE_URL, OPENCLAW_AUTOMATION_TOKEN]
+
+deploy:
+  mode: hf_space
+  hf_space: Aldebaran-LW/friday-prod
+  hf_path: /run/odin

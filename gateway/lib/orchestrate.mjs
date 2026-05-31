@@ -10,7 +10,7 @@ export const AGENT_RESIDENCE = {
   orchestrator: { residence: 'aws', label: 'Jarvis (EC2)' },
   jarvis: { residence: 'aws', label: 'Jarvis (EC2)' },
   macofel: { residence: 'aws', label: 'Macofel (EC2/API)' },
-  ops: { residence: 'aws', label: 'Ops (EC2 cron)' },
+  ops: { residence: 'aws', label: 'Heimdall (EC2 cron)' },
   'vp-pecas': { residence: 'aws', label: 'VP-Pecas (EC2)' },
   sophia: { residence: 'hf', label: 'Sophia (HF Space)' },
   rebeca: { residence: 'hf', label: 'Rebeca (HF Space)' },

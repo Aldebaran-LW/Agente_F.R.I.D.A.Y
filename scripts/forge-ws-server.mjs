@@ -13,7 +13,8 @@ const HOST = process.env.OPENCLAW_FORGE_WS_HOST || '127.0.0.1';
 
 const ALIAS = {
   orchestrator: 'friday',
-  ops: 'byte',
+  ops: 'heimdall',
+  odin: 'odin',
   'vp-pecas': 'pixel',
   macofel: 'lala',
   main: 'friday',

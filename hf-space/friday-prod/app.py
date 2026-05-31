@@ -21,7 +21,11 @@ CONFIG_PATH = Path(__file__).parent / "agents-config.yaml"
 _agents_cache: dict[str, Any] | None = None
 _runtime_agents: dict[str, Any] = {}
 
-# Último recurso quando primary/fallbacks do agente falham (429/404)
+# Agentes que preferem Kilo Gateway (construcao / codegen)
+KILO_AGENT_IDS = {"hefestos"}
+KILO_GATEWAY_BASE_DEFAULT = "https://api.kilo.ai/api/gateway"
+
+# Ultimo recurso quando primary/fallbacks do agente falham (429/404)
 GLOBAL_OPENROUTER_FALLBACKS = [
     "poolside/laguna-xs.2:free",
     "nvidia/nemotron-3-super-120b-a12b:free",
@@ -120,6 +124,64 @@ def _run_openrouter_chat(task: str, cfg: dict[str, Any]) -> str:
     raise RuntimeError("; ".join(errors) if errors else "OpenRouter falhou")
 
 
+def _kilo_base_url() -> str:
+    return (os.environ.get("KILO_GATEWAY_BASE_URL") or KILO_GATEWAY_BASE_DEFAULT).rstrip("/")
+
+
+def _run_kilo_chat(task: str, cfg: dict[str, Any]) -> str:
+    """Chat via Kilo Gateway — preferido para Hefestos (build/codegen)."""
+    import httpx
+
+    key = os.environ.get("KILO_API_KEY", "").strip()
+    if not key:
+        raise ValueError("KILO_API_KEY em falta")
+
+    primary = (cfg.get("kilo_model") or cfg.get("model") or "kilo-auto/free").strip()
+    fallbacks = [str(m).strip() for m in (cfg.get("kilo_fallbacks") or cfg.get("fallbacks") or []) if str(m).strip()]
+    seen: set[str] = set()
+    models: list[str] = []
+    for mid in [primary, *fallbacks, "kilo-auto/free"]:
+        if mid and mid not in seen:
+            seen.add(mid)
+            models.append(mid)
+
+    system = cfg.get("description") or cfg.get("role") or "Assistente OpenClaw"
+    errors: list[str] = []
+    base = _kilo_base_url()
+
+    for model_id in models:
+        try:
+            r = httpx.post(
+                f"{base}/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {key}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": model_id,
+                    "messages": [
+                        {"role": "system", "content": system},
+                        {"role": "user", "content": task},
+                    ],
+                    "max_tokens": min(int(cfg.get("max_tokens") or 2048), 4096),
+                    "temperature": float(cfg.get("temperature") or 0.7),
+                },
+                timeout=90.0,
+            )
+            if r.status_code >= 400:
+                errors.append(f"{model_id}: HTTP {r.status_code}")
+                continue
+            data = r.json()
+            content = (data.get("choices") or [{}])[0].get("message", {}).get("content")
+            if content:
+                return str(content).strip()
+            errors.append(f"{model_id}: resposta vazia")
+        except Exception as e:
+            errors.append(f"{model_id}: {e}")
+
+    raise RuntimeError("; ".join(errors) if errors else "Kilo Gateway falhou")
+
+
 def _build_smol_agent(agent_id: str, cfg: dict[str, Any]):
     try:
         from smolagents import CodeAgent, InferenceClientModel, OpenAIModel
@@ -133,8 +195,19 @@ def _build_smol_agent(agent_id: str, cfg: dict[str, Any]):
 
     openrouter_key = os.environ.get("OPENROUTER_API_KEY", "").strip()
     hf_token = os.environ.get("HF_TOKEN", "").strip()
+    kilo_key = os.environ.get("KILO_API_KEY", "").strip()
 
-    if openrouter_key:
+    if agent_id in KILO_AGENT_IDS and kilo_key:
+        model_id = (cfg.get("kilo_model") or cfg.get("model") or "kilo-auto/free").strip()
+        model = OpenAIModel(
+            model_id=model_id,
+            api_base=_kilo_base_url(),
+            api_key=kilo_key,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            flatten_messages_as_text=True,
+        )
+    elif openrouter_key:
         model_id = _normalize_openrouter_model_id(raw_model)
         model = OpenAIModel(
             model_id=model_id,
@@ -208,6 +281,18 @@ class Orquestrador:
         cfg = self.configs[target]
         tool_names = cfg.get("tools") or []
 
+        if target in KILO_AGENT_IDS and os.environ.get("KILO_API_KEY", "").strip():
+            try:
+                result = _run_kilo_chat(task, cfg)
+                out = {"ok": True, "mode": "kilo-chat", "agent_id": target, "result": result}
+                if os.environ.get("HF_LEARNING_AUTO", "").lower() in ("1", "true", "yes"):
+                    from sync import append_learning
+
+                    append_learning(target, f"{task}\n---\n{out['result']}")
+                return out
+            except Exception as e:
+                return {"ok": False, "agent_id": target, "error": str(e)}
+
         if not tool_names and os.environ.get("OPENROUTER_API_KEY", "").strip():
             try:
                 result = _run_openrouter_chat(task, cfg)
@@ -271,6 +356,7 @@ def root():
         },
         "agent_count": len(configs),
         "openrouter": bool(os.environ.get("OPENROUTER_API_KEY")),
+        "kilo": bool(os.environ.get("KILO_API_KEY")),
         "hf_token": bool(os.environ.get("HF_TOKEN")),
         "gateway": bool(os.environ.get("OPENCLAW_GATEWAY_BASE_URL")),
     }
@@ -282,6 +368,7 @@ def health():
         "ok": True,
         "service": "friday-prod",
         "openrouter": bool(os.environ.get("OPENROUTER_API_KEY")),
+        "kilo": bool(os.environ.get("KILO_API_KEY")),
         "hf_token": bool(os.environ.get("HF_TOKEN")),
         "gateway": bool(os.environ.get("OPENCLAW_GATEWAY_BASE_URL")),
     }

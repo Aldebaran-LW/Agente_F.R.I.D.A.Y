@@ -12,7 +12,9 @@ Relacionado: [DEEPSEEK-API.md](./DEEPSEEK-API.md) · [OPENROUTER-MODELOS-FREE.md
 |-------|---------|
 | **Scripts primeiro** | Status Macofel, GitHub, deploy → gateway Vercel / cron — **zero LLM** |
 | **Ollama na EC2** | Telegram e agentes locais → `ollama/smollm2:360m` (sem quota externa) |
-| **OpenRouter** | **Removido** (quota `:free` esgotava e bloqueava o bot) — doc histórica em OPENROUTER-MODELOS-FREE.md |
+| **Infron** | Fallback EC2 (`INFRON_API_KEY`) após HF Router |
+| **Groq** | Fallback final EC2 (`GROQ_API_KEY`) — ver [GROQ-API.md](./GROQ-API.md) |
+| **Kilo Gateway** | HF `friday-prod` — agente **Hefestos** (`kilo-auto/free`) |
 | **API directa opcional** | DeepSeek → `DEEPSEEK_API_KEY` (402 se sem saldo) |
 | **HF Inference Router** | `HF_TOKEN` + providers HF → fallback complexo Telegram |
 | **Mesma linha de raciocínio** | `agents/_shared/VOZ-JARVIS.md` + `POLITICA-SEGURANCA.md` em todos |

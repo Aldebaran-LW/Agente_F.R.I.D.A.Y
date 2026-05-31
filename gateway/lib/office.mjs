@@ -78,19 +78,19 @@ function vpPecasAgent(deploy) {
 function opsAgent(github, deploy) {
   const repoErrors = github?.repos?.filter((r) => r.error) ?? [];
   if (repoErrors.length > 0) {
-    return agent('ops', 'Ops', 'GitHub + deploy', 'error', `${repoErrors.length} repo(s) inacessível`, {
+    return agent('ops', 'Heimdall', 'GitHub + deploy', 'error', `${repoErrors.length} repo(s) inacessível`, {
       repos: github.repos,
     });
   }
   const issues = (github?.repos ?? []).reduce((n, r) => n + (r.open_issues ?? 0), 0);
   const deployBad = (deploy?.sites ?? []).filter((s) => !s.ok).length;
   if (deployBad > 0) {
-    return agent('ops', 'Ops', 'GitHub + deploy', 'working', `${deployBad} site(s) em falha · ${issues} issues`, {
+    return agent('ops', 'Heimdall', 'GitHub + deploy', 'working', `${deployBad} site(s) em falha · ${issues} issues`, {
       issues,
     });
   }
   if (issues > 0) {
-    return agent('ops', 'Ops', 'GitHub + deploy', 'working', `${issues} issue(s) aberta(s)`, { issues });
+    return agent('ops', 'Heimdall', 'GitHub + deploy', 'working', `${issues} issue(s) aberta(s)`, { issues });
   }
   return agent('ops', 'Ops', 'GitHub + deploy', 'idle', 'repos e deploys OK', {
     owner: github?.owner,

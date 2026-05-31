@@ -1,5 +1,5 @@
 # Gerado automaticamente — nao editar a mao; use generate-hf-agents-config.mjs
-# 2026-05-30T21:37:57.952Z
+# 2026-05-31T02:47:18.349Z
 
 defaults:
   max_tokens: 4096
@@ -18,13 +18,10 @@ athena:
   max_tokens: 4096
   temperature: 0.7
   fallbacks:
-    - "["
-    - "]"
+    []
   skills:
     - "politica-seguranca"
     - "innovation-monitor"
-    - "deploy-monitor"
-    - "vercel-status"
   tools:
   hub_tools: []
 
@@ -39,8 +36,7 @@ dedalo:
   max_tokens: 4096
   temperature: 0.7
   fallbacks:
-    - "["
-    - "]"
+    []
   skills:
     - "politica-seguranca"
     - "data-schema"
@@ -53,13 +49,17 @@ hefestos:
   forge_alias: hefestos
   role: "Construtor — skills, scripts, docs (apos Senku >= 70)"
   description: "Hefestos — Construtor — skills, scripts, docs (apos Senku >= 70)"
-  model: "smollm2:360m"
-  model_ref: "ollama/smollm2:360m"
+  model: "kilo-auto/free"
+  model_ref: "kilo-auto/free"
   max_tokens: 4096
   temperature: 0.7
+  provider: "kilo"
+  env_key: "KILO_API_KEY"
+  kilo_model: "kilo-auto/free"
+  kilo_fallbacks:
+    - "kilo-auto/free"
   fallbacks:
-    - "["
-    - "]"
+    []
   skills:
     - "politica-seguranca"
     - "innovation-build"
@@ -77,8 +77,7 @@ icaro:
   max_tokens: 4096
   temperature: 0.7
   fallbacks:
-    - "["
-    - "]"
+    []
   skills:
     - "politica-seguranca"
     - "innovation-test"
@@ -96,8 +95,7 @@ macofel:
   max_tokens: 4096
   temperature: 0.7
   fallbacks:
-    - "["
-    - "]"
+    []
   skills:
     - "politica-seguranca"
     - "macofel-status"
@@ -107,19 +105,35 @@ macofel:
     - "listar_categorias"
   hub_tools: []
 
-ops:
-  id: ops
-  name: "Ops"
-  forge_alias: byte
-  role: "GitHub org + deploy + Vercel"
-  description: "Ops — GitHub org + deploy + Vercel"
+odin:
+  id: odin
+  name: "Odin"
+  forge_alias: odin
+  role: "Agente de Seguranca — politica, aprovacoes e auditoria"
+  description: "Odin — Agente de Seguranca — politica, aprovacoes e auditoria"
   model: "smollm2:360m"
   model_ref: "ollama/smollm2:360m"
   max_tokens: 4096
   temperature: 0.7
   fallbacks:
-    - "["
-    - "]"
+    []
+  skills:
+    - "politica-seguranca"
+  tools:
+  hub_tools: []
+
+ops:
+  id: ops
+  name: "Heimdall"
+  forge_alias: heimdall
+  role: "Vigia — GitHub org + deploy + Vercel (id tecnico: ops)"
+  description: "Heimdall — Vigia — GitHub org + deploy + Vercel (id tecnico: ops)"
+  model: "smollm2:360m"
+  model_ref: "ollama/smollm2:360m"
+  max_tokens: 4096
+  temperature: 0.7
+  fallbacks:
+    []
   skills:
     - "politica-seguranca"
     - "github-aldebaran"
@@ -163,8 +177,7 @@ rebeca:
   max_tokens: 4096
   temperature: 0.7
   fallbacks:
-    - "["
-    - "]"
+    []
   skills:
     - "politica-seguranca"
     - "innovation-design"
@@ -182,8 +195,7 @@ senku:
   max_tokens: 4096
   temperature: 0.7
   fallbacks:
-    - "["
-    - "]"
+    []
   skills:
     - "politica-seguranca"
     - "innovation-viability"
@@ -201,8 +213,7 @@ sophia:
   max_tokens: 4096
   temperature: 0.7
   fallbacks:
-    - "["
-    - "]"
+    []
   skills:
     - "politica-seguranca"
     - "innovation-research"
@@ -220,13 +231,10 @@ vp-pecas:
   max_tokens: 4096
   temperature: 0.7
   fallbacks:
-    - "["
-    - "]"
+    []
   skills:
     - "politica-seguranca"
-    - "github-aldebaran"
-    - "deploy-monitor"
-    - "vercel-status"
+    - "vp-pecas-health"
   tools:
     - "health_site_vp"
   hub_tools: []

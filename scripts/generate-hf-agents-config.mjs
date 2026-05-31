@@ -18,7 +18,8 @@ const outPath = outArg ? resolve(process.cwd(), outArg) : defaultOut;
 
 const FORGE_ALIAS = {
   orchestrator: 'friday',
-  ops: 'byte',
+  ops: 'heimdall',
+  odin: 'odin',
   'vp-pecas': 'pixel',
   macofel: 'lala',
   sophia: 'sophia',
@@ -69,6 +70,12 @@ for (const cfg of agents) {
     tools: HF_TOOLS[id] || [],
     hub_tools: [],
   };
+  if (cfg.provider === 'kilo') {
+    doc[id].provider = 'kilo';
+    doc[id].env_key = 'KILO_API_KEY';
+    doc[id].kilo_model = cfg.model || 'kilo-auto/free';
+    doc[id].kilo_fallbacks = cfg.fallbacks?.length ? cfg.fallbacks : ['kilo-auto/free'];
+  }
 }
 
 const yaml = [
@@ -95,8 +102,17 @@ for (const cfg of agents) {
   yaml.push(`  model_ref: ${JSON.stringify(a.model_ref)}`);
   yaml.push(`  max_tokens: ${doc.defaults.max_tokens}`);
   yaml.push(`  temperature: ${doc.defaults.temperature}`);
+  if (a.provider) yaml.push(`  provider: ${JSON.stringify(a.provider)}`);
+  if (a.env_key) yaml.push(`  env_key: ${JSON.stringify(a.env_key)}`);
+  if (a.kilo_model) yaml.push(`  kilo_model: ${JSON.stringify(a.kilo_model)}`);
+  if (a.kilo_fallbacks?.length) {
+    yaml.push('  kilo_fallbacks:');
+    for (const f of a.kilo_fallbacks) yaml.push(`    - ${JSON.stringify(f)}`);
+  }
   yaml.push('  fallbacks:');
-  for (const f of a.fallbacks) yaml.push(`    - ${JSON.stringify(f)}`);
+  const fb = Array.isArray(a.fallbacks) ? a.fallbacks : [];
+  if (!fb.length) yaml.push('    []');
+  else for (const f of fb) yaml.push(`    - ${JSON.stringify(f)}`);
   yaml.push('  skills:');
   for (const s of a.skills) yaml.push(`    - ${JSON.stringify(s)}`);
   yaml.push('  tools:');

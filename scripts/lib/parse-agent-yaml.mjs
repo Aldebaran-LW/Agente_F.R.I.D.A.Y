@@ -22,8 +22,13 @@ function parseAgentYaml(text) {
     if (!m) continue;
     const [, key, valRaw] = m;
     const val = valRaw.trim().replace(/^["']|["']$/g, '');
-    if (inLlm) cfg[key] = val;
-    else cfg[key] = val;
+    if (inLlm) {
+      if (key === 'fallbacks' && val === '[]') {
+        cfg.fallbacks = [];
+        continue;
+      }
+      cfg[key] = val;
+    } else cfg[key] = val;
   }
   return cfg;
 }
@@ -41,6 +46,7 @@ export function modelRef(cfg) {
     if (model.startsWith('huggingface/')) return model;
     return `huggingface/${model}`;
   }
+  if (provider === 'kilo') return model;
   return model;
 }
 

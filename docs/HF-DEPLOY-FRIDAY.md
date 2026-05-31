@@ -138,7 +138,9 @@ Gera `hf-space/friday-prod/agents-config.yaml` (4 cérebros + skills + tools stu
 
 | Nome | Uso |
 |------|-----|
-| `OPENROUTER_API_KEY` | LLM via OpenRouter (recomendado) |
+| `OPENROUTER_API_KEY` | LLM via OpenRouter (Sophia, Senku, etc.) |
+| `KILO_API_KEY` | **Hefestos** no friday-prod (`kilo-auto/free`) |
+| `KILO_GATEWAY_BASE_URL` | Default `https://api.kilo.ai/api/gateway` |
 | `HF_TOKEN` | Fallback Inference API HF |
 | `OPENCLAW_GATEWAY_BASE_URL` | Tools Ops/VP reais |
 | `OPENCLAW_AUTOMATION_TOKEN` | Bearer gateway |

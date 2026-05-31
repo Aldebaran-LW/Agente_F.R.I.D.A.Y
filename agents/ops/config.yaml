@@ -1,6 +1,6 @@
 id: ops
-name: Ops
-role: GitHub org + deploy + Vercel
+name: Heimdall
+role: Vigia — GitHub org + deploy + Vercel (id tecnico: ops)
 
 llm:
   provider: ollama

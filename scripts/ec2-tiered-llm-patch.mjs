@@ -5,7 +5,9 @@
  */
 import { readFileSync, writeFileSync } from 'fs';
 import {
+  applyGroqProvider,
   applyHfProvider,
+  applyInfronProvider,
   orchestratorComplexFallbacks,
 } from './lib/hf-inference-config.mjs';
 
@@ -57,6 +59,8 @@ if (process.env.DEEPSEEK_API_KEY) {
   doc.models.providers.deepseek.baseUrl = 'https://api.deepseek.com';
 }
 applyHfProvider(doc);
+applyInfronProvider(doc);
+applyGroqProvider(doc);
 
 doc.agents.defaults.compaction = doc.agents.defaults.compaction || {};
 doc.agents.defaults.compaction.reserveTokensFloor = 20000;

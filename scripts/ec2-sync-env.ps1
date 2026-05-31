@@ -22,7 +22,7 @@ if (-not $key) {
 if (-not $host_) { $host_ = "18.191.36.145" }
 if (-not $key -or -not (Test-Path $key)) { throw "Chave PEM nao encontrada" }
 
-$prefixes = @("TELEGRAM_", "OPENROUTER_", "OPENCLAW_", "GOOGLE_", "DEEPSEEK_", "HF_", "HUGGINGFACE_")
+$prefixes = @("TELEGRAM_", "OPENROUTER_", "OPENCLAW_", "GOOGLE_", "DEEPSEEK_", "HF_", "HUGGINGFACE_", "INFRON_", "KILO_", "GROQ_")
 $lines = Get-Content $envFile -Encoding UTF8 | Where-Object {
   $line = $_.Trim()
   if (-not $line -or $line.StartsWith("#")) { return $false }

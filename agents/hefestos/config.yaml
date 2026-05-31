@@ -3,8 +3,8 @@ name: Hefestos
 role: Construtor — skills, scripts, docs (apos Senku >= 70)
 
 llm:
-  provider: ollama
-  model: smollm2:360m
+  provider: kilo
+  model: kilo-auto/free
   fallbacks: []
 
 skills:

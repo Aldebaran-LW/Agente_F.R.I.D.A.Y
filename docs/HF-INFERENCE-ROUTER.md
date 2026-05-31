@@ -14,8 +14,10 @@ Relacionado: [HUGGINGFACE-SPACES.md](./HUGGINGFACE-SPACES.md) · [LEQUE-IAS.md](
 | Simples | Ollama `smollm2:360m` | oi, curto |
 | Complexo 1 | DeepSeek API | analise, plano, codigo |
 | Complexo 2 | **HF Router** | fallback se DeepSeek 402/erro |
+| Complexo 3 | **Infron** | fallback (`INFRON_API_KEY`) |
+| Complexo 4 | **Groq** | fallback final (`GROQ_API_KEY`) |
 
-OpenClaw tenta fallbacks em ordem: `deepseek/deepseek-v4-flash` -> `huggingface/Qwen/Qwen2.5-7B-Instruct:fastest`.
+OpenClaw tenta fallbacks em ordem: `deepseek/deepseek-v4-flash` -> `huggingface/Qwen/...` -> `infron/deepseek-v3.2` -> `groq/llama-3.3-70b-versatile` (conforme chaves no `.env`).
 
 ---
 

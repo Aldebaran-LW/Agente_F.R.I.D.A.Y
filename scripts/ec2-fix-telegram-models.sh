@@ -25,11 +25,37 @@ if [[ -n "$HF_KEY" ]]; then
   openclaw config set models.providers.huggingface.baseUrl "https://router.huggingface.co/v1" 2>/dev/null || true
 fi
 
+if [[ -n "${INFRON_API_KEY:-}" ]]; then
+  INFRON_URL="${INFRON_BASE_URL:-https://llm.onerouter.pro/v1}"
+  openclaw config set models.providers.infron.apiKey "$INFRON_API_KEY" 2>/dev/null || true
+  openclaw config set models.providers.infron.baseUrl "$INFRON_URL" 2>/dev/null || true
+fi
+
+if [[ -n "${GROQ_API_KEY:-}" ]]; then
+  GROQ_URL="${GROQ_BASE_URL:-https://api.groq.com/openai/v1}"
+  openclaw config set models.providers.groq.apiKey "$GROQ_API_KEY" 2>/dev/null || true
+  openclaw config set models.providers.groq.baseUrl "$GROQ_URL" 2>/dev/null || true
+fi
+
 FALLBACKS='["deepseek/deepseek-v4-flash"]'
 if [[ -n "$HF_KEY" ]]; then
   HF_MODEL="${HF_INFERENCE_MODEL:-Qwen/Qwen2.5-7B-Instruct:fastest}"
   HF_MODEL="${HF_MODEL#huggingface/}"
   FALLBACKS='["deepseek/deepseek-v4-flash","huggingface/'"$HF_MODEL"'"]'
+fi
+if [[ -n "${INFRON_API_KEY:-}" ]]; then
+  INFRON_MODEL="${INFRON_MODEL:-deepseek/deepseek-v3.2}"
+  INFRON_MODEL="${INFRON_MODEL#infron/}"
+  if [[ -n "$HF_KEY" ]]; then
+    FALLBACKS='["deepseek/deepseek-v4-flash","huggingface/'"$HF_MODEL"'","infron/'"$INFRON_MODEL"'"]'
+  else
+    FALLBACKS='["deepseek/deepseek-v4-flash","infron/'"$INFRON_MODEL"'"]'
+  fi
+fi
+if [[ -n "${GROQ_API_KEY:-}" ]]; then
+  GROQ_MODEL="${GROQ_MODEL:-llama-3.3-70b-versatile}"
+  GROQ_MODEL="${GROQ_MODEL#groq/}"
+  FALLBACKS="${FALLBACKS%\]},\"groq/${GROQ_MODEL}\"]"
 fi
 
 openclaw config set agents.list.0.model.primary "ollama/smollm2:360m" 2>/dev/null || true
@@ -44,4 +70,4 @@ CLEAR_SESSIONS_NO_RESTART=1 bash scripts/ec2-clear-sessions.sh 2>/dev/null || tr
 systemctl restart openclaw-gateway
 sleep 4
 systemctl is-active openclaw-gateway
-echo "Telegram: /new | simples=Ollama | complexo=DeepSeek→HF | ops=gateway"
+echo "Telegram: /new | simples=Ollama | complexo=DeepSeek→HF→Infron→Groq | ops=gateway"
