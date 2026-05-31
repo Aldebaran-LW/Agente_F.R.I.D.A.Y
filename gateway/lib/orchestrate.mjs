@@ -82,14 +82,19 @@ export async function forwardTask(agentId, task, opts = {}) {
     };
   }
 
-  const token = process.env.OPENCLAW_INTERNAL_TOKEN?.trim()
+  const internalToken = process.env.OPENCLAW_INTERNAL_TOKEN?.trim()
     || process.env.OPENCLAW_AUTOMATION_TOKEN?.trim();
+  const hfToken = process.env.HF_TOKEN?.trim() || process.env.HUGGINGFACE_HUB_TOKEN?.trim();
 
   const headers = {
     'Content-Type': 'application/json',
     Accept: 'application/json',
   };
-  if (token) headers.Authorization = `Bearer ${token}`;
+  if (route.target === 'hf' && hfToken) {
+    headers.Authorization = `Bearer ${hfToken}`;
+  } else if (internalToken) {
+    headers.Authorization = `Bearer ${internalToken}`;
+  }
 
   const body = JSON.stringify({
     agent: route.agent,

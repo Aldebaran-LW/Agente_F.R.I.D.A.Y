@@ -1,5 +1,8 @@
 {
   "version": 2,
+  "env": {
+    "HF_FRIDAY_PROD_URL": "https://aldebaran-lw-friday-prod.hf.space"
+  },
   "rewrites": [
     {
       "source": "/office",
