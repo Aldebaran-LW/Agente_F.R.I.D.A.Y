@@ -384,6 +384,76 @@ section h2 {
   color: var(--muted);
 }
 
+.activity-feed {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: 40rem;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.88rem;
+  box-shadow: var(--shadow);
+}
+
+.activity-item.activity-placeholder {
+  color: var(--muted);
+  justify-content: center;
+  font-style: italic;
+}
+
+.activity-item.activity-err {
+  border-color: rgba(220, 38, 38, 0.35);
+  color: var(--err);
+}
+
+.activity-icon {
+  flex-shrink: 0;
+  font-size: 1.1rem;
+  line-height: 1.4;
+}
+
+.activity-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.activity-title {
+  margin: 0 0 0.2rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.activity-meta {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.activity-time {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.activity-item.kind-approval {
+  border-color: rgba(217, 119, 6, 0.35);
+  background: linear-gradient(90deg, rgba(255, 251, 235, 0.9), var(--panel));
+}
+
 .economy-list {
   display: grid;
   gap: 0.85rem;
