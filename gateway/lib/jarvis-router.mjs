@@ -1,7 +1,9 @@
 export const RULES = [
   { agent: "macofel", skill: "macofel-status", patterns: [/macofel|catalogo|pendente|produto/i] },
   { agent: "macofel", skill: "macofel-images-sync", patterns: [/sync imagem|sync imagens|sincronizar imagem/i] },
-  { agent: "ops", skill: "github-aldebaran", patterns: [/github|repo|reposit|issue|commit|push|aldebaran/i] },
+  { agent: "ops", skill: "vercel-status", patterns: [/texte|portal.*deploy|deploy.*portal|deploy.*texte|ultimo deploy.*texte/i] },
+  { agent: "ops", skill: "deploy-monitor", patterns: [/status portal|portal.*no ar|site.*portal|lwdigitalforge|digital.?forge.*portal/i] },
+  { agent: "ops", skill: "github-aldebaran", patterns: [/github|repo|reposit|issue|commit|push|aldebaran|texte|lwdigitalforge/i] },
   { agent: "ops", skill: "vercel-status", patterns: [/vercel|deployment|deployments|ultimo deploy/i] },
   { agent: "ops", skill: "deploy-monitor", patterns: [/site.*no ar|sites no ar|health macofel|macofel.*no ar|online/i] },
   { agent: "vp-pecas", skill: "vp-pecas-health", patterns: [/vp-pecas|vp-precision|usinagem|nalva/i] },

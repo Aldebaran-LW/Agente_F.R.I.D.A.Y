@@ -1,11 +1,10 @@
-/** Ops deploy-monitor: Macofel apenas. VP usa skill vp-pecas-health. */
-const SITES = [
-  { key: 'macofel', env: 'MACOFEL_URL', default: 'https://macofel-2-0.vercel.app' },
-];
+import { DEPLOY_SITES } from './portfolio-targets.mjs';
+
+/** Ops deploy-monitor: Macofel + portal LW Digital Forge. VP usa skill vp-pecas-health. */
 
 export async function fetchDeployHealth() {
   const results = [];
-  for (const site of SITES) {
+  for (const site of DEPLOY_SITES) {
     const url = process.env[site.env]?.trim() || site.default;
     if (!url) continue;
     const start = Date.now();

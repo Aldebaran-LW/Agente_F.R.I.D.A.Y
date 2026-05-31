@@ -1,4 +1,4 @@
-const PROJECT_FILTER = /macofel|vp-pecas|vp-precision/i;
+import { VERCEL_PROJECT_FILTER } from './portfolio-targets.mjs';
 
 export async function fetchVercelStatus() {
   const token = process.env.VERCEL_API_TOKEN?.trim();
@@ -22,7 +22,7 @@ export async function fetchVercelStatus() {
 
   try {
     const { projects = [] } = await api(`/v9/projects?${teamQ}limit=20`);
-    const pick = projects.filter((p) => PROJECT_FILTER.test(p.name || ''));
+    const pick = projects.filter((p) => VERCEL_PROJECT_FILTER.test(p.name || ''));
     const list = (pick.length ? pick : projects).slice(0, 5);
     const out = { ok: true, at: new Date().toISOString(), projects: [] };
 

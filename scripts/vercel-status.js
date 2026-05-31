@@ -40,7 +40,7 @@ async function api(path) {
 try {
   const { projects = [] } = await api(`/v9/projects?${teamQ}limit=20`);
   const pick = projects.filter((p) =>
-    /macofel|vp-pecas|vp-precision/i.test(p.name || '')
+    /macofel|vp-pecas|vp-precision|texte|lwdigital|digital.?forge/i.test(p.name || '')
   );
   const list = (pick.length ? pick : projects).slice(0, 5);
   const out = { ok: true, at: new Date().toISOString(), projects: [] };

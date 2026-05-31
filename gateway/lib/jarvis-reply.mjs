@@ -12,14 +12,12 @@ export function buildReply(route, payload, { approvalBlocked = false } = {}) {
     return 'Nao consegui ler o catalogo Macofel.';
   }
   if (route.skill === 'github-aldebaran' && payload?.repos) {
-    const lines = payload.repos.map((r) =>
-      r.error ? `${r.name}: erro ${r.error}` : `${r.name}: ${r.open_issues} issues`
-    );
+    const lines = payload.repos.map((r) => formatGithubRepoLine(r));
     return 'GitHub:\n' + lines.join('\n');
   }
   if (route.skill === 'deploy-monitor' && payload?.sites) {
     const lines = payload.sites.map((s) =>
-      s.ok ? `${s.site}: ${s.status} OK` : `${s.site}: FALHA`
+      s.ok ? `${formatSiteLabel(s.site)}: ${s.status} OK (${s.ms}ms)` : `${formatSiteLabel(s.site)}: FALHA`
     );
     return (payload.ok ? 'Sites OK.\n' : 'Atencao:\n') + lines.join('\n');
   }
@@ -32,7 +30,8 @@ export function buildReply(route, payload, { approvalBlocked = false } = {}) {
   if (route.skill === 'vercel-status' && payload?.projects) {
     const lines = payload.projects.map((p) => {
       const st = p.latest?.state || 'sem deploy';
-      return `${p.name}: ${st}`;
+      const url = p.latest?.url ? ` (${p.latest.url})` : '';
+      return `${p.name}: ${st}${url}`;
     });
     return 'Vercel:\n' + lines.join('\n');
   }
@@ -43,9 +42,21 @@ export function buildReply(route, payload, { approvalBlocked = false } = {}) {
     return `Sync falhou: ${payload?.error || 'erro desconhecido'}`;
   }
   if (route.skill === 'help') {
-    return 'Jarvis online. Diga: status macofel, repos github, sites no ar, vp-pecas, vercel, resumo portfolio.';
+    return 'Jarvis online. Diga: status macofel, status portal, repos github, sites no ar, deploy texte, vp-pecas, vercel, resumo portfolio.';
   }
-  return 'Reformule o pedido. Ex.: status macofel, repos github, resumo portfolio.';
+  return 'Reformule o pedido. Ex.: status portal, status macofel, repos github, resumo portfolio.';
+}
+
+function formatGithubRepoLine(r) {
+  if (r.error) return `${r.name}: erro ${r.error}`;
+  const push = r.pushed_at ? r.pushed_at.slice(0, 10) : '?';
+  const label = r.name === 'LWDigitalForge_Texte' ? 'LWDigitalForge_Texte (portal)' : r.name;
+  return `${label}: ${r.open_issues} issues, ultimo push ${push}`;
+}
+
+function formatSiteLabel(key) {
+  if (key === 'portal') return 'Portal (lwdigitalforge.com)';
+  return key;
 }
 
 function sectionMacofel(data) {
@@ -57,16 +68,14 @@ function sectionMacofel(data) {
 
 function sectionGithub(data) {
   if (!data?.repos) return 'GitHub: sem dados.';
-  const lines = data.repos.map((r) =>
-    r.error ? `${r.name}: erro` : `${r.name}: ${r.open_issues} issues`
-  );
+  const lines = data.repos.map((r) => formatGithubRepoLine(r));
   return 'GitHub:\n' + lines.join('\n');
 }
 
 function sectionDeploy(data) {
   if (!data?.sites) return 'Sites: sem dados.';
   const lines = data.sites.map((s) =>
-    s.ok ? `${s.site}: OK` : `${s.site}: FALHA`
+    s.ok ? `${formatSiteLabel(s.site)}: OK` : `${formatSiteLabel(s.site)}: FALHA`
   );
   return (data.ok ? 'Sites:\n' : 'Sites (atencao):\n') + lines.join('\n');
 }

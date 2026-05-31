@@ -1,4 +1,4 @@
-const REPOS = ['Macofel_2.0', 'VP-Pecas', 'vp-precision-studio'];
+import { GITHUB_REPOS } from './portfolio-targets.mjs';
 
 export async function fetchGithubStatus() {
   const owner = process.env.GITHUB_OWNER || 'Aldebaran-LW';
@@ -7,7 +7,7 @@ export async function fetchGithubStatus() {
   if (token) headers.Authorization = `Bearer ${token}`;
 
   const repos = [];
-  for (const name of REPOS) {
+  for (const name of GITHUB_REPOS) {
     const res = await fetch(`https://api.github.com/repos/${owner}/${name}`, {
       headers,
       signal: AbortSignal.timeout(20000),

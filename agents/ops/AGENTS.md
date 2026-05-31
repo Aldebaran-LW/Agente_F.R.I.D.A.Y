@@ -10,8 +10,8 @@ Arquitetura: `docs/ARQUITETURA-AGENTES.md`
 
 ## Escopo
 
-- Estado dos repositórios GitHub (3 repos Aldebaran-LW)
-- Sites no ar (HTTP health-check + Vercel API)
+- Estado dos repositórios GitHub (4 repos Aldebaran-LW, incl. `LWDigitalForge_Texte`)
+- Sites no ar (HTTP health-check Macofel + portal `lwdigitalforge.com` + Vercel API)
 - Relatórios de cron (silencioso se tudo OK)
 
 ## Skills

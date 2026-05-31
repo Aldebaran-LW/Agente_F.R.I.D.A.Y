@@ -1,7 +1,7 @@
 {
   "id": "portfolio-status",
   "version": "1.1.0",
-  "description": "Resumo Macofel + GitHub + sites Macofel + sites VP",
+  "description": "Resumo Macofel + GitHub (incl. LWDigitalForge_Texte) + sites Macofel/portal + sites VP",
   "triggers": {
     "patterns": [
       "resumo",
@@ -12,7 +12,9 @@
       "macofel.*github",
       "macofel.*repos",
       "macofel.*sites",
-      "github.*sites"
+      "status portal",
+      "portal no ar",
+      "lwdigitalforge"
     ]
   },
   "requiresApproval": false,

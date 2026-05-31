@@ -26,7 +26,7 @@
       "requiresApproval": false,
       "timeoutMs": 20000,
       "telemetry": true,
-      "description": "Status dos repos Aldebaran-LW"
+      "description": "Status dos repos Aldebaran-LW (incl. LWDigitalForge_Texte)"
     },
     "deploy-monitor": {
       "agent": "ops",
@@ -35,7 +35,7 @@
       "requiresApproval": false,
       "timeoutMs": 20000,
       "telemetry": true,
-      "description": "Health-check Macofel (Ops)"
+      "description": "Health-check Macofel + portal LW Digital Forge (Ops)"
     },
     "vercel-status": {
       "agent": "ops",

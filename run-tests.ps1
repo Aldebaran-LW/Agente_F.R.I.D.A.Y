@@ -45,7 +45,7 @@ if ($vars.TELEGRAM_BOT_TOKEN) {
 if ($vars.GITHUB_TOKEN) {
   Write-Host "`n=== GITHUB ==="
   $h = @{ Accept = "application/vnd.github+json"; Authorization = "Bearer " + $vars.GITHUB_TOKEN }
-  @("Macofel_2.0","VP-Pecas","vp-precision-studio") | ForEach-Object {
+  @("Macofel_2.0","VP-Pecas","vp-precision-studio","LWDigitalForge_Texte") | ForEach-Object {
     try {
       Invoke-RestMethod -Uri ("https://api.github.com/repos/Aldebaran-LW/" + $_) -Headers $h -TimeoutSec 20 | Out-Null
       Write-Host ("  $_ OK")
