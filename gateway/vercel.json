@@ -15,7 +15,11 @@
     },
     {
       "source": "/openclaw/:path*",
-      "destination": "/api/openclaw/:path*"
+      "destination": "/api/openclaw-router?route=:path*"
+    },
+    {
+      "source": "/api/openclaw/:path*",
+      "destination": "/api/openclaw-router?route=:path*"
     }
   ]
 }
