@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>F.R.I.D.A.Y. — Ecossistema Multiagente | Aldebaran-LW</title>
+  <meta name="description" content="F.R.I.D.A.Y. — ecossistema multiagente para o portfólio Aldebaran-LW. Jarvis, Macofel, Ops e VP-Pecas com custo controlado de IA." />
+  <meta property="og:title" content="F.R.I.D.A.Y. — Agente_OpenClaw" />
+  <meta property="og:description" content="Automação inteligente com agentes especialistas. Gateway na Vercel, operação na AWS." />
+  <meta property="og:url" content="https://openclaw.lwdigitalforge.com/" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="F.R.I.D.A.Y. — OpenClaw" />
+  <link rel="canonical" href="https://openclaw.lwdigitalforge.com/" />
+  <style>
+:root {
+  --bg: #f0f4fa;
+  --panel: #ffffff;
+  --cobalt: #1d4ed8;
+  --cobalt-light: #3b82f6;
+  --cobalt-glow: rgba(59, 130, 246, 0.35);
+  --text: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --ok: #059669;
+  --err: #dc2626;
+  --radius: 12px;
+  --shadow: 0 4px 24px rgba(29, 78, 216, 0.08);
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(59, 130, 246, 0.18), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 100% 50%, rgba(29, 78, 216, 0.08), transparent 50%);
+  z-index: 0;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+  background: rgba(244, 247, 251, 0.85);
+  border-bottom: 1px solid var(--border);
+}
+
+nav .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.85rem;
+  padding-bottom: 0.85rem;
+}
+
+.logo {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--cobalt);
+  text-decoration: none;
+}
+
+.logo span { color: var(--text); font-weight: 500; }
+
+.nav-links {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+}
+
+.nav-links a {
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.nav-links a:hover { color: var(--cobalt); }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.65rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: transform 0.15s, box-shadow 0.2s;
+}
+
+.btn-primary {
+  color: #fff;
+  background: linear-gradient(135deg, var(--cobalt), var(--cobalt-light));
+  box-shadow: 0 4px 20px var(--cobalt-glow);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 28px var(--cobalt-glow);
+}
+
+.btn-ghost {
+  color: var(--cobalt);
+  background: rgba(29, 78, 216, 0.08);
+  border: 1px solid rgba(29, 78, 216, 0.2);
+}
+
+.hero {
+  padding: 4rem 0 3rem;
+  text-align: center;
+}
+
+.hero .tag {
+  display: inline-block;
+  margin-bottom: 1rem;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--cobalt);
+  background: rgba(29, 78, 216, 0.1);
+  border: 1px solid rgba(29, 78, 216, 0.15);
+  border-radius: 999px;
+  box-shadow: 0 0 24px rgba(59, 130, 246, 0.15);
+}
+
+.hero h1 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.85rem, 5vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.hero .subtitle {
+  margin: 0 auto 1.75rem;
+  max-width: 32rem;
+  font-size: 1.1rem;
+  color: var(--muted);
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-bottom: 2rem;
+}
+
+.badge {
+  padding: 0.45rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+}
+
+.hero-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+section { padding: 3rem 0; }
+
+section h2 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.35rem, 3vw, 1.75rem);
+  font-weight: 700;
+  text-align: center;
+}
+
+.section-lead {
+  margin: 0 auto 2rem;
+  max-width: 36rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.arch-grid {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .arch-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.arch-card {
+  padding: 1.5rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.arch-card:hover {
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: var(--shadow), 0 0 32px rgba(59, 130, 246, 0.12);
+}
+
+.arch-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+  color: var(--cobalt);
+}
+
+.arch-card p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.arch-card .tagline {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--cobalt-light);
+}
+
+.agents-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .agents-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.agent-card {
+  padding: 1.35rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s;
+}
+
+.agent-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--cobalt), var(--cobalt-light));
+}
+
+.agent-card h3 { margin: 0 0 0.4rem; font-size: 1rem; }
+
+.agent-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow), 0 10px 30px rgba(29, 78, 216, 0.12);
+  border-color: rgba(59, 130, 246, 0.35);
+}
+
+.agent-card .agent-desc {
+  margin: 0 0 0.5rem;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.agent-metric {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--cobalt);
+}
+
+.agent-metric.loading {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.agent-metric.err {
+  color: var(--err);
+}
+
+.hero-ops-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 0.45rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--muted);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+}
+
+.hero-ops-badge.ok {
+  border-color: rgba(5, 150, 105, 0.35);
+  color: var(--ok);
+}
+
+.hero-ops-badge.warn {
+  border-color: rgba(217, 119, 6, 0.4);
+  color: #b45309;
+}
+
+.hero-status-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.hero-status-dot.ok {
+  background: var(--ok);
+  box-shadow: 0 0 8px rgba(5, 150, 105, 0.6);
+}
+
+.hero-status-dot.err {
+  background: var(--err);
+}
+
+.token-strip {
+  margin-top: 2rem;
+  padding: 1rem 1.25rem;
+  max-width: 32rem;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.token-strip-lead {
+  margin: 0 0 0.65rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.token-strip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.token-strip-row input {
+  flex: 1;
+  min-width: 12rem;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.token-hint {
+  margin: 0.65rem 0 0;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.economy-list {
+  display: grid;
+  gap: 0.85rem;
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+.economy-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+}
+
+.economy-item .label {
+  flex-shrink: 0;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 4px;
+}
+
+.label.zero { color: var(--ok); background: rgba(5, 150, 105, 0.12); }
+.label.free { color: var(--cobalt); background: rgba(29, 78, 216, 0.1); }
+.label.approval { color: #b45309; background: rgba(217, 119, 6, 0.12); }
+
+.forge-banner {
+  padding: 2rem;
+  text-align: center;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(232, 238, 248, 0.9));
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow), 0 0 48px rgba(59, 130, 246, 0.15);
+}
+
+.forge-banner h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1.25rem;
+  color: var(--cobalt);
+}
+
+.forge-banner p {
+  margin: 0 auto 1.25rem;
+  max-width: 28rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.site-footer {
+  margin-top: 2rem;
+  padding: 2rem 0 2.5rem;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+
+.site-footer .links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.site-footer a {
+  font-size: 0.85rem;
+  color: var(--cobalt);
+  text-decoration: none;
+}
+
+.site-footer a:hover { text-decoration: underline; }
+
+.status-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+
+.status-bar .dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.status-bar.ok .dot {
+  background: var(--ok);
+  box-shadow: 0 0 8px rgba(5, 150, 105, 0.6);
+}
+
+.status-bar.err .dot { background: var(--err); }
+
+.site-footer .copy {
+  margin-top: 1rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+code {
+  font-size: 0.85em;
+  background: #f1f5f9;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+}
+
+@media (max-width: 640px) {
+  .nav-links .hide-mobile { display: none; }
+  .hero { padding-top: 2.5rem; }
+}
+
+</style>
+</head>
+<body>
+  <nav>
+    <div class="container">
+      <a class="logo" href="#">F.R.I.D.A.Y. <span>· OpenClaw</span></a>
+      <div class="nav-links">
+        <a class="hide-mobile" href="#arquitetura">Arquitetura</a>
+        <a class="hide-mobile" href="#agentes">Agentes</a>
+        <a class="hide-mobile" href="#forge">Forge</a>
+        <a class="btn btn-primary cta-office" href="/office">Painel</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero container reveal">
+    <div class="hero-ops-badge" id="hero-ops-badge" aria-live="polite">
+      <span class="hero-status-dot" id="hero-status-dot" aria-hidden="true"></span>
+      <span id="hero-ops-text">A verificar sistema…</span>
+    </div>
+    <span class="tag">Aldebaran-LW · Agente_OpenClaw</span>
+    <h1>F.R.I.D.A.Y. – Seu Ecossistema Multiagente</h1>
+    <p class="subtitle">Automação inteligente para o portfólio Aldebaran-LW.</p>
+    <div class="badges">
+      <span class="badge">🤖 Agentes Especialistas</span>
+      <span class="badge">☁️ Infraestrutura Híbrida (AWS + Vercel)</span>
+      <span class="badge">🔒 Ações Sob Aprovação</span>
+      <span class="badge">🆓 IA com Custo Zero</span>
+    </div>
+    <div class="hero-cta">
+      <a class="btn btn-primary cta-office" href="/office">🚀 Ver o Painel de Controle</a>
+      <a class="btn btn-ghost" href="/forge">Digital Forge 3D</a>
+    </div>
+    <div class="token-strip" id="token-strip">
+      <p class="token-strip-lead">Dados ao vivo (opcional) — mesmo token do painel <code>/office</code>, só nesta sessão do browser:</p>
+      <div class="token-strip-row">
+        <input id="landing-token" type="password" autocomplete="off" placeholder="OPENCLAW_AUTOMATION_TOKEN" />
+        <button type="button" class="btn btn-ghost" id="landing-save-token">Activar</button>
+      </div>
+      <p class="token-hint" id="token-hint">Sem token, os cards mostram texto estático. No painel, o token fica guardado para a próxima visita.</p>
+    </div>
+  </header>
+
+  <section id="arquitetura" class="container reveal">
+    <h2>Arquitetura e Ecossistema</h2>
+    <p class="section-lead">Três camadas complementares — operação, controlo e inovação.</p>
+    <div class="arch-grid">
+      <article class="arch-card">
+        <h3>🧠 AWS EC2 (Jarvis)</h3>
+        <p>Cérebro operacional. Telegram, aprovações, tarefas 24/7 e crons agendados.</p>
+        <p class="tagline">Onde a mágica acontece.</p>
+      </article>
+      <article class="arch-card">
+        <h3>⚡ Vercel (Gateway F.R.I.D.A.Y.)</h3>
+        <p>Centro de controlo e observação. API segura, secrets, status dos agentes e dashboards <code>/office</code> e <code>/forge</code>.</p>
+      </article>
+      <article class="arch-card">
+        <h3>🔬 Hugging Face (Laboratório)</h3>
+        <p>Inovação contínua. Agentes <em>sophia</em>, <em>senku</em> e <em>hefestos</em> pesquisam e prototipam novas habilidades.</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="agentes" class="container reveal">
+    <h2>Os Agentes — Os Cérebros</h2>
+    <p class="section-lead">Quatro especialistas coordenados pelo orquestrador.</p>
+    <div class="agents-grid">
+      <article class="agent-card">
+        <h3>🧠 Jarvis (Orquestrador)</h3>
+        <p class="agent-desc">Coordena tudo, aplica a política de segurança e pede aprovações.</p>
+        <p class="agent-metric" id="metric-orchestrator">A carregar…</p>
+      </article>
+      <article class="agent-card">
+        <h3>📦 Macofel (Catálogo)</h3>
+        <p class="agent-desc">E-commerce Macofel 2.0 — catálogo e sync de imagens (com confirmação).</p>
+        <p class="agent-metric" id="metric-macofel">A carregar…</p>
+      </article>
+      <article class="agent-card">
+        <h3>⚙️ Ops (GitHub + Deploy)</h3>
+        <p class="agent-desc">Repositórios Aldebaran-LW e ciclo de vida dos deploys.</p>
+        <p class="agent-metric" id="metric-ops">A carregar…</p>
+      </article>
+      <article class="agent-card">
+        <h3>⚡ VP-Pecas (Usinagem)</h3>
+        <p class="agent-desc">Saúde dos sites industriais do portfólio.</p>
+        <p class="agent-metric" id="metric-vp">A carregar…</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="container reveal">
+    <h2>Economia de IA</h2>
+    <p class="section-lead">Custo controlado — tokens só quando faz sentido.</p>
+    <div class="economy-list">
+      <div class="economy-item">
+        <span class="label zero">0 tokens</span>
+        <span>Comandos operacionais (<code>status</code>, <code>repos</code>) rodam via scripts — sem LLM.</span>
+      </div>
+      <div class="economy-item">
+        <span class="label zero">0 custo</span>
+        <span>Conversas simples usam <strong>Ollama local</strong> na EC2 — sem API paga.</span>
+      </div>
+      <div class="economy-item">
+        <span class="label free">Sob demanda</span>
+        <span>Raciocínio complexo usa <strong>OpenRouter / Gemini Free</strong> — apenas quando necessário.</span>
+      </div>
+      <div class="economy-item">
+        <span class="label approval">Aprovação</span>
+        <span>Ações de impacto (<code>deploy</code>, <code>sync</code>) só com o teu <strong>sim</strong> no Telegram.</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="forge" class="container reveal">
+    <div class="forge-banner">
+      <h3>🏛️ Digital Forge — Quartel General</h3>
+      <p>Ambiente 3D high-tech (cobalto e branco) com personas FRIDAY, Byte, Pixel e Lala. Liga o middleware na EC2 (túnel <code>:8787</code>) para ver agentes em tempo real.</p>
+      <a class="btn btn-primary" href="/forge">Entrar no Forge →</a>
+    </div>
+  </section>
+
+  <footer class="container site-footer">
+    <div class="links">
+      <a href="https://github.com/Aldebaran-LW/Agente_OpenClaw" target="_blank" rel="noopener">GitHub · Agente_OpenClaw</a>
+      <a href="https://github.com/Aldebaran-LW/Agente_OpenClaw/tree/main/docs" target="_blank" rel="noopener">Documentação</a>
+      <a href="/api/health" target="_blank" rel="noopener">API Health</a>
+    </div>
+    <div class="status-bar" id="gateway-status" aria-live="polite">
+      <span class="dot" aria-hidden="true"></span>
+      <span id="gateway-status-text">Gateway Vercel: a verificar…</span>
+    </div>
+    <p class="copy">© Aldebaran-LW · F.R.I.D.A.Y. / OpenClaw · Política de segurança activa em todos os cérebros.</p>
+  </footer>
+
+  <script>
+( f u n c t i o n   ( )   {  
+     v a r   T O K E N _ K E Y   =   " o p e n c l a w _ o f f i c e _ t o k e n " ;  
+     v a r   P O L L _ M S   =   6 0 _ 0 0 0 ;  
+  
+     f u n c t i o n   $ ( i d )   {  
+         r e t u r n   d o c u m e n t . g e t E l e m e n t B y I d ( i d ) ;  
+     }  
+  
+     f u n c t i o n   g e t S t o r e d T o k e n ( )   {  
+         t r y   {  
+             r e t u r n   ( s e s s i o n S t o r a g e . g e t I t e m ( T O K E N _ K E Y )   | |   " " ) . t r i m ( ) ;  
+         }   c a t c h   ( e )   {  
+             r e t u r n   " " ;  
+         }  
+     }  
+  
+     f u n c t i o n   s a v e T o k e n F r o m L a n d i n g ( )   {  
+         v a r   i n p u t   =   $ ( " l a n d i n g - t o k e n " ) ;  
+         i f   ( ! i n p u t )   r e t u r n ;  
+         v a r   t   =   i n p u t . v a l u e . t r i m ( ) ;  
+         i f   ( ! t )   r e t u r n ;  
+         t r y   {  
+             s e s s i o n S t o r a g e . s e t I t e m ( T O K E N _ K E Y ,   t ) ;  
+         }   c a t c h   ( e )   {  
+             r e t u r n ;  
+         }  
+         v a r   h i n t   =   $ ( " t o k e n - h i n t " ) ;  
+         i f   ( h i n t )   h i n t . t e x t C o n t e n t   =   " T o k e n   g u a r d a d o   n e s t a   s e s s � o .   A   a c t u a l i z a r   a g e n t e s & " ;  
+         f e t c h A g e n t S t a t u s ( ) ;  
+     }  
+  
+     f u n c t i o n   g o T o O f f i c e ( e )   {  
+         i f   ( e   & &   e . p r e v e n t D e f a u l t )   e . p r e v e n t D e f a u l t ( ) ;  
+         w i n d o w . l o c a t i o n . h r e f   =   " / o f f i c e " ;  
+     }  
+  
+     f u n c t i o n   f o r m a t N u m ( n )   {  
+         i f   ( n   = =   n u l l   | |   i s N a N ( n ) )   r e t u r n   "  " ;  
+         r e t u r n   N u m b e r ( n ) . t o L o c a l e S t r i n g ( " p t - P T " ) ;  
+     }  
+  
+     f u n c t i o n   s e t M e t r i c ( i d ,   h t m l ,   s t a t e )   {  
+         v a r   e l   =   $ ( i d ) ;  
+         i f   ( ! e l )   r e t u r n ;  
+         e l . i n n e r H T M L   =   h t m l ;  
+         e l . c l a s s L i s t . r e m o v e ( " l o a d i n g " ,   " l i v e " ,   " e r r " ) ;  
+         i f   ( s t a t e )   e l . c l a s s L i s t . a d d ( s t a t e ) ;  
+     }  
+  
+     f u n c t i o n   s e t M e t r i c s F a l l b a c k ( )   {  
+         s e t M e t r i c ( " m e t r i c - o r c h e s t r a t o r " ,   " I n t r o d u z   o   t o k e n   a b a i x o   p a r a   e s t a d o   a o   v i v o " ,   " " ) ;  
+         s e t M e t r i c ( " m e t r i c - m a c o f e l " ,   " C a t � l o g o   e   s y n c   d e   i m a g e n s " ,   " " ) ;  
+         s e t M e t r i c ( " m e t r i c - o p s " ,   " R e p o s   G i t H u b   e   d e p l o y s " ,   " " ) ;  
+         s e t M e t r i c ( " m e t r i c - v p " ,   " S i t e s   d e   u s i n a g e m " ,   " " ) ;  
+     }  
+  
+     f u n c t i o n   a g e n t B y I d ( a g e n t s ,   i d )   {  
+         f o r   ( v a r   i   =   0 ;   i   <   a g e n t s . l e n g t h ;   i + + )   {  
+             i f   ( a g e n t s [ i ] . i d   = = =   i d )   r e t u r n   a g e n t s [ i ] ;  
+         }  
+         r e t u r n   n u l l ;  
+     }  
+  
+     f u n c t i o n   u p d a t e M e t r i c s F r o m S n a p s h o t ( b o d y )   {  
+         v a r   a g e n t s   =   b o d y . a g e n t s   | |   [ ] ;  
+         v a r   j a r v i s   =   a g e n t B y I d ( a g e n t s ,   " o r c h e s t r a t o r " ) ;  
+         v a r   m a c o f e l   =   a g e n t B y I d ( a g e n t s ,   " m a c o f e l " ) ;  
+         v a r   o p s   =   a g e n t B y I d ( a g e n t s ,   " o p s " ) ;  
+         v a r   v p   =   a g e n t B y I d ( a g e n t s ,   " v p - p e c a s " ) ;  
+  
+         i f   ( j a r v i s )   {  
+             s e t M e t r i c (  
+                 " m e t r i c - o r c h e s t r a t o r " ,  
+                 " < s t r o n g > "   +   j a r v i s . s t a t e L a b e l   +   " < / s t r o n g >   �   "   +   j a r v i s . d e t a i l ,  
+                 " l i v e "  
+             ) ;  
+         }  
+  
+         i f   ( m a c o f e l )   {  
+             v a r   i m g   =   m a c o f e l . i m a g e _ s y n c _ p e n d i n g ;  
+             v a r   t x t   =  
+                 i m g   ! =   n u l l  
+                     ?   f o r m a t N u m ( i m g )   +   "   i m a g e n s   p e n d e n t e s "  
+                     :   m a c o f e l . d e t a i l ;  
+             i f   ( m a c o f e l . p e n d i n g _ r e v i e w   >   0 )   {  
+                 t x t   + =   "   �   "   +   f o r m a t N u m ( m a c o f e l . p e n d i n g _ r e v i e w )   +   "   r e v i s � o " ;  
+             }  
+             s e t M e t r i c ( " m e t r i c - m a c o f e l " ,   t x t ,   m a c o f e l . s t a t e   = = =   " e r r o r "   ?   " e r r "   :   " l i v e " ) ;  
+         }  
+  
+         i f   ( o p s )   {  
+             v a r   i s s u e s   =   o p s . i s s u e s   ! =   n u l l   ?   o p s . i s s u e s   :   n u l l ;  
+             v a r   o p s T x t   =  
+                 i s s u e s   ! =   n u l l  
+                     ?   f o r m a t N u m ( i s s u e s )   +   "   i s s u e ( s )   a b e r t a ( s ) "  
+                     :   o p s . d e t a i l ;  
+             s e t M e t r i c ( " m e t r i c - o p s " ,   o p s T x t ,   o p s . s t a t e   = = =   " e r r o r "   ?   " e r r "   :   " l i v e " ) ;  
+         }  
+  
+         i f   ( v p )   {  
+             s e t M e t r i c ( " m e t r i c - v p " ,   v p . d e t a i l ,   v p . s t a t e   = = =   " e r r o r "   ?   " e r r "   :   " l i v e " ) ;  
+         }  
+  
+         u p d a t e H e r o O p s B a d g e ( b o d y ) ;  
+     }  
+  
+     f u n c t i o n   u p d a t e H e r o O p s B a d g e ( b o d y )   {  
+         v a r   b a d g e   =   $ ( " h e r o - o p s - b a d g e " ) ;  
+         v a r   t e x t   =   $ ( " h e r o - o p s - t e x t " ) ;  
+         i f   ( ! b a d g e   | |   ! t e x t )   r e t u r n ;  
+  
+         v a r   a g e n t s   =   b o d y . a g e n t s   | |   [ ] ;  
+         v a r   a c t i v e   =   a g e n t s . f i l t e r ( f u n c t i o n   ( a )   {  
+             r e t u r n   a . s t a t e   = = =   " w o r k i n g "   | |   a . s t a t e   = = =   " t h i n k i n g " ;  
+         } ) . l e n g t h ;  
+         v a r   e r r o r s   =   a g e n t s . f i l t e r ( f u n c t i o n   ( a )   {  
+             r e t u r n   a . s t a t e   = = =   " e r r o r " ;  
+         } ) . l e n g t h ;  
+  
+         b a d g e . c l a s s L i s t . a d d ( " o k " ) ;  
+         i f   ( e r r o r s   >   0 )   {  
+             t e x t . t e x t C o n t e n t   =  
+                 " S i s t e m a   c o m   a l e r t a s   �   "   +   e r r o r s   +   "   a g e n t e ( s )   e m   e r r o " ;  
+             b a d g e . c l a s s L i s t . r e m o v e ( " o k " ) ;  
+             b a d g e . c l a s s L i s t . a d d ( " w a r n " ) ;  
+         }   e l s e   i f   ( a c t i v e   >   0 )   {  
+             t e x t . t e x t C o n t e n t   =  
+                 " S i s t e m a   o p e r a c i o n a l   �   "   +   a c t i v e   +   "   a g e n t e ( s )   a c t i v o s " ;  
+         }   e l s e   {  
+             t e x t . t e x t C o n t e n t   =   " S i s t e m a   o p e r a c i o n a l   �   p o r t f � l i o   e s t � v e l " ;  
+         }  
+     }  
+  
+     f u n c t i o n   f e t c h A g e n t S t a t u s ( )   {  
+         v a r   t o k e n   =   g e t S t o r e d T o k e n ( ) ;  
+         i f   ( ! t o k e n )   {  
+             s e t M e t r i c s F a l l b a c k ( ) ;  
+             r e t u r n   P r o m i s e . r e s o l v e ( ) ;  
+         }  
+  
+         [ " m e t r i c - o r c h e s t r a t o r " ,   " m e t r i c - m a c o f e l " ,   " m e t r i c - o p s " ,   " m e t r i c - v p " ] . f o r E a c h (  
+             f u n c t i o n   ( i d )   {  
+                 s e t M e t r i c ( i d ,   " A   c a r r e g a r & " ,   " l o a d i n g " ) ;  
+             }  
+         ) ;  
+  
+         r e t u r n   f e t c h ( " / o p e n c l a w / o f f i c e / s t a t u s " ,   {  
+             c a c h e :   " n o - s t o r e " ,  
+             h e a d e r s :   {  
+                 A u t h o r i z a t i o n :   " B e a r e r   "   +   t o k e n ,  
+                 A c c e p t :   " a p p l i c a t i o n / j s o n " ,  
+             } ,  
+         } )  
+             . t h e n ( f u n c t i o n   ( r )   {  
+                 i f   ( r . s t a t u s   = = =   4 0 1 )   {  
+                     s e t M e t r i c s F a l l b a c k ( ) ;  
+                     v a r   h i n t   =   $ ( " t o k e n - h i n t " ) ;  
+                     i f   ( h i n t )   h i n t . t e x t C o n t e n t   =   " T o k e n   i n v � l i d o .   C o r r i g e   e   g u a r d a   d e   n o v o . " ;  
+                     r e t u r n   n u l l ;  
+                 }  
+                 i f   ( ! r . o k )   t h r o w   n e w   E r r o r ( S t r i n g ( r . s t a t u s ) ) ;  
+                 r e t u r n   r . j s o n ( ) ;  
+             } )  
+             . t h e n ( f u n c t i o n   ( d a t a )   {  
+                 i f   ( d a t a )   u p d a t e M e t r i c s F r o m S n a p s h o t ( d a t a ) ;  
+             } )  
+             . c a t c h ( f u n c t i o n   ( )   {  
+                 s e t M e t r i c s F a l l b a c k ( ) ;  
+             } ) ;  
+     }  
+  
+     f u n c t i o n   c h e c k G a t e w a y H e a l t h ( )   {  
+         v a r   b a r   =   $ ( " g a t e w a y - s t a t u s " ) ;  
+         v a r   t e x t   =   $ ( " g a t e w a y - s t a t u s - t e x t " ) ;  
+         v a r   h e r o D o t   =   $ ( " h e r o - s t a t u s - d o t " ) ;  
+  
+         r e t u r n   f e t c h ( " / a p i / h e a l t h " ,   {   c a c h e :   " n o - s t o r e "   } )  
+             . t h e n ( f u n c t i o n   ( r )   {  
+                 i f   ( ! r . o k )   t h r o w   n e w   E r r o r ( S t r i n g ( r . s t a t u s ) ) ;  
+                 r e t u r n   r . j s o n ( ) ;  
+             } )  
+             . t h e n ( f u n c t i o n   ( d a t a )   {  
+                 i f   ( b a r )   b a r . c l a s s L i s t . a d d ( " o k " ) ;  
+                 i f   ( h e r o D o t )   h e r o D o t . c l a s s N a m e   =   " h e r o - s t a t u s - d o t   o k " ;  
+                 v a r   a t   =  
+                     d a t a   & &   d a t a . a t  
+                         ?   "   �   "   +   n e w   D a t e ( d a t a . a t ) . t o L o c a l e T i m e S t r i n g ( " p t - P T " )  
+                         :   " " ;  
+                 i f   ( t e x t )   t e x t . t e x t C o n t e n t   =   " G a t e w a y   V e r c e l :   '  O n l i n e "   +   a t ;  
+             } )  
+             . c a t c h ( f u n c t i o n   ( )   {  
+                 i f   ( b a r )   b a r . c l a s s L i s t . a d d ( " e r r " ) ;  
+                 i f   ( h e r o D o t )   h e r o D o t . c l a s s N a m e   =   " h e r o - s t a t u s - d o t   e r r " ;  
+                 i f   ( t e x t )   t e x t . t e x t C o n t e n t   =   " G a t e w a y   V e r c e l :   L'  O f f l i n e " ;  
+                 v a r   h e r o T e x t   =   $ ( " h e r o - o p s - t e x t " ) ;  
+                 i f   ( h e r o T e x t )   h e r o T e x t . t e x t C o n t e n t   =   " G a t e w a y   i n d i s p o n � v e l " ;  
+             } ) ;  
+     }  
+  
+     f u n c t i o n   i n i t R e v e a l ( )   {  
+         v a r   e l s   =   d o c u m e n t . q u e r y S e l e c t o r A l l ( " . r e v e a l " ) ;  
+         i f   ( " I n t e r s e c t i o n O b s e r v e r "   i n   w i n d o w )   {  
+             v a r   o b s   =   n e w   I n t e r s e c t i o n O b s e r v e r (  
+                 f u n c t i o n   ( e n t r i e s )   {  
+                     e n t r i e s . f o r E a c h ( f u n c t i o n   ( e )   {  
+                         i f   ( e . i s I n t e r s e c t i n g )   {  
+                             e . t a r g e t . c l a s s L i s t . a d d ( " v i s i b l e " ) ;  
+                             o b s . u n o b s e r v e ( e . t a r g e t ) ;  
+                         }  
+                     } ) ;  
+                 } ,  
+                 {   t h r e s h o l d :   0 . 1 2 ,   r o o t M a r g i n :   " 0 p x   0 p x   - 4 0 p x   0 p x "   }  
+             ) ;  
+             e l s . f o r E a c h ( f u n c t i o n   ( e l )   {  
+                 o b s . o b s e r v e ( e l ) ;  
+             } ) ;  
+         }   e l s e   {  
+             e l s . f o r E a c h ( f u n c t i o n   ( e l )   {  
+                 e l . c l a s s L i s t . a d d ( " v i s i b l e " ) ;  
+             } ) ;  
+         }  
+         v a r   h e r o   =   d o c u m e n t . q u e r y S e l e c t o r ( " . h e r o " ) ;  
+         i f   ( h e r o )   h e r o . c l a s s L i s t . a d d ( " v i s i b l e " ) ;  
+     }  
+  
+     f u n c t i o n   i n i t ( )   {  
+         v a r   s a v e d   =   g e t S t o r e d T o k e n ( ) ;  
+         v a r   i n p u t   =   $ ( " l a n d i n g - t o k e n " ) ;  
+         i f   ( i n p u t   & &   s a v e d )   i n p u t . v a l u e   =   s a v e d ;  
+  
+         v a r   s a v e B t n   =   $ ( " l a n d i n g - s a v e - t o k e n " ) ;  
+         i f   ( s a v e B t n )   s a v e B t n . a d d E v e n t L i s t e n e r ( " c l i c k " ,   s a v e T o k e n F r o m L a n d i n g ) ;  
+  
+         d o c u m e n t . q u e r y S e l e c t o r A l l ( " . c t a - o f f i c e " ) . f o r E a c h ( f u n c t i o n   ( e l )   {  
+             e l . a d d E v e n t L i s t e n e r ( " c l i c k " ,   g o T o O f f i c e ) ;  
+         } ) ;  
+  
+         c h e c k G a t e w a y H e a l t h ( ) ;  
+         f e t c h A g e n t S t a t u s ( ) ;  
+         s e t I n t e r v a l ( c h e c k G a t e w a y H e a l t h ,   P O L L _ M S ) ;  
+         s e t I n t e r v a l ( f e t c h A g e n t S t a t u s ,   P O L L _ M S ) ;  
+         i n i t R e v e a l ( ) ;  
+     }  
+  
+     i f   ( d o c u m e n t . r e a d y S t a t e   = = =   " l o a d i n g " )   {  
+         d o c u m e n t . a d d E v e n t L i s t e n e r ( " D O M C o n t e n t L o a d e d " ,   i n i t ) ;  
+     }   e l s e   {  
+         i n i t ( ) ;  
+     }  
+ } ) ( ) ;  
+ 
+</script>
+</body>
+</html>

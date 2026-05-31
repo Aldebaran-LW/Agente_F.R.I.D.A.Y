@@ -4,7 +4,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>F.R.I.D.A.Y. — Ecossistema Multiagente | Aldebaran-LW</title>
-  <meta name="description" content="Agente_OpenClaw (F.R.I.D.A.Y.) — automação inteligente para o portfólio Aldebaran-LW. Jarvis na AWS, Gateway na Vercel." />
+  <meta name="description" content="F.R.I.D.A.Y. — ecossistema multiagente para o portfólio Aldebaran-LW. Jarvis, Macofel, Ops e VP-Pecas com custo controlado de IA." />
+  <meta property="og:title" content="F.R.I.D.A.Y. — Agente_OpenClaw" />
+  <meta property="og:description" content="Automação inteligente com agentes especialistas. Gateway na Vercel, operação na AWS." />
+  <meta property="og:url" content="https://openclaw.lwdigitalforge.com/" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="F.R.I.D.A.Y. — OpenClaw" />
+  <link rel="canonical" href="https://openclaw.lwdigitalforge.com/" />
   <link rel="stylesheet" href="/landing.css" />
 </head>
 <body>
@@ -15,12 +22,16 @@
         <a class="hide-mobile" href="#arquitetura">Arquitetura</a>
         <a class="hide-mobile" href="#agentes">Agentes</a>
         <a class="hide-mobile" href="#forge">Forge</a>
-        <a class="btn btn-primary" href="/office">Painel</a>
+        <a class="btn btn-primary cta-office" href="/office">Painel</a>
       </div>
     </div>
   </nav>
 
   <header class="hero container reveal">
+    <div class="hero-ops-badge" id="hero-ops-badge" aria-live="polite">
+      <span class="hero-status-dot" id="hero-status-dot" aria-hidden="true"></span>
+      <span id="hero-ops-text">A verificar sistema…</span>
+    </div>
     <span class="tag">Aldebaran-LW · Agente_OpenClaw</span>
     <h1>F.R.I.D.A.Y. – Seu Ecossistema Multiagente</h1>
     <p class="subtitle">Automação inteligente para o portfólio Aldebaran-LW.</p>
@@ -31,8 +42,16 @@
       <span class="badge">🆓 IA com Custo Zero</span>
     </div>
     <div class="hero-cta">
-      <a class="btn btn-primary" href="/office">🚀 Ver o Painel de Controle</a>
+      <a class="btn btn-primary cta-office" href="/office">🚀 Ver o Painel de Controle</a>
       <a class="btn btn-ghost" href="/forge">Digital Forge 3D</a>
+    </div>
+    <div class="token-strip" id="token-strip">
+      <p class="token-strip-lead">Dados ao vivo (opcional) — mesmo token do painel <code>/office</code>, só nesta sessão do browser:</p>
+      <div class="token-strip-row">
+        <input id="landing-token" type="password" autocomplete="off" placeholder="OPENCLAW_AUTOMATION_TOKEN" />
+        <button type="button" class="btn btn-ghost" id="landing-save-token">Activar</button>
+      </div>
+      <p class="token-hint" id="token-hint">Sem token, os cards mostram texto estático. No painel, o token fica guardado para a próxima visita.</p>
     </div>
   </header>
 
@@ -62,19 +81,23 @@
     <div class="agents-grid">
       <article class="agent-card">
         <h3>🧠 Jarvis (Orquestrador)</h3>
-        <p>Coordena tudo, aplica a política de segurança e pede aprovações. Tom em português, foco em tarefas.</p>
+        <p class="agent-desc">Coordena tudo, aplica a política de segurança e pede aprovações.</p>
+        <p class="agent-metric" id="metric-orchestrator">A carregar…</p>
       </article>
       <article class="agent-card">
         <h3>📦 Macofel (Catálogo)</h3>
-        <p>E-commerce Macofel 2.0 — status do catálogo, pendências e sincronismo de imagens (com confirmação).</p>
+        <p class="agent-desc">E-commerce Macofel 2.0 — catálogo e sync de imagens (com confirmação).</p>
+        <p class="agent-metric" id="metric-macofel">A carregar…</p>
       </article>
       <article class="agent-card">
         <h3>⚙️ Ops (GitHub + Deploy)</h3>
-        <p>Monitora repositórios Aldebaran-LW e o ciclo de vida dos deploys na Vercel e Render.</p>
+        <p class="agent-desc">Repositórios Aldebaran-LW e ciclo de vida dos deploys.</p>
+        <p class="agent-metric" id="metric-ops">A carregar…</p>
       </article>
       <article class="agent-card">
         <h3>⚡ VP-Pecas (Usinagem)</h3>
-        <p>Acompanha a saúde dos sites industriais do portfólio de usinagem.</p>
+        <p class="agent-desc">Saúde dos sites industriais do portfólio.</p>
+        <p class="agent-metric" id="metric-vp">A carregar…</p>
       </article>
     </div>
   </section>

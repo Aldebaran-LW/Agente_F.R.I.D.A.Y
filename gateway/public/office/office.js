@@ -69,7 +69,29 @@ function tickClock() {
   $('clock').textContent = new Date().toLocaleTimeString('pt-PT');
 }
 
+function readTokenFromHash() {
+  const raw = window.location.hash.replace(/^#/, '').trim();
+  if (!raw) return;
+  let t = '';
+  if (raw.startsWith('token=')) {
+    t = raw.slice('token='.length);
+  } else {
+    try {
+      const params = new URLSearchParams(raw);
+      t = params.get('token') || '';
+    } catch {
+      t = '';
+    }
+  }
+  t = decodeURIComponent(t).trim();
+  if (!t) return;
+  sessionStorage.setItem(TOKEN_KEY, t);
+  $('token').value = t;
+  history.replaceState(null, '', window.location.pathname + window.location.search);
+}
+
 function init() {
+  readTokenFromHash();
   const saved = sessionStorage.getItem(TOKEN_KEY);
   if (saved) $('token').value = saved;
 
