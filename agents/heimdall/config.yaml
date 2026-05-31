@@ -1,6 +1,6 @@
-id: ops
+id: heimdall
 name: Heimdall
-role: Vigia — GitHub org + deploy + Vercel (id tecnico: ops)
+role: Observador — GitHub org + deploy + Vercel
 
 llm:
   provider: ollama

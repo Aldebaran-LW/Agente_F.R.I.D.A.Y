@@ -1,6 +1,6 @@
 id: rebeca
 name: Rebeca
-role: Design, layout e prototipos visuais (office, forge, HF)
+role: Designer
 
 llm:
   provider: ollama
@@ -21,5 +21,5 @@ deploy:
   promote_to: aws_ec2
 
 pipeline:
-  inputs: [sophia_pesquisa_yaml]
+  inputs: [yato_pesquisa_yaml]
   outputs: [design_brief_yaml]

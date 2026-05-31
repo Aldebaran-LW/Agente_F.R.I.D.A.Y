@@ -4,7 +4,7 @@
 deploy:
   mode: hf_space | aws_ec2 | vercel_gateway
   hf_space: Aldebaran-LW/friday-prod   # ou Space dedicado
-  hf_path: /run/sophia
+  hf_path: /run/yato
   promote_to: aws_ec2
   schedule: "0 */6 * * *"              # opcional, cron EC2
 ```

@@ -21,7 +21,7 @@ Propor estrutura de dados para Dataset HF `openclaw-backup` e futuro hub Supabas
 ## Exemplo de extensão
 
 ```json
-{"at":"2026-05-29T12:00:00Z","agent":"sophia","source":"innovation-pipeline","text":"…","pesquisa_id":"sophia_20260529_001","tags":["hf","tool"]}
+{"at":"2026-05-29T12:00:00Z","agent":"yato","source":"innovation-pipeline","text":"…","pesquisa_id":"yato_20260529_001","tags":["hf","tool"]}
 ```
 
 ## Validação

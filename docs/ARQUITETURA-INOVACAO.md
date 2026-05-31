@@ -10,13 +10,13 @@ Camada **cognitiva** (pesquisa → design → viabilidade → construção) sobr
 
 | Camada | Agentes | Função |
 |--------|---------|--------|
-| **Operação** | `orchestrator`, `macofel`, `ops`, `vp-pecas` | Portfólio, catálogo, GitHub, deploy |
-| **Inovação** | `sophia`, `rebeca`, `senku`, `hefestos` | Descobrir, desenhar, avaliar, implementar |
-| **Suporte** | `icaro`, `athena`, `dedalo` | Testes, monitorização, schemas HF/dados |
+| **Operação** | `orchestrator`, `macofel`, `heimdall`, `vp-pecas` | Portfólio, catálogo, GitHub, deploy |
+| **Inovação** | `yato`, `rebeca`, `gideon`, `hefestos` | Mercado, design, previsão, implementar |
+| **Suporte** | `icaro`, `rimuru`, `veldora`, `dedalo` | Testes, dados/tokens, segurança, schemas HF |
 
 **Memória:** Dataset HF `openclaw-backup` + `hf-ingest-learning.mjs` (papel “Friday” no ecossistema F.R.I.D.A.Y.).
 
-**GitHub org:** cérebro `ops` (Aldebaran-LW).
+**GitHub org:** cérebro `heimdall` (Aldebaran-LW).
 
 ---
 
@@ -24,9 +24,9 @@ Camada **cognitiva** (pesquisa → design → viabilidade → construção) sobr
 
 ```mermaid
 flowchart TB
-  S[Sophia — Pesquisa]
+  S[Yato — Mercado]
   R[Rebeca — Design]
-  N[Senku — Viabilidade]
+  N[Gideon — Previsão]
   H[Hefestos — Constrói]
   J[Jarvis — Coordena]
   F[Friday — Memória HF Dataset]
@@ -36,10 +36,10 @@ flowchart TB
   H --> J
   J --> F
   H --> I[Ícaro — Testes]
-  A[Athena — Monitor] --> J
+  A[Rimuru — Dados/Tokens] --> J
 ```
 
-### Sophia (pesquisa)
+### Yato (pesquisa de mercado / marketing)
 
 Fontes recomendadas: Web, Hugging Face Hub, GitHub Trending, Papers with Code, Product Hunt, Reddit (r/LocalLLaMA, r/OpenClaw, etc.).
 
@@ -91,9 +91,10 @@ Atendimento Telegram white-label; reutiliza base Jarvis. Só após política de 
 | Jarvis | `orchestrator` |
 | Friday | Memória (`hf-ingest-learning`, Dataset) |
 | Macofel / Lala | `macofel` |
-| Byte | `ops` |
+| Heimdall | `heimdall` |
 | Pixel | `vp-pecas` |
-| Sophia, Rebeca, Senku, Hefestos | `sophia` … `hefestos` |
+| Yato, Rebeca, Gideon, Hefestos | `yato` … `hefestos` |
+| Veldora, Rimuru | `veldora`, `rimuru` |
 
 ---
 
@@ -120,9 +121,9 @@ node scripts/sync-agent-config-to-openclaw.mjs --dry-run
 
 | Caminho | Conteúdo |
 |---------|----------|
-| `agents/sophia/` … `agents/hefestos/` | Config + AGENTS.md |
-| `agents/icaro/`, `athena/`, `dedalo/` | Suporte |
-| `scripts/innovation-pipeline.mjs` | Orquestração Sophia→Senku |
+| `agents/yato/` … `agents/hefestos/` | Config + AGENTS.md |
+| `agents/icaro/`, `rimuru/`, `veldora/`, `dedalo/` | Suporte |
+| `scripts/innovation-pipeline.mjs` | Orquestração Yato→Gideon |
 | `data/innovation/` | Artefactos YAML (gitignored) |
 | `docs/ARQUITETURA-AGENTES.md` | Hub operacional |
 

@@ -12,7 +12,7 @@ Arquitetura: `docs/ARQUITETURA-INOVACAO.md`
 
 ## Pré-requisitos
 
-- `senku` com `viabilidade_score >= 70`
+- `gideon` com `viabilidade_score >= 70`
 - Aprovação explícita do Lucas (`sim` / `confirmar`) para **produção**, deploy ou Git destrutivo
 
 ## Fora de escopo

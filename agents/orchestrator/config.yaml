@@ -1,7 +1,7 @@
 # Jarvis / orquestrador — ver agents/orchestrator/AGENTS.md
 id: orchestrator
 name: Jarvis
-role: Orquestrador (Telegram, aprovacoes, delegacao)
+role: Cérebro (Telegram, aprovacoes, delegacao)
 
 # Telegram: Groq (128k) + fallbacks cloud; operacional via skill openclaw-jarvis
 llm:

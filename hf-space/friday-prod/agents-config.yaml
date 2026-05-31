@@ -1,29 +1,11 @@
 # Gerado automaticamente — nao editar a mao; use generate-hf-agents-config.mjs
-# 2026-05-31T16:56:52.047Z
+# 2026-05-31T19:43:37.745Z
 
 defaults:
   max_tokens: 4096
   temperature: 0.7
   provider: openrouter
   env_key: OPENROUTER_API_KEY
-
-athena:
-  id: athena
-  name: "Athena"
-  forge_alias: athena
-  role: "Monitoramento — quotas, health, alertas"
-  description: "Athena — Monitoramento — quotas, health, alertas"
-  model: "smollm2:360m"
-  model_ref: "ollama/smollm2:360m"
-  max_tokens: 4096
-  temperature: 0.7
-  fallbacks:
-    []
-  skills:
-    - "politica-seguranca"
-    - "innovation-monitor"
-  tools:
-  hub_tools: []
 
 dedalo:
   id: dedalo
@@ -43,12 +25,30 @@ dedalo:
   tools:
   hub_tools: []
 
+gideon:
+  id: gideon
+  name: "Gideon"
+  forge_alias: gideon
+  role: "Prevê o Futuro — analisa dados e soluções antes que aconteçam"
+  description: "Gideon — Prevê o Futuro — analisa dados e soluções antes que aconteçam"
+  model: "smollm2:360m"
+  model_ref: "ollama/smollm2:360m"
+  max_tokens: 4096
+  temperature: 0.7
+  fallbacks:
+    []
+  skills:
+    - "politica-seguranca"
+    - "innovation-viability"
+  tools:
+  hub_tools: []
+
 hefestos:
   id: hefestos
   name: "Hefestos"
   forge_alias: hefestos
-  role: "Construtor — skills, scripts, docs (apos Senku >= 70)"
-  description: "Hefestos — Construtor — skills, scripts, docs (apos Senku >= 70)"
+  role: "Construtor (Em Geral)"
+  description: "Hefestos — Construtor (Em Geral)"
   model: "kilo-auto/free"
   model_ref: "kilo-auto/free"
   max_tokens: 4096
@@ -64,6 +64,28 @@ hefestos:
     - "politica-seguranca"
     - "innovation-build"
   tools:
+  hub_tools: []
+
+heimdall:
+  id: heimdall
+  name: "Heimdall"
+  forge_alias: heimdall
+  role: "Observador — GitHub org + deploy + Vercel"
+  description: "Heimdall — Observador — GitHub org + deploy + Vercel"
+  model: "smollm2:360m"
+  model_ref: "ollama/smollm2:360m"
+  max_tokens: 4096
+  temperature: 0.7
+  fallbacks:
+    []
+  skills:
+    - "politica-seguranca"
+    - "github-aldebaran"
+    - "deploy-monitor"
+    - "vercel-status"
+  tools:
+    - "status_github"
+    - "status_deploy"
   hub_tools: []
 
 icaro:
@@ -87,7 +109,7 @@ icaro:
 macofel:
   id: macofel
   name: "Macofel"
-  forge_alias: lala
+  forge_alias: macofel
   role: "Catalogo e-commerce (unico cerebro com Mongo/API Macofel)"
   description: "Macofel — Catalogo e-commerce (unico cerebro com Mongo/API Macofel)"
   model: "smollm2:360m"
@@ -105,64 +127,23 @@ macofel:
     - "listar_categorias"
   hub_tools: []
 
-odin:
-  id: odin
-  name: "Odin"
-  forge_alias: odin
-  role: "Agente de Seguranca — politica, aprovacoes e auditoria"
-  description: "Odin — Agente de Seguranca — politica, aprovacoes e auditoria"
-  model: "smollm2:360m"
-  model_ref: "ollama/smollm2:360m"
-  max_tokens: 4096
-  temperature: 0.7
-  fallbacks:
-    []
-  skills:
-    - "politica-seguranca"
-  tools:
-  hub_tools: []
-
-ops:
-  id: ops
-  name: "Heimdall"
-  forge_alias: heimdall
-  role: "Vigia — GitHub org + deploy + Vercel (id tecnico: ops)"
-  description: "Heimdall — Vigia — GitHub org + deploy + Vercel (id tecnico: ops)"
-  model: "smollm2:360m"
-  model_ref: "ollama/smollm2:360m"
-  max_tokens: 4096
-  temperature: 0.7
-  fallbacks:
-    []
-  skills:
-    - "politica-seguranca"
-    - "github-aldebaran"
-    - "deploy-monitor"
-    - "vercel-status"
-  tools:
-    - "status_github"
-    - "status_deploy"
-  hub_tools: []
-
 orchestrator:
   id: orchestrator
   name: "Jarvis"
   forge_alias: friday
-  role: "Orquestrador (Telegram, aprovacoes, delegacao)"
-  description: "Jarvis — Orquestrador (Telegram, aprovacoes, delegacao)"
-  model: "smollm2:360m"
-  model_ref: "ollama/smollm2:360m"
+  role: "Cérebro (Telegram, aprovacoes, delegacao)"
+  description: "Jarvis — Cérebro (Telegram, aprovacoes, delegacao)"
+  model: "llama-3.3-70b-versatile"
+  model_ref: "groq/llama-3.3-70b-versatile"
   max_tokens: 4096
   temperature: 0.7
   fallbacks:
+    - "infron/deepseek/deepseek-v3.2"
     - "deepseek/deepseek-v4-flash"
     - "huggingface/Qwen/Qwen2.5-7B-Instruct:fastest"
   skills:
     - "politica-seguranca"
     - "openclaw-jarvis"
-    - "github-aldebaran"
-    - "deploy-monitor"
-    - "vercel-status"
   tools:
   hub_tools: []
 
@@ -170,8 +151,8 @@ rebeca:
   id: rebeca
   name: "Rebeca"
   forge_alias: rebeca
-  role: "Design, layout e prototipos visuais (office, forge, HF)"
-  description: "Rebeca — Design, layout e prototipos visuais (office, forge, HF)"
+  role: "Designer"
+  description: "Rebeca — Designer"
   model: "smollm2:360m"
   model_ref: "ollama/smollm2:360m"
   max_tokens: 4096
@@ -184,12 +165,12 @@ rebeca:
   tools:
   hub_tools: []
 
-senku:
-  id: senku
-  name: "Senku"
-  forge_alias: senku
-  role: "Analise de viabilidade (score 0-100)"
-  description: "Senku — Analise de viabilidade (score 0-100)"
+rimuru:
+  id: rimuru
+  name: "Rimuru Tempest"
+  forge_alias: rimuru
+  role: "Analista de Dados / Administrador de Consumo de Tokens"
+  description: "Rimuru Tempest — Analista de Dados / Administrador de Consumo de Tokens"
   model: "smollm2:360m"
   model_ref: "ollama/smollm2:360m"
   max_tokens: 4096
@@ -198,16 +179,16 @@ senku:
     []
   skills:
     - "politica-seguranca"
-    - "innovation-viability"
+    - "innovation-monitor"
   tools:
   hub_tools: []
 
-sophia:
-  id: sophia
-  name: "Sophia"
-  forge_alias: sophia
-  role: "Pesquisa de ferramentas, tendencias e oportunidades (inovacao)"
-  description: "Sophia — Pesquisa de ferramentas, tendencias e oportunidades (inovacao)"
+veldora:
+  id: veldora
+  name: "Veldora Tempest"
+  forge_alias: veldora
+  role: "Segurança"
+  description: "Veldora Tempest — Segurança"
   model: "smollm2:360m"
   model_ref: "ollama/smollm2:360m"
   max_tokens: 4096
@@ -216,14 +197,13 @@ sophia:
     []
   skills:
     - "politica-seguranca"
-    - "innovation-research"
   tools:
   hub_tools: []
 
 vp-pecas:
   id: vp-pecas
   name: "VP-Pecas"
-  forge_alias: pixel
+  forge_alias: vp-pecas
   role: "Sites usinagem (VP-Pecas, vp-precision-studio)"
   description: "VP-Pecas — Sites usinagem (VP-Pecas, vp-precision-studio)"
   model: "smollm2:360m"
@@ -237,4 +217,22 @@ vp-pecas:
     - "vp-pecas-health"
   tools:
     - "health_site_vp"
+  hub_tools: []
+
+yato:
+  id: yato
+  name: "Yato"
+  forge_alias: yato
+  role: "Pesquisa de Mercado / Marketing Digital"
+  description: "Yato — Pesquisa de Mercado / Marketing Digital"
+  model: "smollm2:360m"
+  model_ref: "ollama/smollm2:360m"
+  max_tokens: 4096
+  temperature: 0.7
+  fallbacks:
+    []
+  skills:
+    - "politica-seguranca"
+    - "innovation-research"
+  tools:
   hub_tools: []

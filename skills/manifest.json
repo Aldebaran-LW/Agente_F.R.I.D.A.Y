@@ -19,7 +19,7 @@
       "telemetry": true
     },
     "github-aldebaran": {
-      "agent": "ops",
+      "agent": "heimdall",
       "mode": "read",
       "permissions": ["read:github"],
       "requiresApproval": false,
@@ -27,7 +27,7 @@
       "telemetry": true
     },
     "deploy-monitor": {
-      "agent": "ops",
+      "agent": "heimdall",
       "mode": "read",
       "permissions": ["read:deploy"],
       "requiresApproval": false,
@@ -35,7 +35,7 @@
       "telemetry": true
     },
     "vercel-status": {
-      "agent": "ops",
+      "agent": "heimdall",
       "mode": "read",
       "permissions": ["read:deploy"],
       "requiresApproval": false,

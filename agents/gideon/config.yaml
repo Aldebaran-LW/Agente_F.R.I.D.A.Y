@@ -1,0 +1,29 @@
+id: gideon
+name: Gideon
+role: Prevê o Futuro — analisa dados e soluções antes que aconteçam
+
+llm:
+  provider: ollama
+  model: smollm2:360m
+  fallbacks: []
+
+skills:
+  - politica-seguranca
+  - innovation-viability
+
+secrets:
+  optional: [OPENROUTER_API_KEY]
+
+deploy:
+  mode: hf_space
+  hf_space: Aldebaran-LW/friday-prod
+  hf_path: /run/gideon
+
+pipeline:
+  output_schema: agents/_shared/schemas/pesquisa-entry.yaml
+  weights:
+    custo_implementacao: 0.3
+    retorno_lucrativo: 0.35
+    compatibilidade_stack: 0.2
+    manutenibilidade: 0.15
+  threshold: 70

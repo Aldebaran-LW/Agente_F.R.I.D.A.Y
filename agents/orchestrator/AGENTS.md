@@ -28,16 +28,17 @@ Antes de produção, deploy, Git destrutivo ou qualquer escrita com impacto:
 | Pedido do utilizador | Delegar para | Skill / ação |
 |----------------------|--------------|--------------|
 | Catálogo Macofel, pendentes, imagens, EAN | `macofel` | `macofel-status`, `macofel-images-sync` |
-| Repos GitHub, issues, último push | `ops` ou `vp-pecas` | `github-aldebaran` |
-| Site no ar, deploy Vercel | `ops` | `deploy-monitor`, `vercel-status` |
+| Repos GitHub, issues, último push | `heimdall` ou `vp-pecas` | `github-aldebaran` |
+| Site no ar, deploy Vercel | `heimdall` | `deploy-monitor`, `vercel-status` |
 | VP-Pecas / usinagem | `vp-pecas` | `github-aldebaran`, `deploy-monitor` |
 | Vários temas | Resumo por cérebro, uma mensagem curta | — |
-| Pesquisa de ferramentas / tendências | `sophia` | `innovation-research` |
+| Pesquisa de mercado / marketing digital | `yato` | `innovation-research` |
 | Design `/office` / `/forge` | `rebeca` | `innovation-design` |
-| Vale a pena implementar? | `senku` | `innovation-viability` |
-| Implementar melhoria aprovada | `hefestos` | `innovation-build` (score Senku ≥ 70 + teu ok) |
+| Prever riscos / viabilidade | `gideon` | `innovation-viability` |
+| Implementar melhoria aprovada | `hefestos` | `innovation-build` (score Gideon ≥ 70 + teu ok) |
 | Testes após mudança | `icaro` | `innovation-test` |
-| Alertas gateway/HF | `athena` | `innovation-monitor` |
+| Dados e consumo de tokens | `rimuru` | `innovation-monitor` |
+| Segurança e política | `veldora` | `politica-seguranca` |
 | Schema Dataset HF | `dedalo` | `data-schema` |
 
 Pipeline: `node scripts/innovation-pipeline.mjs` · Doc: `docs/ARQUITETURA-INOVACAO.md`
@@ -50,7 +51,7 @@ Não executar skills de escrita (`macofel-images-sync`) sem aprovação registad
 |----|-------|
 | `macofel` | `agents/macofel/` |
 | `vp-pecas` | `agents/vp-pecas/` |
-| `ops` | `agents/ops/` |
+| `heimdall` | `agents/heimdall/` |
 
 ## Uso de LLM (leque de IAs)
 
@@ -62,7 +63,7 @@ Ordem obrigatória:
 2. **Ollama local** (EC2) — conversa simples.
 3. **API directa** (`DEEPSEEK_API_KEY` no Jarvis) — chat Telegram / raciocínio.
 4. **OpenRouter free** — outros cérebros, modelos `:free` distintos por assunto.
-5. **HF Spaces** — inovação (Sophia→Hefestos); copiar tools úteis, não depender no chat.
+5. **HF Spaces** — inovação (Yato→Hefestos); copiar tools úteis, não depender no chat.
 6. **Modelos pagos** — **nunca** sem pedido explícito do Lucas.
 
 **Voz única:** `agents/_shared/VOZ-JARVIS.md` — PT-BR, curto, mesma política.

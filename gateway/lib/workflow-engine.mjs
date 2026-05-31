@@ -5,6 +5,18 @@ import { fetchGithubStatus } from './github.mjs';
 import { fetchDeployHealth } from './deploy.mjs';
 import { fetchVercelStatus } from './vercel.mjs';
 import { fetchVpPecasHealth } from './vp-pecas.mjs';
+import { forwardTask } from './orchestrate.mjs';
+
+/** Skills sem executor local — delegam via orchestrate (HF / EC2). */
+const ORCHESTRATE_SKILLS = new Set([
+  'innovation-research',
+  'innovation-viability',
+  'innovation-design',
+  'innovation-build',
+  'innovation-monitor',
+  'innovation-test',
+  'security-audit',
+]);
 
 function buildExecutors(params = {}) {
   return {
@@ -114,10 +126,10 @@ async function executeSingle(plan, { message, approved, params }) {
     } else {
       const t0 = Date.now();
       try {
-        data = await runWithTimeout(
-          executeSkill(route.skill, params),
-          skillTimeoutMs(route.skill)
-        );
+        const run = ORCHESTRATE_SKILLS.has(route.skill)
+          ? () => forwardTask(route.agent, message)
+          : () => executeSkill(route.skill, params);
+        data = await runWithTimeout(run(), skillTimeoutMs(route.skill));
         taskRuns.push({
           id: 'single',
           skill: route.skill,

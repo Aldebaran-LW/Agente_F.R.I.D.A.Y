@@ -1,4 +1,4 @@
-/** Alvos do portfólio Aldebaran-LW monitorados pelo agente ops / Jarvis. */
+/** Alvos do portfólio Aldebaran-LW monitorados pelo agente heimdall / Jarvis. */
 
 export const GITHUB_REPOS = [
   'Macofel_2.0',

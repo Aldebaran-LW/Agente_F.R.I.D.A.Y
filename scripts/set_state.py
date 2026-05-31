@@ -5,7 +5,7 @@ Atualiza estado visual de um agente para dashboards (Star Office UI, scripts loc
 Uso:
   python3 set_state.py idle "Pronto para o próximo"
   python3 set_state.py writing "A revisar catálogo" --agent macofel
-  python3 set_state.py executing "Deploy VP-Pecas" -a ops
+  python3 set_state.py executing "Deploy VP-Pecas" -a heimdall
 
 Variáveis:
   OPENCLAW_AGENT_STATE_FILE  — JSON multi-agente (default ~/.openclaw/workspace/agent_states.json)
@@ -46,9 +46,13 @@ FORGE_ALIAS = {
     "icaro": "icaro",
     "athena": "athena",
     "dedalo": "dedalo",
-    "ops": "byte",
-    "vp-pecas": "pixel",
-    "macofel": "lala",
+    "heimdall": "heimdall",
+    "vp-pecas": "vp-pecas",
+    "macofel": "macofel",
+    "ops": "heimdall",
+    "byte": "heimdall",
+    "pixel": "vp-pecas",
+    "lala": "macofel",
     "main": "friday",
 }
 
@@ -141,7 +145,7 @@ def main() -> int:
         "--agent",
         "-a",
         default=os.environ.get("OPENCLAW_AGENT_ID", "main"),
-        help="ID do agente (orchestrator, macofel, vp-pecas, ops, main)",
+        help="ID do agente (orchestrator, macofel, vp-pecas, heimdall, main)",
     )
     args = parser.parse_args()
 

@@ -2,7 +2,7 @@
 
 Telegram e decisoes: **AWS EC2**. O gateway Vercel expoe `POST /jarvis` — a EC2 chama com Bearer token.
 
-POST /jarvis com message. Delega macofel, ops, vp-pecas. Portugues, curto, sem secrets.
+POST /jarvis com message. Delega macofel, heimdall, vp-pecas. Portugues, curto, sem secrets.
 
 Proibido: pagamentos, PII, escrita sem aprovacao.
 

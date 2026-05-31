@@ -27,7 +27,10 @@ export default async function handler(req, res) {
         vercel: 'GET /openclaw/vercel/status',
         vpPecas: 'GET /openclaw/vp-pecas/health',
       },
-      delegates: ['macofel', 'vp-pecas', 'ops'],
+      delegates: [
+        'macofel', 'vp-pecas', 'heimdall',
+        'yato', 'gideon', 'rebeca', 'hefestos', 'rimuru', 'veldora', 'icaro',
+      ],
       workflows: ['portfolio-status', 'macofel-sync'],
       skills: listSkills(),
     });

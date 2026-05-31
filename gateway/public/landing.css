@@ -475,6 +475,11 @@ h2 {
   }
 }
 
+.agents-grid-lab .agent-role {
+  font-size: 0.68rem;
+  line-height: 1.25;
+}
+
 .agent-card {
   padding: 1.5rem;
   background: var(--panel);

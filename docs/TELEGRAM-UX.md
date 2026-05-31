@@ -46,6 +46,10 @@ Se `telegram_html` falhar (caracteres inválidos), usar `reply` em texto simples
 | `/github` | `repos github` |
 | `/sites` | `sites no ar` |
 | `/resumo` | `resumo portfolio` |
+| `pesquisa mercado` | Yato (inovação HF) |
+| `tokens openrouter` | Rimuru (consumo APIs) |
+| `auditoria seguranca` | Veldora |
+| `menu` / `ajuda` | Lista de todos os cérebros |
 
 ## Sessões (evitar contexto poluído)
 

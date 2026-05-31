@@ -22,8 +22,8 @@ Arquitetura: `docs/ARQUITETURA-AGENTES.md`
 ## Skills
 
 - `vp-pecas-health` (health-check sites VP — owner exclusivo)
-- GitHub/repos → Jarvis delega a `ops` (`github-aldebaran`)
-- Deployments Vercel → Jarvis delega a `ops` (`vercel-status`)
+- GitHub/repos → Jarvis delega a `heimdall` (`github-aldebaran`)
+- Deployments Vercel → Jarvis delega a `heimdall` (`vercel-status`)
 
 ## Scripts
 

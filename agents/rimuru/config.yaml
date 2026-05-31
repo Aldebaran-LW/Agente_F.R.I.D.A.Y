@@ -1,6 +1,6 @@
-id: athena
-name: Athena
-role: Monitoramento — quotas, health, alertas
+id: rimuru
+name: Rimuru Tempest
+role: Analista de Dados / Administrador de Consumo de Tokens
 
 llm:
   provider: ollama
@@ -13,11 +13,12 @@ skills:
 
 secrets:
   gateway: [OPENCLAW_GATEWAY_BASE_URL, OPENCLAW_AUTOMATION_TOKEN]
-  optional: [TELEGRAM_ADMIN_CHAT_ID]
+  optional: [OPENROUTER_API_KEY, TELEGRAM_ADMIN_CHAT_ID]
 
 pipeline:
   watch:
     - gateway_vercel
     - hf_spaces
     - ec2_forge
+    - openrouter_usage
   alert_channel: telegram_via_jarvis

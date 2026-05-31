@@ -9,13 +9,13 @@
 | **Central** | `orchestrator` | Telegram, aprovações, delegação. **Não** acede a MongoDB de catálogo. |
 | **Periférico Macofel** | `macofel` | Catálogo: API Macofel, gateway Vercel, ou script Mongo (fallback dev). |
 | **Periférico VP** | `vp-pecas` | Sites usinagem, GitHub, health-check. |
-| **Periférico Ops** | `ops` | GitHub org, Vercel deploy, cron. |
-| **Inovação** | `sophia`, `rebeca`, `senku`, `hefestos` | Pesquisa → design → viabilidade → build. Ver [ARQUITETURA-INOVACAO.md](./ARQUITETURA-INOVACAO.md). |
-| **Suporte** | `icaro`, `athena`, `dedalo` | Testes, monitor, schemas HF. |
+| **Heimdall** | `heimdall` | GitHub org, Vercel deploy, cron. |
+| **Inovação** | `yato`, `rebeca`, `gideon`, `hefestos` | Mercado → design → previsão → build. Ver [ARQUITETURA-INOVACAO.md](./ARQUITETURA-INOVACAO.md). |
+| **Suporte** | `icaro`, `rimuru`, `veldora`, `dedalo` | Testes, dados/tokens, segurança, schemas HF. |
 
 ## Fluxo de pedidos
 
-Utilizador (Telegram) -> orquestrador -> macofel | vp-pecas | ops -> skills + scripts
+Utilizador (Telegram) -> orquestrador -> macofel | vp-pecas | heimdall -> skills + scripts
 
 ## Ordem de leitura Macofel (`macofel-status`)
 
@@ -31,8 +31,8 @@ O orquestrador delega ao cérebro `macofel` — não corre Mongo diretamente.
 |----------|----------|
 | OPENCLAW_AUTOMATION_TOKEN, OPENCLAW_GATEWAY_BASE_URL | Gateway (todos, quando existir rota) |
 | MONGODB_URI, MACOFEL_* | Cérebro macofel apenas |
-| GITHUB_TOKEN | ops, vp-pecas, orquestrador (leitura) |
-| VERCEL_API_TOKEN | ops, vp-pecas |
+| GITHUB_TOKEN | heimdall, vp-pecas, orquestrador (leitura) |
+| VERCEL_API_TOKEN | heimdall, vp-pecas |
 
 ## Futuro (hub central)
 
@@ -48,7 +48,7 @@ Cada pasta `agents/<id>/` inclui **`config.yaml`**: modelo LLM (OpenRouter free)
 |----------|-------------------|
 | `agents/orchestrator/config.yaml` | Nemotron 3 Super (free) |
 | `agents/macofel/config.yaml` | DeepSeek V4 Flash (free) |
-| `agents/ops/config.yaml` | Laguna M.1 (free) |
+| `agents/heimdall/config.yaml` | Laguna M.1 (free) |
 | `agents/vp-pecas/config.yaml` | MiniMax M2.5 (free) |
 
 Esquema: `agents/_shared/CONFIG-SCHEMA.md`. Validar: `node scripts/validate-agent-config.mjs`.

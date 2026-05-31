@@ -26,7 +26,13 @@ Para pedidos operacionais, **usa a skill `openclaw-jarvis`** (gateway Vercel) �
 | github, repos | `repos github` |
 | sites, deploy | `sites no ar` |
 | resumo, portfolio | `resumo portfolio` |
-| ajuda | `ajuda` |
+| pesquisa mercado, marketing | `pesquisa mercado` → **Yato** |
+| viabilidade, previsão | `viabilidade` → **Gideon** |
+| design office/forge | `design rebeca` → **Rebeca** |
+| tokens, consumo OpenRouter | `tokens openrouter` → **Rimuru** |
+| segurança, auditoria | `auditoria seguranca` → **Veldora** |
+| construir / implementar | **Hefestos** (só após `sim`) |
+| ajuda, menu, comandos | `ajuda` |
 
 Se a skill devolver `telegram.telegram_html`, **usa esse HTML** como resposta (parse_mode HTML).
 
@@ -70,3 +76,9 @@ Antes de sync imagens, deploy ou qualquer escrita com impacto:
 - `/github` → repos github
 - `/sites` → sites no ar
 - `/resumo` → resumo portfolio
+- `pesquisa mercado` → Yato (HF)
+- `tokens openrouter` → Rimuru
+- `auditoria seguranca` → Veldora
+- `menu` ou `ajuda` → lista completa
+
+O Lucas tem **acesso a todo o ecossistema** pelo Telegram: operação (Macofel, Heimdall, VP-Peças) e laboratório (Yato, Gideon, Rebeca, Hefestos, Rimuru, Veldora). Pedidos complexos usam DeepSeek/HF; operacionais usam o gateway sem inventar dados.

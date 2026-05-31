@@ -41,10 +41,41 @@ export function buildReply(route, payload, { approvalBlocked = false } = {}) {
     }
     return `Sync falhou: ${payload?.error || 'erro desconhecido'}`;
   }
-  if (route.skill === 'help') {
-    return 'Jarvis online. Diga: status macofel, status portal, repos github, sites no ar, deploy texte, vp-pecas, vercel, resumo portfolio.';
+  if (ORCHESTRATE_REPLY_AGENTS.has(route.agent) && payload) {
+    return formatOrchestrateReply(route.agent, payload);
   }
-  return 'Reformule o pedido. Ex.: status portal, status macofel, repos github, resumo portfolio.';
+  if (route.skill === 'help') {
+    return [
+      'Jarvis online — tens acesso a todo o ecossistema via Telegram.',
+      '',
+      'Operacao: status macofel · repos github · sites no ar · resumo portfolio · vp-pecas',
+      'Inovacao: pesquisa mercado (Yato) · viabilidade (Gideon) · design (Rebeca) · construir (Hefestos, pede sim)',
+      'Suporte: tokens/consumo (Rimuru) · seguranca (Veldora)',
+    ].join('\n');
+  }
+  return 'Reformule o pedido. Ex.: status macofel, pesquisa mercado, tokens openrouter, resumo portfolio.';
+}
+
+const ORCHESTRATE_REPLY_AGENTS = new Set([
+  'yato', 'gideon', 'rebeca', 'hefestos', 'rimuru', 'veldora', 'icaro',
+]);
+
+function formatOrchestrateReply(agentId, payload) {
+  if (payload.ok === false) {
+    const hint = payload.hint || payload.error || 'servico indisponivel';
+    if (payload.status === 503) {
+      return `${agentId}: upstream nao configurado (${hint}).`;
+    }
+    return `${agentId}: falhou — ${hint}`;
+  }
+  const inner = payload.data ?? payload;
+  const text =
+    inner?.result
+    ?? inner?.reply
+    ?? inner?.message
+    ?? (typeof inner === 'string' ? inner : null);
+  if (text) return `${agentId}:\n${String(text).slice(0, 1200)}`;
+  return `${agentId}: pedido encaminhado (ok).`;
 }
 
 function formatGithubRepoLine(r) {

@@ -18,23 +18,31 @@ const outPath = outArg ? resolve(process.cwd(), outArg) : defaultOut;
 
 const FORGE_ALIAS = {
   orchestrator: 'friday',
+  heimdall: 'heimdall',
+  veldora: 'veldora',
+  odin: 'veldora',
+  rimuru: 'rimuru',
+  athena: 'rimuru',
+  gideon: 'gideon',
+  senku: 'gideon',
+  yato: 'yato',
+  sophia: 'yato',
+  'vp-pecas': 'vp-pecas',
+  macofel: 'macofel',
   ops: 'heimdall',
-  odin: 'odin',
-  'vp-pecas': 'pixel',
-  macofel: 'lala',
-  sophia: 'sophia',
+  byte: 'heimdall',
+  pixel: 'vp-pecas',
+  lala: 'macofel',
   rebeca: 'rebeca',
-  senku: 'senku',
   hefestos: 'hefestos',
   icaro: 'icaro',
-  athena: 'athena',
   dedalo: 'dedalo',
 };
 
 const HF_TOOLS = {
   orchestrator: [],
   macofel: ['buscar_peca', 'listar_categorias'],
-  ops: ['status_github', 'status_deploy'],
+  heimdall: ['status_github', 'status_deploy'],
   'vp-pecas': ['health_site_vp'],
 };
 

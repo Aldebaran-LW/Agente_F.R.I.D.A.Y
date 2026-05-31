@@ -16,7 +16,7 @@ const WORKING_STATES = new Set([
   'thinking',
 ]);
 
-/** Personas Digital Forge ↔ cérebros OpenClaw */
+/** Digital Forge ↔ cérebros OpenClaw (ids = chave no middleware) */
 const AGENTS = [
   {
     id: 'friday',
@@ -28,33 +28,51 @@ const AGENTS = [
     accent: 0x1d4ed8,
   },
   {
-    id: 'byte',
-    openclaw: 'ops',
-    name: 'Byte',
-    role: 'Code',
+    id: 'heimdall',
+    openclaw: 'heimdall',
+    name: 'Heimdall',
+    role: 'Observador',
     station: 'code',
     pos: [-3.2, 0, 1.2],
     accent: 0x059669,
   },
   {
-    id: 'pixel',
+    id: 'vp-pecas',
     openclaw: 'vp-pecas',
-    name: 'Pixel',
-    role: 'Design',
+    name: 'VP-Peças',
+    role: 'Usinagem',
     station: 'design',
     pos: [3.2, 0, 1.2],
     accent: 0x7c3aed,
   },
   {
-    id: 'lala',
+    id: 'macofel',
     openclaw: 'macofel',
-    name: 'Lala',
-    role: 'QA',
+    name: 'Macofel',
+    role: 'Catálogo',
     station: 'qa',
     pos: [0, 0, 3.4],
     accent: 0x0891b2,
   },
 ];
+
+/** Legado Byte/Pixel/Lala e ids OpenClaw → id Forge */
+const AGENT_ID_ALIASES = {
+  orchestrator: 'friday',
+  friday: 'friday',
+  heimdall: 'heimdall',
+  macofel: 'macofel',
+  lala: 'macofel',
+  'vp-pecas': 'vp-pecas',
+  pixel: 'vp-pecas',
+  byte: 'heimdall',
+  ops: 'heimdall',
+};
+
+function resolveForgeAgentId(agent) {
+  const k = String(agent || '').toLowerCase();
+  return AGENT_ID_ALIASES[k] || k;
+}
 
 const agentState = Object.fromEntries(AGENTS.map((a) => [a.id, { state: 'idle', task: '' }]));
 
@@ -97,7 +115,7 @@ function renderCards() {
 }
 
 function applyAgentUpdate(msg) {
-  const id = msg.agent;
+  const id = resolveForgeAgentId(msg.agent);
   if (!agentState[id]) return;
   agentState[id] = {
     state: msg.state || 'idle',

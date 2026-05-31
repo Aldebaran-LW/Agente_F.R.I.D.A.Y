@@ -25,4 +25,4 @@ systemctl restart openclaw-gateway
 sleep 4
 systemctl is-active openclaw-gateway
 ORCH_PRIMARY="$(openclaw config get agents.list.0.model.primary 2>/dev/null || echo '?')"
-echo "Telegram: /new | orchestrator=${ORCH_PRIMARY} | ops=gateway (openclaw-jarvis)"
+echo "Telegram: /new | orchestrator=${ORCH_PRIMARY} | heimdall=gateway (openclaw-jarvis)"

@@ -1,37 +1,8 @@
 (function () {
-  var TOKEN_KEY = "openclaw_office_token";
   var POLL_MS = 60_000;
 
   function $(id) {
     return document.getElementById(id);
-  }
-
-  function getStoredToken() {
-    try {
-      return (sessionStorage.getItem(TOKEN_KEY) || "").trim();
-    } catch (e) {
-      return "";
-    }
-  }
-
-  function saveTokenFromLanding() {
-    var input = $("landing-token");
-    if (!input) return;
-    var t = input.value.trim();
-    if (!t) return;
-    try {
-      sessionStorage.setItem(TOKEN_KEY, t);
-    } catch (e) {
-      return;
-    }
-    var hint = $("token-hint");
-    if (hint) hint.textContent = "Token guardado nesta sessão. A actualizar agentes…";
-    refreshLiveData();
-  }
-
-  function refreshLiveData() {
-    fetchAgentStatus();
-    fetchRecentActivities();
   }
 
   function goToOffice(e) {
@@ -39,9 +10,19 @@
     window.location.href = "/office";
   }
 
-  function formatNum(n) {
-    if (n == null || isNaN(n)) return "—";
-    return Number(n).toLocaleString("pt-PT");
+  function setStaticMetrics() {
+    setMetric(
+      "metric-orchestrator",
+      "Coordenação, política de segurança e aprovações no Telegram",
+      "live"
+    );
+    setMetric(
+      "metric-macofel",
+      "Catálogo e-commerce e sync de imagens (com confirmação)",
+      "live"
+    );
+    setMetric("metric-heimdall", "Monitorização de deploys e portfólio", "live");
+    setMetric("metric-vp", "Saúde dos sites industriais", "live");
   }
 
   function setMetric(id, html, state) {
@@ -52,307 +33,37 @@
     if (state) el.classList.add(state);
   }
 
-  function setMetricsFallback() {
-    setMetric("metric-orchestrator", "Introduz o token abaixo para estado ao vivo", "");
-    setMetric("metric-macofel", "Catálogo e sync de imagens", "");
-    setMetric("metric-ops", "Repos GitHub e deploys", "");
-    setMetric("metric-vp", "Sites de usinagem", "");
-  }
-
-  function agentById(agents, id) {
-    for (var i = 0; i < agents.length; i++) {
-      if (agents[i].id === id) return agents[i];
-    }
-    return null;
-  }
-
-  function updateMetricsFromSnapshot(body) {
-    var agents = body.agents || [];
-    var jarvis = agentById(agents, "orchestrator");
-    var macofel = agentById(agents, "macofel");
-    var ops = agentById(agents, "ops");
-    var vp = agentById(agents, "vp-pecas");
-
-    if (jarvis) {
-      setMetric(
-        "metric-orchestrator",
-        "<strong>" + jarvis.stateLabel + "</strong> · " + jarvis.detail,
-        "live"
-      );
-    }
-
-    if (macofel) {
-      var img = macofel.image_sync_pending;
-      var txt =
-        img != null
-          ? formatNum(img) + " imagens pendentes"
-          : macofel.detail;
-      if (macofel.pending_review > 0) {
-        txt += " · " + formatNum(macofel.pending_review) + " revisão";
-      }
-      setMetric("metric-macofel", txt, macofel.state === "error" ? "err" : "live");
-    }
-
-    if (ops) {
-      var issues = ops.issues != null ? ops.issues : null;
-      var opsTxt =
-        issues != null
-          ? formatNum(issues) + " issue(s) aberta(s)"
-          : ops.detail;
-      setMetric("metric-ops", opsTxt, ops.state === "error" ? "err" : "live");
-    }
-
-    if (vp) {
-      setMetric("metric-vp", vp.detail, vp.state === "error" ? "err" : "live");
-    }
-
-    updateHeroOpsBadge(body);
-  }
-
-  function updateHeroOpsBadge(body) {
+  function setHeroSystemLabel(ok) {
     var badge = $("hero-ops-badge");
     var text = $("hero-ops-text");
-    if (!badge || !text) return;
-
-    var agents = body.agents || [];
-    var active = agents.filter(function (a) {
-      return a.state === "working" || a.state === "thinking";
-    }).length;
-    var errors = agents.filter(function (a) {
-      return a.state === "error";
-    }).length;
-
-    badge.classList.add("ok");
-    if (errors > 0) {
-      text.textContent =
-        "Sistema com alertas · " + errors + " agente(s) em erro";
-      badge.classList.remove("ok");
-      badge.classList.add("warn");
-    } else if (active > 0) {
-      text.textContent =
-        "Sistema operacional · " + active + " agente(s) activos";
+    var dot = $("hero-status-dot");
+    if (!text) return;
+    if (ok) {
+      if (badge) badge.classList.add("ok");
+      if (dot) dot.className = "hero-status-dot ok";
+      text.textContent = "Gateway operacional · ecossistema disponível";
     } else {
-      text.textContent = "Sistema operacional · portfólio estável";
+      if (badge) badge.classList.remove("ok");
+      if (dot) dot.className = "hero-status-dot err";
+      text.textContent = "Gateway temporariamente indisponível";
     }
   }
 
-  function fetchAgentStatus() {
-    var token = getStoredToken();
-    if (!token) {
-      setMetricsFallback();
-      return Promise.resolve();
+  function setNavGateway(ok, label) {
+    var navBadge = $("nav-gateway-status");
+    var navText = $("nav-gateway-status-text");
+    var navDot = $("nav-status-dot");
+    if (navBadge) {
+      navBadge.classList.remove("ok", "err");
+      navBadge.classList.add(ok ? "ok" : "err");
     }
-
-    ["metric-orchestrator", "metric-macofel", "metric-ops", "metric-vp"].forEach(
-      function (id) {
-        setMetric(id, "A carregar…", "loading");
-      }
-    );
-
-    return fetch("/openclaw/office/status", {
-      cache: "no-store",
-      headers: {
-        Authorization: "Bearer " + token,
-        Accept: "application/json",
-      },
-    })
-      .then(function (r) {
-        if (r.status === 401) {
-          setMetricsFallback();
-          var hint = $("token-hint");
-          if (hint) hint.textContent = "Token inválido. Corrige e guarda de novo.";
-          return null;
-        }
-        if (!r.ok) throw new Error(String(r.status));
-        return r.json();
-      })
-      .then(function (data) {
-        if (data) updateMetricsFromSnapshot(data);
-      })
-      .catch(function () {
-        setMetricsFallback();
-      });
-  }
-
-  var AGENT_LABELS = {
-    orchestrator: "Jarvis",
-    macofel: "Macofel",
-    ops: "Ops",
-    "vp-pecas": "VP-Pecas",
-    hefestos: "Hefestos",
-    senku: "Senku",
-    sophia: "Sophia",
-  };
-
-  function agentLabel(id) {
-    if (!id) return "Sistema";
-    return AGENT_LABELS[id] || id;
-  }
-
-  function formatTime(iso) {
-    if (!iso) return "";
-    try {
-      return new Date(iso).toLocaleString("pt-PT", {
-        day: "2-digit",
-        month: "short",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch (e) {
-      return "";
-    }
-  }
-
-  function buildActivityItems(data) {
-    var items = [];
-    var runs = data.workflow_runs || [];
-    var approvals = data.approval_requests || [];
-    var learnings = data.agent_learnings || [];
-
-    runs.forEach(function (r) {
-      var preview = (r.message_preview || r.plan_kind || "pedido").trim();
-      var skill = r.route_skill || r.workflow_id || "";
-      items.push({
-        at: r.created_at,
-        icon: "⚡",
-        title: agentLabel(r.agent_id || r.route_agent) + " · " + preview,
-        meta: skill ? "workflow · " + skill : "workflow",
-        kind: "run",
-      });
-    });
-
-    approvals.forEach(function (a) {
-      items.push({
-        at: a.created_at,
-        icon: "🔒",
-        title: (a.summary || a.action_type || "Aprovação pendente").trim(),
-        meta: agentLabel(a.agent_id) + " · aguarda sim no Telegram",
-        kind: "approval",
-      });
-    });
-
-    learnings.forEach(function (l) {
-      var text = (l.content || "").trim();
-      if (text.length > 120) text = text.slice(0, 117) + "…";
-      items.push({
-        at: l.created_at,
-        icon: "💡",
-        title: agentLabel(l.agent_id) + " · aprendizado",
-        meta: text || l.source || "learning",
-        kind: "learning",
-      });
-    });
-
-    items.sort(function (a, b) {
-      return new Date(b.at).getTime() - new Date(a.at).getTime();
-    });
-
-    return items.slice(0, 8);
-  }
-
-  function renderActivityFeed(items, message, isErr) {
-    var list = $("activity-feed");
-    if (!list) return;
-    list.innerHTML = "";
-
-    if (message) {
-      var li = document.createElement("li");
-      li.className = "activity-item activity-placeholder" + (isErr ? " activity-err" : "");
-      li.textContent = message;
-      list.appendChild(li);
-      return;
-    }
-
-    if (!items.length) {
-      var empty = document.createElement("li");
-      empty.className = "activity-item activity-placeholder";
-      empty.textContent = "Nenhuma actividade recente no Hub.";
-      list.appendChild(empty);
-      return;
-    }
-
-    items.forEach(function (item) {
-      var li = document.createElement("li");
-      li.className = "activity-item kind-" + (item.kind || "run");
-
-      var icon = document.createElement("span");
-      icon.className = "activity-icon";
-      icon.setAttribute("aria-hidden", "true");
-      icon.textContent = item.icon;
-
-      var body = document.createElement("div");
-      body.className = "activity-body";
-
-      var title = document.createElement("p");
-      title.className = "activity-title";
-      title.textContent = item.title;
-
-      var meta = document.createElement("p");
-      meta.className = "activity-meta";
-      meta.textContent = item.meta;
-
-      body.appendChild(title);
-      body.appendChild(meta);
-
-      var time = document.createElement("time");
-      time.className = "activity-time";
-      time.dateTime = item.at || "";
-      time.textContent = formatTime(item.at);
-
-      li.appendChild(icon);
-      li.appendChild(body);
-      li.appendChild(time);
-      list.appendChild(li);
-    });
-  }
-
-  function fetchRecentActivities() {
-    var token = getStoredToken();
-    if (!token) {
-      renderActivityFeed(null, "Activar o token acima para carregar o feed.");
-      return Promise.resolve();
-    }
-
-    renderActivityFeed(null, "A carregar actividades…");
-
-    return fetch("/openclaw/hub/recent?limit=15&snapshots=0", {
-      cache: "no-store",
-      headers: {
-        Authorization: "Bearer " + token,
-        Accept: "application/json",
-      },
-    })
-      .then(function (r) {
-        if (r.status === 401) {
-          renderActivityFeed(null, "Token inválido para o Hub.", true);
-          return null;
-        }
-        if (r.status === 503) {
-          renderActivityFeed(
-            null,
-            "Hub Supabase não configurado no gateway — feed indisponível."
-          );
-          return null;
-        }
-        if (!r.ok) throw new Error(String(r.status));
-        return r.json();
-      })
-      .then(function (data) {
-        if (!data || !data.ok) {
-          renderActivityFeed(null, data?.error || "Hub indisponível.", true);
-          return;
-        }
-        renderActivityFeed(buildActivityItems(data));
-      })
-      .catch(function () {
-        renderActivityFeed(null, "Não foi possível carregar o feed.", true);
-      });
+    if (navDot) navDot.className = "status-dot" + (ok ? " ok" : " err");
+    if (navText) navText.textContent = label;
   }
 
   function checkGatewayHealth() {
     var bar = $("gateway-status");
     var text = $("gateway-status-text");
-    var heroDot = $("hero-status-dot");
 
     return fetch("/api/health", { cache: "no-store" })
       .then(function (r) {
@@ -361,19 +72,19 @@
       })
       .then(function (data) {
         if (bar) bar.classList.add("ok");
-        if (heroDot) heroDot.className = "hero-status-dot ok";
         var at =
           data && data.at
             ? " · " + new Date(data.at).toLocaleTimeString("pt-PT")
             : "";
-        if (text) text.textContent = "Gateway Vercel: ✅ Online" + at;
+        if (text) text.textContent = "Gateway Vercel: online" + at;
+        setNavGateway(true, "Gateway online");
+        setHeroSystemLabel(true);
       })
       .catch(function () {
         if (bar) bar.classList.add("err");
-        if (heroDot) heroDot.className = "hero-status-dot err";
-        if (text) text.textContent = "Gateway Vercel: ❌ Offline";
-        var heroText = $("hero-ops-text");
-        if (heroText) heroText.textContent = "Gateway indisponível";
+        if (text) text.textContent = "Gateway Vercel: offline";
+        setNavGateway(false, "Gateway offline");
+        setHeroSystemLabel(false);
       });
   }
 
@@ -404,21 +115,13 @@
   }
 
   function init() {
-    var saved = getStoredToken();
-    var input = $("landing-token");
-    if (input && saved) input.value = saved;
-
-    var saveBtn = $("landing-save-token");
-    if (saveBtn) saveBtn.addEventListener("click", saveTokenFromLanding);
-
     document.querySelectorAll(".cta-office").forEach(function (el) {
       el.addEventListener("click", goToOffice);
     });
 
+    setStaticMetrics();
     checkGatewayHealth();
-    refreshLiveData();
     setInterval(checkGatewayHealth, POLL_MS);
-    setInterval(refreshLiveData, POLL_MS);
     initReveal();
   }
 

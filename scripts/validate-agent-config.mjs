@@ -53,7 +53,7 @@ const RUNTIME_OPERATION_AGENTS = new Set([
   'orchestrator',
   'macofel',
   'vp-pecas',
-  'ops',
+  'heimdall',
 ]);
 
 let fails = 0;

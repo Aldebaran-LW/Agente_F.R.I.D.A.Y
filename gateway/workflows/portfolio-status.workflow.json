@@ -20,8 +20,8 @@
   "requiresApproval": false,
   "tasks": [
     { "id": "macofel", "skill": "macofel-status", "agent": "macofel", "deps": [] },
-    { "id": "github", "skill": "github-aldebaran", "agent": "ops", "deps": [] },
-    { "id": "deploy", "skill": "deploy-monitor", "agent": "ops", "deps": [] },
+    { "id": "github", "skill": "github-aldebaran", "agent": "heimdall", "deps": [] },
+    { "id": "deploy", "skill": "deploy-monitor", "agent": "heimdall", "deps": [] },
     { "id": "vp", "skill": "vp-pecas-health", "agent": "vp-pecas", "deps": [] }
   ]
 }

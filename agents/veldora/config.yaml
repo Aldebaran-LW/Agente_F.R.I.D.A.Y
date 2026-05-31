@@ -1,6 +1,6 @@
-id: odin
-name: Odin
-role: Agente de Seguranca — politica, aprovacoes e auditoria
+id: veldora
+name: Veldora Tempest
+role: Segurança
 
 llm:
   provider: ollama
@@ -16,4 +16,4 @@ secrets:
 deploy:
   mode: hf_space
   hf_space: Aldebaran-LW/friday-prod
-  hf_path: /run/odin
+  hf_path: /run/veldora

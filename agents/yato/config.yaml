@@ -1,6 +1,6 @@
-id: sophia
-name: Sophia
-role: Pesquisa de ferramentas, tendencias e oportunidades (inovacao)
+id: yato
+name: Yato
+role: Pesquisa de Mercado / Marketing Digital
 
 llm:
   provider: ollama
@@ -17,17 +17,14 @@ secrets:
 deploy:
   mode: hf_space
   hf_space: Aldebaran-LW/friday-prod
-  hf_path: /run/sophia
+  hf_path: /run/yato
   dataset: Aldebaran-LW/openclaw-backup
-  promote_to: aws_ec2
-  schedule: "0 */6 * * *"
 
 pipeline:
   output_schema: agents/_shared/schemas/pesquisa-entry.yaml
   sources:
     - web
+    - mercado
+    - marketing_digital
     - huggingface_hub
-    - github_trending
-    - papers_with_code
     - product_hunt
-    - reddit

@@ -30,13 +30,13 @@ describe('planFromMessage', () => {
 describe('routeMessage portal Texte', () => {
   it('status portal -> deploy-monitor', () => {
     const route = routeMessage('status portal');
-    assert.equal(route.agent, 'ops');
+    assert.equal(route.agent, 'heimdall');
     assert.equal(route.skill, 'deploy-monitor');
   });
 
   it('deploy texte -> vercel-status', () => {
     const route = routeMessage('ultimo deploy texte');
-    assert.equal(route.agent, 'ops');
+    assert.equal(route.agent, 'heimdall');
     assert.equal(route.skill, 'vercel-status');
   });
 });

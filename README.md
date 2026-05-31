@@ -32,7 +32,7 @@ Cada cerebro tem `agents/<id>/config.yaml` (modelo OpenRouter recomendado):
 |----|-------|-------------|
 | `orchestrator` | Jarvis | `nvidia/nemotron-3-super-120b-a12b:free` |
 | `macofel` | Catalogo | `deepseek/deepseek-v4-flash:free` |
-| `ops` | GitHub/deploy | `poolside/laguna-m.1:free` |
+| `heimdall` | GitHub/deploy | `poolside/laguna-m.1:free` |
 | `vp-pecas` | Sites usinagem | `minimax/minimax-m2.5:free` |
 
 Fase 1: **uma** `OPENROUTER_API_KEY` para todos. Ver `docs/OPENROUTER-MODELOS-FREE.md`.

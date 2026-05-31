@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
- * Pipeline Sophia → Rebeca (opcional) → Senku → recomendação Hefestos
- * Uso: node scripts/innovation-pipeline.mjs --topic "tema" [--dry-run] [--stage all|sophia|senku]
+ * Pipeline Yato → Rebeca (opcional) → Gideon → recomendação Hefestos
+ * Uso: node scripts/innovation-pipeline.mjs --topic "tema" [--dry-run] [--stage all|yato|gideon]
+ * Aliases legados: sophia → yato, senku → gideon
  */
 import { mkdirSync, writeFileSync, readFileSync, existsSync, readdirSync } from 'fs';
 import { resolve, dirname, join } from 'path';
@@ -10,6 +11,9 @@ import { loadAllAgentConfigs } from './lib/parse-agent-yaml.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
+
+const STAGE_ALIASES = { sophia: 'yato', senku: 'gideon' };
+const FILE_PREFIX_ALIASES = { yato: ['yato_', 'sophia_'], gideon: ['gideon_', 'senku_'] };
 
 function loadEnv() {
   const p = resolve(root, '.env');
@@ -35,10 +39,21 @@ function argValue(flag) {
   return null;
 }
 
+function normStage(raw) {
+  const s = (raw || 'all').toLowerCase();
+  return STAGE_ALIASES[s] || s;
+}
+
+function resolveAgentId(agentId) {
+  return STAGE_ALIASES[agentId] || agentId;
+}
+
 const topic = argValue('--topic') || 'ferramentas IA gratuitas para OpenClaw';
 const dryRun = process.argv.includes('--dry-run');
-const stage = argValue('--stage') || 'all';
-const SENKU_THRESHOLD = Number(process.env.SENKU_THRESHOLD || 70);
+const stage = normStage(argValue('--stage'));
+const GIDEON_THRESHOLD = Number(
+  process.env.GIDEON_THRESHOLD || process.env.SENKU_THRESHOLD || 70,
+);
 
 function todayDir() {
   const day = new Date().toISOString().slice(0, 10);
@@ -57,7 +72,8 @@ function nextId(prefix) {
 
 function agentModel(agentId) {
   const configs = loadAllAgentConfigs(resolve(root, 'agents'));
-  const c = configs.find((a) => a.id === agentId);
+  const id = resolveAgentId(agentId);
+  const c = configs.find((a) => a.id === id);
   return c?.model || 'google/gemma-4-26b-a4b-it:free';
 }
 
@@ -80,23 +96,23 @@ async function callOpenRouter(agentId, system, user) {
         { role: 'user', content: user },
       ],
       max_tokens: 2048,
-      temperature: 0.4,
     }),
-    signal: AbortSignal.timeout(120000),
   });
   if (!res.ok) {
     const err = await res.text();
-    throw new Error(`OpenRouter ${res.status}: ${err.slice(0, 300)}`);
+    throw new Error(`OpenRouter ${res.status}: ${err.slice(0, 200)}`);
   }
   const data = await res.json();
   return data.choices?.[0]?.message?.content?.trim() || '';
 }
 
 function yamlScalar(v) {
-  if (v == null) return 'null';
-  if (typeof v === 'boolean' || typeof v === 'number') return String(v);
-  if (Array.isArray(v)) return `[${v.map((x) => JSON.stringify(x)).join(', ')}]`;
-  return JSON.stringify(String(v));
+  if (v === null || v === undefined) return '""';
+  if (typeof v === 'boolean') return v ? 'true' : 'false';
+  if (typeof v === 'number') return String(v);
+  const s = String(v);
+  if (/[:#\n]/.test(s) || s.includes('"')) return JSON.stringify(s);
+  return s;
 }
 
 function writeYaml(path, obj) {
@@ -112,19 +128,19 @@ function writeYaml(path, obj) {
   writeFileSync(path, lines.join('\n') + '\n', 'utf8');
 }
 
-async function runSophia() {
-  const pesquisaId = nextId('sophia');
+async function runYato() {
+  const pesquisaId = nextId('yato');
   const outPath = join(todayDir(), `${pesquisaId}.yaml`);
-  const system = `Tu es Sophia, agente de pesquisa OpenClaw. Responde em portugues.
+  const system = `Tu es Yato, agente de pesquisa de mercado e marketing digital OpenClaw. Responde em portugues.
 Gera UM unico bloco YAML valido (sem markdown) com: pesquisa_id, gerado_em, agente, topico, ferramenta (nome, categoria, link, caso_uso, retorno_estimado: baixa|media|alta, fonte), notas, proximo_passo.
-Fontes: HF Hub, GitHub Trending, Papers with Code, Product Hunt, Reddit tech.`;
+Fontes: mercado, concorrentes, HF Hub, Product Hunt, redes sociais, tendencias digitais.`;
 
   let body;
   if (dryRun || !process.env.OPENROUTER_API_KEY) {
     body = {
       pesquisa_id: pesquisaId,
       gerado_em: new Date().toISOString(),
-      agente: 'sophia',
+      agente: 'yato',
       topico: topic,
       ferramenta: {
         nome: '[dry-run] Exemplo Tool',
@@ -135,40 +151,40 @@ Fontes: HF Hub, GitHub Trending, Papers with Code, Product Hunt, Reddit tech.`;
         fonte: 'dry-run',
       },
       notas: 'Executar sem --dry-run e com OPENROUTER_API_KEY para pesquisa LLM.',
-      proximo_passo: 'senku',
+      proximo_passo: 'gideon',
     };
   } else {
-    const raw = await callOpenRouter('sophia', system, `Topico: ${topic}`);
+    const raw = await callOpenRouter('yato', system, `Topico: ${topic}`);
     try {
       const cleaned = raw.replace(/^```ya?ml?\n?/i, '').replace(/\n?```$/i, '');
       body = { pesquisa_id: pesquisaId, parse_llm: true, raw: cleaned };
     } catch {
-      body = { pesquisa_id: pesquisaId, agente: 'sophia', topico: topic, raw_llm: raw };
+      body = { pesquisa_id: pesquisaId, agente: 'yato', topico: topic, raw_llm: raw };
     }
   }
 
   writeYaml(outPath, body);
-  console.log('[Sophia] ->', outPath);
+  console.log('[Yato] ->', outPath);
   return { outPath, body, pesquisaId };
 }
 
-async function runRebeca(sophiaPath) {
+async function runRebeca(yatoPath) {
   const designId = nextId('rebeca');
   const outPath = join(todayDir(), `${designId}.yaml`);
-  const sophiaText = readFileSync(sophiaPath, 'utf8').slice(0, 3000);
+  const yatoText = readFileSync(yatoPath, 'utf8').slice(0, 3000);
   const system = `Tu es Rebeca, design para dashboards /office e /forge OpenClaw. Responde em portugues com brief YAML: design_id, paleta, componentes[], referencias_visuais[], notas.`;
 
   let body;
   if (dryRun || !process.env.OPENROUTER_API_KEY) {
     body = {
       design_id: designId,
-      baseado_em: sophiaPath,
+      baseado_em: yatoPath,
       paleta: ['#0b0f14', '#6eb5ff', '#3dd68c'],
       componentes: ['cards agentes', 'status forge'],
       notas: 'dry-run',
     };
   } else {
-    const raw = await callOpenRouter('rebeca', system, `Pesquisa Sophia:\n${sophiaText}`);
+    const raw = await callOpenRouter('rebeca', system, `Pesquisa Yato:\n${yatoText}`);
     body = { design_id: designId, raw_llm: raw };
   }
   writeYaml(outPath, body);
@@ -176,15 +192,16 @@ async function runRebeca(sophiaPath) {
   return outPath;
 }
 
-async function runSenku(sophiaPath, rebecaPath) {
-  const senkuId = nextId('senku');
-  const outPath = join(todayDir(), `${senkuId}.yaml`);
-  const context = readFileSync(sophiaPath, 'utf8').slice(0, 4000)
+async function runGideon(yatoPath, rebecaPath) {
+  const gideonId = nextId('gideon');
+  const outPath = join(todayDir(), `${gideonId}.yaml`);
+  const context = readFileSync(yatoPath, 'utf8').slice(0, 4000)
     + (rebecaPath && existsSync(rebecaPath) ? '\n' + readFileSync(rebecaPath, 'utf8').slice(0, 2000) : '');
 
-  const system = `Tu es Senku. Avalia viabilidade com 4 subscores 0-100: custo_implementacao, retorno_lucrativo, compatibilidade_stack, manutenibilidade.
+  const system = `Tu es Gideon. Com base nos dados, antecipa riscos e oportunidades antes que aconteçam.
+Avalia viabilidade com 4 subscores 0-100: custo_implementacao, retorno_lucrativo, compatibilidade_stack, manutenibilidade.
 Pesos: 30%, 35%, 20%, 15%. Calcula viabilidade_score final.
-Responde YAML: senku_id, pesquisa_id, subscores{}, viabilidade_score, recomendacao (hefestos|arquivar|mais_pesquisa), justificativa.`;
+Responde YAML: gideon_id, pesquisa_id, subscores{}, viabilidade_score, recomendacao (hefestos|arquivar|mais_pesquisa), justificativa.`;
 
   let body;
   if (dryRun || !process.env.OPENROUTER_API_KEY) {
@@ -196,29 +213,38 @@ Responde YAML: senku_id, pesquisa_id, subscores{}, viabilidade_score, recomendac
       + sub.manutenibilidade * 0.15,
     );
     body = {
-      senku_id: senkuId,
+      gideon_id: gideonId,
       subscores: sub,
       viabilidade_score: score,
-      recomendacao: score >= SENKU_THRESHOLD ? 'hefestos' : 'arquivar',
+      recomendacao: score >= GIDEON_THRESHOLD ? 'hefestos' : 'arquivar',
       justificativa: 'dry-run com subscores exemplo',
-      threshold: SENKU_THRESHOLD,
+      threshold: GIDEON_THRESHOLD,
     };
   } else {
-    const raw = await callOpenRouter('senku', system, context);
-    body = { senku_id: senkuId, raw_llm: raw };
+    const raw = await callOpenRouter('gideon', system, context);
+    body = { gideon_id: gideonId, raw_llm: raw };
     const m = raw.match(/viabilidade_score:\s*(\d+)/i);
     if (m) body.viabilidade_score = Number(m[1]);
   }
 
   writeYaml(outPath, body);
-  console.log('[Senku] ->', outPath, 'score=', body.viabilidade_score ?? '?');
+  console.log('[Gideon] ->', outPath, 'score=', body.viabilidade_score ?? '?');
 
-  if ((body.viabilidade_score ?? 0) >= SENKU_THRESHOLD) {
+  if ((body.viabilidade_score ?? 0) >= GIDEON_THRESHOLD) {
     console.log('[OK] Elegivel para Hefestos — requer aprovacao humana para producao.');
   } else {
-    console.log('[--] Abaixo do threshold', SENKU_THRESHOLD, '— arquivar ou mais pesquisa.');
+    console.log('[--] Abaixo do threshold', GIDEON_THRESHOLD, '— arquivar ou mais pesquisa.');
   }
   return outPath;
+}
+
+function findLatestResearchFile(dir, agentStage) {
+  const prefixes = FILE_PREFIX_ALIASES[agentStage] || [`${agentStage}_`];
+  for (const prefix of prefixes) {
+    const files = readdirSync(dir).filter((f) => f.startsWith(prefix)).sort();
+    if (files.length) return join(dir, files[files.length - 1]);
+  }
+  return null;
 }
 
 async function main() {
@@ -226,30 +252,29 @@ async function main() {
   console.log('Topico:', topic);
   console.log('Stage:', stage, dryRun ? '(dry-run)' : '');
 
-  let sophiaPath;
-  if (stage === 'all' || stage === 'sophia') {
-    const s = await runSophia();
-    sophiaPath = s.outPath;
+  let yatoPath;
+  if (stage === 'all' || stage === 'yato') {
+    const s = await runYato();
+    yatoPath = s.outPath;
   } else {
     const dir = todayDir();
-    const files = readdirSync(dir).filter((f) => f.startsWith('sophia_')).sort();
-    if (!files.length) {
-      console.error('Sem ficheiro sophia_* em', dir);
+    yatoPath = findLatestResearchFile(dir, 'yato');
+    if (!yatoPath) {
+      console.error('Sem ficheiro yato_* ou sophia_* em', dir);
       process.exit(1);
     }
-    sophiaPath = join(dir, files[files.length - 1]);
   }
 
   let rebecaPath;
   if (stage === 'all' || stage === 'rebeca') {
-    rebecaPath = await runRebeca(sophiaPath);
+    rebecaPath = await runRebeca(yatoPath);
   }
 
-  if (stage === 'all' || stage === 'senku') {
-    await runSenku(sophiaPath, rebecaPath);
+  if (stage === 'all' || stage === 'gideon') {
+    await runGideon(yatoPath, rebecaPath);
   }
 
-  console.log('\nMemoria opcional: node scripts/hf-ingest-learning.mjs --agent sophia --text "resumo"');
+  console.log('\nMemoria opcional: node scripts/hf-ingest-learning.mjs --agent yato --text "resumo"');
 }
 
 main().catch((e) => {

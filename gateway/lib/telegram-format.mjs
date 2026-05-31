@@ -14,13 +14,19 @@ export function formatHelpMenu() {
   return [
     '<b>Jarvis</b> — Aldebaran-LW',
     '',
-    'Comandos rápidos:',
-    '• <code>status macofel</code>',
-    '• <code>repos github</code>',
-    '• <code>sites no ar</code>',
-    '• <code>resumo portfolio</code>',
+    '<b>Operação</b>',
+    '• <code>status macofel</code> · <code>repos github</code>',
+    '• <code>sites no ar</code> · <code>resumo portfolio</code>',
     '',
-    'Ações com impacto pedem <b>sim</b>, <b>confirmar</b> ou <b>ok</b>.',
+    '<b>Inovação</b> (HF)',
+    '• <code>pesquisa mercado</code> (Yato)',
+    '• <code>viabilidade</code> (Gideon) · <code>design rebeca</code>',
+    '',
+    '<b>Suporte</b>',
+    '• <code>tokens openrouter</code> (Rimuru)',
+    '• <code>auditoria seguranca</code> (Veldora)',
+    '',
+    'Escrita (sync, build) pede <b>sim</b> · <b>confirmar</b> · <b>ok</b>.',
   ].join('\n');
 }
 

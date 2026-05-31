@@ -1,6 +1,6 @@
 # Sincronização com dashboards visuais
 
-Regra partilhada por **todos os cérebros** (`orchestrator`, `macofel`, `vp-pecas`, `ops`).  
+Regra partilhada por **todos os cérebros** (`orchestrator`, `macofel`, `vp-pecas`, `heimdall`).  
 Copiar esta secção para o `SOUL.md` do workspace OpenClaw na EC2 (`~/.openclaw/workspace/SOUL.md`) ou referenciar este ficheiro.
 
 Documentação completa: `docs/DASHBOARDS-VISUAIS.md`
@@ -22,7 +22,7 @@ Documentação completa: `docs/DASHBOARDS-VISUAIS.md`
   python3 /opt/openclaw/Agente_OpenClaw/scripts/set_state.py error "<resumo sem PII>" --agent <id>
   ```
 
-Substituir `<id>` por: `orchestrator` | `macofel` | `vp-pecas` | `ops` (Jarvis = `orchestrator`).
+Substituir `<id>` por: `orchestrator` | `macofel` | `vp-pecas` | `heimdall` (Jarvis = `orchestrator`).
 
 **Nunca** incluir tokens, `.env`, dados pessoais do Lucas ou listagens de produtos na mensagem.
 
@@ -48,7 +48,7 @@ Substituir `<id>` por: `orchestrator` | `macofel` | `vp-pecas` | `ops` (Jarvis =
 | Orquestrador / Jarvis | `orchestrator` | `idle`, `thinking`, `executing` |
 | Macofel | `macofel` | `researching`, `syncing`, `writing` |
 | VP-Pecas | `vp-pecas` | `researching`, `executing` |
-| Ops | `ops` | `executing`, `syncing`, `error` |
+| Heimdall | `heimdall` | `executing`, `syncing`, `error` |
 
 ---
 
@@ -71,7 +71,7 @@ Quartel General minimal high-tech: `https://<gateway>/forge`
 
 ```bash
 export OPENCLAW_FORGE_PUSH_URL=http://127.0.0.1:8787
-python3 scripts/set_state.py compiling "api.ts" --agent ops   # → Byte no painel
+python3 scripts/set_state.py compiling "api.ts" --agent heimdall   # → Heimdall no painel
 ```
 
 Middleware na EC2: `node scripts/forge-ws-server.mjs` · Doc: `docs/DIGITAL-FORGE-FRIDAY.md`
