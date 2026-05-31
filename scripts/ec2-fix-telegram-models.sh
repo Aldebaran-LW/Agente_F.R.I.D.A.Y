@@ -38,6 +38,9 @@ openclaw config set agents.defaults.compaction.reserveTokensFloor 20000 2>/dev/n
 openclaw config set tools.profile messaging 2>/dev/null || true
 
 openclaw config validate
+
+CLEAR_SESSIONS_NO_RESTART=1 bash scripts/ec2-clear-sessions.sh 2>/dev/null || true
+
 systemctl restart openclaw-gateway
 sleep 4
 systemctl is-active openclaw-gateway

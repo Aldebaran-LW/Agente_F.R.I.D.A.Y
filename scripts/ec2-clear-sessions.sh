@@ -10,7 +10,9 @@ for agent in orchestrator macofel; do
     echo "OK limpo $count sessao(oes) em $dir"
   fi
 done
-systemctl restart openclaw-gateway
-sleep 3
-systemctl is-active openclaw-gateway
+if [[ "${CLEAR_SESSIONS_NO_RESTART:-}" != "1" ]]; then
+  systemctl restart openclaw-gateway
+  sleep 3
+  systemctl is-active openclaw-gateway
+fi
 echo "Telegram: envie /new depois ajuda"
