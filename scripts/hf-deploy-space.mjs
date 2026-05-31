@@ -73,6 +73,8 @@ for (const name of readdirSync(src)) {
 }
 
 process.chdir(work);
+execSync('git config user.email "openclaw@aldebaran-lw.local"', { stdio: 'pipe' });
+execSync('git config user.name "OpenClaw Deploy"', { stdio: 'pipe' });
 execSync('git add -A', { stdio: 'inherit' });
 const status = execSync('git status --porcelain', { encoding: 'utf8' }).trim();
 if (!status) {

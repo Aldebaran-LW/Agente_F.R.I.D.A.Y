@@ -1,6 +1,7 @@
 import { readFileSync, existsSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { commitDatasetFile } from './lib/hf-dataset-commit.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATASET = process.env.HF_BACKUP_DATASET || 'Aldebaran-LW/openclaw-backup';
@@ -42,16 +43,7 @@ const snapshot = {
 };
 
 const filePath = 'snapshots/' + stamp.slice(0, 10) + '/' + stamp + '.json';
-const b64 = Buffer.from(JSON.stringify(snapshot, null, 2), 'utf8').toString('base64');
-const res = await fetch('https://huggingface.co/api/datasets/' + DATASET + '/commit/main', {
-  method: 'POST',
-  headers: { Authorization: 'Bearer ' + hfToken, 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    summary: 'backup ' + snapshot.at,
-    operations: [{ operation: 'addOrUpdate', path: filePath, content: b64 }],
-  }),
-  signal: AbortSignal.timeout(60000),
-});
-const body = await res.json().catch(() => ({}));
-if (!res.ok) { console.error('Upload falhou:', res.status, body); process.exit(1); }
+const content = JSON.stringify(snapshot, null, 2);
+const { ok, status, body } = await commitDatasetFile(DATASET, hfToken, filePath, content, 'backup ' + snapshot.at);
+if (!ok) { console.error('Upload falhou:', status, body); process.exit(1); }
 console.log('  [OK] ' + DATASET + '/' + filePath);

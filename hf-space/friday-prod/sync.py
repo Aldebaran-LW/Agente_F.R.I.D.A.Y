@@ -13,33 +13,49 @@ from datetime import datetime, timezone
 import httpx
 
 
-def append_learning(agent: str, text: str, source: str = "friday-prod") -> dict:
+def append_learning(
+    agent: str,
+    text: str,
+    source: str = "friday-prod",
+    mode: str | None = None,
+) -> dict:
     token = os.environ.get("HF_TOKEN", "").strip()
     dataset = os.environ.get("HF_BACKUP_DATASET", "Aldebaran-LW/openclaw-backup")
     if not token:
         return {"ok": False, "error": "HF_TOKEN not set"}
 
+    at = datetime.now(timezone.utc).isoformat()
     entry = {
-        "at": datetime.now(timezone.utc).isoformat(),
+        "at": at,
         "agent": agent,
         "source": source,
+        "mode": mode,
         "text": text[:4000],
     }
-    day = entry["at"][:10]
-    path = f"learnings/{agent}/{day}.jsonl"
+    day = at[:10]
+    # Um ficheiro por entrada — addOrUpdate substitui o path inteiro no Hub.
+    safe_ts = at.replace(":", "-").replace(".", "-")
+    path = f"learnings/{agent}/{day}/{safe_ts}.jsonl"
     line = json.dumps(entry, ensure_ascii=False) + "\n"
     b64 = base64.b64encode(line.encode("utf-8")).decode("ascii")
 
     url = f"https://huggingface.co/api/datasets/{dataset}/commit/main"
-    payload = {
-        "summary": f"learning {agent} {entry['at']}",
-        "operations": [{"operation": "addOrUpdate", "path": path, "content": b64}],
-    }
+    ndjson = "\n".join(
+        [
+            json.dumps({"key": "header", "value": {"summary": f"learning {agent} {at}", "description": ""}}),
+            json.dumps(
+                {
+                    "key": "file",
+                    "value": {"path": path, "content": b64, "encoding": "base64"},
+                }
+            ),
+        ]
+    )
     r = httpx.post(
         url,
-        headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+        headers={"Authorization": f"Bearer {token}", "Content-Type": "application/x-ndjson"},
+        content=ndjson.encode("utf-8"),
         timeout=60.0,
-        json=payload,
     )
     try:
         body = r.json()

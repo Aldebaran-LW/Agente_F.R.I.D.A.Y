@@ -5,7 +5,9 @@ Produção Jarvis: EC2 + gateway Vercel (ver docs/HF-DEPLOY-FRIDAY.md).
 
 from __future__ import annotations
 
+import json
 import os
+import threading
 from pathlib import Path
 from typing import Any
 
@@ -248,6 +250,48 @@ def get_agent(agent_id: str):
     return agent
 
 
+def _learning_auto_enabled() -> bool:
+    flag = os.environ.get("HF_LEARNING_AUTO", "true").strip().lower()
+    if flag in ("0", "false", "no", "off"):
+        return False
+    return bool(os.environ.get("HF_TOKEN", "").strip())
+
+
+def _persist_learning(agent_id: str, task: str, result: str, mode: str) -> None:
+    """Grava learning no Dataset HF em background (nao bloqueia /run)."""
+    if not _learning_auto_enabled():
+        return
+
+    def _write() -> None:
+        try:
+            from sync import append_learning
+
+            text = f"task:\n{task[:2000]}\n---\nresult:\n{str(result)[:1800]}"
+            r = append_learning(agent_id, text, mode=mode)
+            if not r.get("ok"):
+                print(
+                    json.dumps(
+                        {
+                            "event": "learning_persist_failed",
+                            "agent": agent_id,
+                            "mode": mode,
+                            "status": r.get("status"),
+                            "error": r.get("error") or r.get("body"),
+                        },
+                        ensure_ascii=False,
+                    )
+                )
+        except Exception as e:
+            print(
+                json.dumps(
+                    {"event": "learning_persist_error", "agent": agent_id, "error": str(e)},
+                    ensure_ascii=False,
+                )
+            )
+
+    threading.Thread(target=_write, daemon=True).start()
+
+
 class RunRequest(BaseModel):
     task: str = Field(..., min_length=1, max_length=8000)
     agent_id: str | None = None
@@ -297,10 +341,7 @@ class Orquestrador:
             try:
                 result = _run_openrouter_chat(task, cfg)
                 out = {"ok": True, "mode": "openrouter-chat", "agent_id": target, "result": result}
-                if os.environ.get("HF_LEARNING_AUTO", "").lower() in ("1", "true", "yes"):
-                    from sync import append_learning
-
-                    append_learning(target, f"{task}\n---\n{out['result']}")
+                _persist_learning(target, task, result, "openrouter-chat")
                 return out
             except Exception as e:
                 return {"ok": False, "agent_id": target, "error": str(e)}
@@ -326,10 +367,7 @@ class Orquestrador:
         try:
             result = agent.run(task)
             out = {"ok": True, "mode": "smolagents", "agent_id": target, "result": str(result)}
-            if os.environ.get("HF_LEARNING_AUTO", "").lower() in ("1", "true", "yes"):
-                from sync import append_learning
-
-                append_learning(target, f"{task}\n---\n{out['result']}")
+            _persist_learning(target, task, str(result), "smolagents")
             return out
         except Exception as e:
             return {"ok": False, "agent_id": target, "error": str(e)}
@@ -359,6 +397,7 @@ def root():
         "kilo": bool(os.environ.get("KILO_API_KEY")),
         "hf_token": bool(os.environ.get("HF_TOKEN")),
         "gateway": bool(os.environ.get("OPENCLAW_GATEWAY_BASE_URL")),
+        "learning_auto": _learning_auto_enabled(),
     }
 
 
@@ -371,6 +410,8 @@ def health():
         "kilo": bool(os.environ.get("KILO_API_KEY")),
         "hf_token": bool(os.environ.get("HF_TOKEN")),
         "gateway": bool(os.environ.get("OPENCLAW_GATEWAY_BASE_URL")),
+        "learning_auto": _learning_auto_enabled(),
+        "backup_dataset": os.environ.get("HF_BACKUP_DATASET", "Aldebaran-LW/openclaw-backup"),
     }
 
 

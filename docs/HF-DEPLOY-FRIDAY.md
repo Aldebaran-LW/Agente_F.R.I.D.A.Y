@@ -197,7 +197,7 @@ node scripts/hf-ingest-learning.mjs --agent macofel --text "nota relevante"
 node scripts/hf-backup-upload.mjs
 ```
 
-3. Do Space friday-prod: `sync.append_learning(agent, text)` em `sync.py` (integrar após `/run` quando quiseres persistência automática).
+3. Space `friday-prod`: após cada `POST /run/{agent}` com sucesso, `sync.append_learning` grava no Dataset (background, `HF_LEARNING_AUTO=true` por defeito se `HF_TOKEN` existir). Desactivar: `HF_LEARNING_AUTO=false`.
 
 ---
 

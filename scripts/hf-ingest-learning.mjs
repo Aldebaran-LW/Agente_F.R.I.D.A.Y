@@ -6,6 +6,7 @@
 import { readFileSync, existsSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { commitDatasetFile } from './lib/hf-dataset-commit.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -44,22 +45,20 @@ const entry = {
 };
 
 const day = entry.at.slice(0, 10);
-const filePath = `learnings/${agent}/${day}.jsonl`;
-const b64 = Buffer.from(JSON.stringify(entry) + '\n', 'utf8').toString('base64');
+const safeTs = entry.at.replace(/:/g, '-').replace(/\./g, '-');
+const filePath = `learnings/${agent}/${day}/${safeTs}.jsonl`;
+const content = JSON.stringify(entry) + '\n';
 
-const res = await fetch(`https://huggingface.co/api/datasets/${dataset}/commit/main`, {
-  method: 'POST',
-  headers: { Authorization: 'Bearer ' + hfToken, 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    summary: `learning ${agent} ${entry.at}`,
-    operations: [{ operation: 'addOrUpdate', path: filePath, content: b64 }],
-  }),
-  signal: AbortSignal.timeout(60000),
-});
+const { ok, status, body } = await commitDatasetFile(
+  dataset,
+  hfToken,
+  filePath,
+  content,
+  `learning ${agent} ${entry.at}`,
+);
 
-const body = await res.json().catch(() => ({}));
-if (!res.ok) {
-  console.error('Falhou:', res.status, body);
+if (!ok) {
+  console.error('Falhou:', status, body);
   process.exit(1);
 }
 console.log('[OK] ' + dataset + '/' + filePath);
