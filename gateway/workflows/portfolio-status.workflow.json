@@ -1,7 +1,7 @@
 {
   "id": "portfolio-status",
-  "version": "1.0.0",
-  "description": "Resumo Macofel + GitHub + sites no ar",
+  "version": "1.1.0",
+  "description": "Resumo Macofel + GitHub + sites Macofel + sites VP",
   "triggers": {
     "patterns": [
       "resumo",
@@ -19,6 +19,7 @@
   "tasks": [
     { "id": "macofel", "skill": "macofel-status", "agent": "macofel", "deps": [] },
     { "id": "github", "skill": "github-aldebaran", "agent": "ops", "deps": [] },
-    { "id": "deploy", "skill": "deploy-monitor", "agent": "ops", "deps": [] }
+    { "id": "deploy", "skill": "deploy-monitor", "agent": "ops", "deps": [] },
+    { "id": "vp", "skill": "vp-pecas-health", "agent": "vp-pecas", "deps": [] }
   ]
 }

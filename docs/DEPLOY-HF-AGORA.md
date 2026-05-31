@@ -1,6 +1,6 @@
 # Deploy HF — agora (checklist)
 
-Ordem recomendada: **demo** (monitor) → **friday-prod** (Sophia…Hefestos) → UptimeRobot.
+Ordem recomendada: **demo** (monitor) → **friday-prod** (Sophia…Hefestos). Keepalive do demo é interno (`KEEPALIVE_MS`).
 
 ---
 
@@ -104,10 +104,12 @@ curl -H "Authorization: Bearer TOKEN" -X POST "https://openclaw.lwdigitalforge.c
 
 ---
 
-## 6. UptimeRobot (demo)
+## 6. Keepalive e monitor (demo)
 
-- URL: `https://aldebaran-lw-openclaw-demo.hf.space/health`
-- Intervalo: 5 min
+- **Interno (já no deploy):** `KEEPALIVE_MS=240000` — refresca gateway a cada 4 min.
+- **Alerta opcional:** [cron-job.org](https://cron-job.org) ou cron na EC2 → GET `https://aldebaran-lw-openclaw-demo.hf.space/health` a cada 5 min.
+
+Ver secção 5 em [HF-DEPLOY-FRIDAY.md](./HF-DEPLOY-FRIDAY.md).
 
 ---
 

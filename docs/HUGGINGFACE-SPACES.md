@@ -44,9 +44,13 @@ node scripts/generate-hf-agents-config.mjs
 ## Rotas do Space demo
 
 - `/` — painel HTML (4 cérebros, refresh 60s)
-- `/health` — status local (UptimeRobot)
+- `/health` — status local (monitor externo opcional: cron-job.org, cron EC2)
 - `/api/status` — JSON agregado
 - `/gateway` — health + office/status do gateway Vercel
+
+## Keepalive (sem UptimeRobot)
+
+O demo usa **keepalive interno**: `KEEPALIVE_MS=240000` (4 min) em `hf-space/demo/server.mjs` — não precisa de serviço pago. Para alertas se o Space cair, ver [HF-DEPLOY-FRIDAY.md](./HF-DEPLOY-FRIDAY.md) §5 (cron-job.org ou EC2).
 
 ## Arquitectura
 

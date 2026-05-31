@@ -25,7 +25,7 @@ flowchart LR
   FRI -->|tools opcionais| VER
   EC2 --> DS
   FRI --> DS
-  DEMO -.->|UptimeRobot /health| DEMO
+  DEMO -.->|KEEPALIVE_MS 4min| DEMO
 ```
 
 | Componente | Space HF | Função |
@@ -96,16 +96,24 @@ git push
 | Rota | Descrição |
 |------|-----------|
 | `/` | Painel HTML — 4 cérebros, refresh 60s |
-| `/health` | Health local (UptimeRobot) |
+| `/health` | Health local (monitor externo opcional) |
 | `/api/status` | JSON agregado (demo + gateway + office) |
 | `/gateway` | JSON legado (compatível) |
 
-Variável opcional: `KEEPALIVE_MS=240000` — o servidor refresca o snapshot do gateway a cada 4 min (complementa UptimeRobot).
+**Keepalive interno (padrão):** `KEEPALIVE_MS=240000` (4 min) — o servidor chama `buildStatus()` em loop e mantém o processo activo. Definido no `Dockerfile`; `0` desliga.
 
-### 5. UptimeRobot (grátis)
+### 5. Monitorização externa (opcional)
 
-- URL: `https://aldebaran-lw-openclaw-demo.hf.space/health`
-- Intervalo: 5 minutos
+Não é obrigatório para o painel `/`. Usa só se quiseres **alerta** quando o Space cair.
+
+| Método | Custo | URL / comando |
+|--------|-------|----------------|
+| **Keepalive interno** | 0 | Já activo (`KEEPALIVE_MS`) |
+| **[cron-job.org](https://cron-job.org)** | 0 | GET `https://aldebaran-lw-openclaw-demo.hf.space/health` a cada 5 min |
+| **Cron na EC2** | 0 | `*/5 * * * * curl -sf -m 15 "https://aldebaran-lw-openclaw-demo.hf.space/health"` |
+| **GitHub Actions** | 0 (repo público) | `schedule: '*/5 * * * *'` + `curl` |
+
+Evita ping agressivo só para “acordar” Space free — pode ser frágil face às políticas do HF. O keepalive interno costuma chegar para o demo.
 
 ---
 
@@ -215,7 +223,7 @@ node scripts/hf-backup-upload.mjs
 ## Checklist rápido
 
 - [ ] Space `openclaw-demo` com secrets gateway
-- [ ] Push `hf-space/demo/` + UptimeRobot em `/health`
+- [ ] Push `hf-space/demo/` (keepalive interno activo; monitor externo opcional)
 - [ ] Painel `/` mostra 4 cérebros
 - [ ] Space `friday-prod` criado (opcional)
 - [ ] `generate-hf-agents-config.mjs` + push friday-prod

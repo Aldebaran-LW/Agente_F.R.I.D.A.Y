@@ -253,6 +253,29 @@ class Orquestrador:
 orch = Orquestrador()
 
 
+@app.get("/")
+def root():
+    """Painel raiz do Space — evita 404 ao abrir a URL no Hugging Face."""
+    configs = load_config()
+    return {
+        "ok": True,
+        "service": "friday-prod",
+        "prototype": True,
+        "note": "Jarvis producao: EC2 + gateway Vercel. Este Space e laboratorio smolagents.",
+        "endpoints": {
+            "health": "GET /health",
+            "agents": "GET /agents",
+            "run": "POST /run",
+            "run_agent": "POST /run/{agent_id}",
+            "openapi": "GET /docs",
+        },
+        "agent_count": len(configs),
+        "openrouter": bool(os.environ.get("OPENROUTER_API_KEY")),
+        "hf_token": bool(os.environ.get("HF_TOKEN")),
+        "gateway": bool(os.environ.get("OPENCLAW_GATEWAY_BASE_URL")),
+    }
+
+
 @app.get("/health")
 def health():
     return {

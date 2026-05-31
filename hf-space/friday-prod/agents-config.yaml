@@ -1,5 +1,5 @@
 # Gerado automaticamente — nao editar a mao; use generate-hf-agents-config.mjs
-# 2026-05-29T18:03:40.179Z
+# 2026-05-30T21:37:57.952Z
 
 defaults:
   max_tokens: 4096
@@ -13,13 +13,13 @@ athena:
   forge_alias: athena
   role: "Monitoramento — quotas, health, alertas"
   description: "Athena — Monitoramento — quotas, health, alertas"
-  model: "nvidia/nemotron-3-super-120b-a12b:free"
-  model_ref: "openrouter/nvidia/nemotron-3-super-120b-a12b:free"
+  model: "smollm2:360m"
+  model_ref: "ollama/smollm2:360m"
   max_tokens: 4096
   temperature: 0.7
   fallbacks:
-    - "google/gemini-2.0-flash-exp:free"
-    - "ollama/llama3.2:1b"
+    - "["
+    - "]"
   skills:
     - "politica-seguranca"
     - "innovation-monitor"
@@ -34,12 +34,13 @@ dedalo:
   forge_alias: dedalo
   role: "Arquitetura de dados — schemas HF Dataset e hub"
   description: "Dédalo — Arquitetura de dados — schemas HF Dataset e hub"
-  model: "deepseek-v4-flash"
-  model_ref: "deepseek/deepseek-v4-flash"
+  model: "smollm2:360m"
+  model_ref: "ollama/smollm2:360m"
   max_tokens: 4096
   temperature: 0.7
   fallbacks:
-    - "openrouter/nvidia/nemotron-3-super-120b-a12b:free"
+    - "["
+    - "]"
   skills:
     - "politica-seguranca"
     - "data-schema"
@@ -52,13 +53,13 @@ hefestos:
   forge_alias: hefestos
   role: "Construtor — skills, scripts, docs (apos Senku >= 70)"
   description: "Hefestos — Construtor — skills, scripts, docs (apos Senku >= 70)"
-  model: "poolside/laguna-m.1:free"
-  model_ref: "openrouter/poolside/laguna-m.1:free"
+  model: "smollm2:360m"
+  model_ref: "ollama/smollm2:360m"
   max_tokens: 4096
   temperature: 0.7
   fallbacks:
-    - "deepseek/deepseek-v4-flash:free"
-    - "minimax/minimax-m2.5:free"
+    - "["
+    - "]"
   skills:
     - "politica-seguranca"
     - "innovation-build"
@@ -71,13 +72,13 @@ icaro:
   forge_alias: icaro
   role: "Testes, regressao e validacao pos-Hefestos"
   description: "Ícaro — Testes, regressao e validacao pos-Hefestos"
-  model: "minimax/minimax-m2.5:free"
-  model_ref: "openrouter/minimax/minimax-m2.5:free"
+  model: "smollm2:360m"
+  model_ref: "ollama/smollm2:360m"
   max_tokens: 4096
   temperature: 0.7
   fallbacks:
-    - "poolside/laguna-xs.2:free"
-    - "deepseek/deepseek-v4-flash:free"
+    - "["
+    - "]"
   skills:
     - "politica-seguranca"
     - "innovation-test"
@@ -90,13 +91,13 @@ macofel:
   forge_alias: lala
   role: "Catalogo e-commerce (unico cerebro com Mongo/API Macofel)"
   description: "Macofel — Catalogo e-commerce (unico cerebro com Mongo/API Macofel)"
-  model: "google/gemma-4-26b-a4b-it:free"
-  model_ref: "openrouter/google/gemma-4-26b-a4b-it:free"
+  model: "smollm2:360m"
+  model_ref: "ollama/smollm2:360m"
   max_tokens: 4096
   temperature: 0.7
   fallbacks:
-    - "openrouter/deepseek/deepseek-v4-flash:free"
-    - "ollama/llama3.2:1b"
+    - "["
+    - "]"
   skills:
     - "politica-seguranca"
     - "macofel-status"
@@ -112,12 +113,13 @@ ops:
   forge_alias: byte
   role: "GitHub org + deploy + Vercel"
   description: "Ops — GitHub org + deploy + Vercel"
-  model: "poolside/laguna-m.1:free"
-  model_ref: "openrouter/poolside/laguna-m.1:free"
+  model: "smollm2:360m"
+  model_ref: "ollama/smollm2:360m"
   max_tokens: 4096
   temperature: 0.7
   fallbacks:
-    - "minimax/minimax-m2.5:free"
+    - "["
+    - "]"
   skills:
     - "politica-seguranca"
     - "github-aldebaran"
@@ -134,13 +136,13 @@ orchestrator:
   forge_alias: friday
   role: "Orquestrador (Telegram, aprovacoes, delegacao)"
   description: "Jarvis — Orquestrador (Telegram, aprovacoes, delegacao)"
-  model: "deepseek-v4-flash"
-  model_ref: "deepseek/deepseek-v4-flash"
+  model: "smollm2:360m"
+  model_ref: "ollama/smollm2:360m"
   max_tokens: 4096
   temperature: 0.7
   fallbacks:
-    - "openrouter/nvidia/nemotron-3-super-120b-a12b:free"
-    - "ollama/llama3.2:1b"
+    - "deepseek/deepseek-v4-flash"
+    - "huggingface/Qwen/Qwen2.5-7B-Instruct:fastest"
   skills:
     - "politica-seguranca"
     - "openclaw-jarvis"
@@ -156,13 +158,13 @@ rebeca:
   forge_alias: rebeca
   role: "Design, layout e prototipos visuais (office, forge, HF)"
   description: "Rebeca — Design, layout e prototipos visuais (office, forge, HF)"
-  model: "google/gemini-2.0-flash-exp:free"
-  model_ref: "openrouter/google/gemini-2.0-flash-exp:free"
+  model: "smollm2:360m"
+  model_ref: "ollama/smollm2:360m"
   max_tokens: 4096
   temperature: 0.7
   fallbacks:
-    - "google/gemma-4-26b-a4b-it:free"
-    - "minimax/minimax-m2.5:free"
+    - "["
+    - "]"
   skills:
     - "politica-seguranca"
     - "innovation-design"
@@ -175,13 +177,13 @@ senku:
   forge_alias: senku
   role: "Analise de viabilidade (score 0-100)"
   description: "Senku — Analise de viabilidade (score 0-100)"
-  model: "deepseek-v4-flash"
-  model_ref: "deepseek/deepseek-v4-flash"
+  model: "smollm2:360m"
+  model_ref: "ollama/smollm2:360m"
   max_tokens: 4096
   temperature: 0.7
   fallbacks:
-    - "openrouter/nvidia/nemotron-3-super-120b-a12b:free"
-    - "openrouter/google/gemma-4-26b-a4b-it:free"
+    - "["
+    - "]"
   skills:
     - "politica-seguranca"
     - "innovation-viability"
@@ -194,14 +196,13 @@ sophia:
   forge_alias: sophia
   role: "Pesquisa de ferramentas, tendencias e oportunidades (inovacao)"
   description: "Sophia — Pesquisa de ferramentas, tendencias e oportunidades (inovacao)"
-  model: "google/gemma-4-26b-a4b-it:free"
-  model_ref: "openrouter/google/gemma-4-26b-a4b-it:free"
+  model: "smollm2:360m"
+  model_ref: "ollama/smollm2:360m"
   max_tokens: 4096
   temperature: 0.7
   fallbacks:
-    - "deepseek/deepseek-v4-flash:free"
-    - "poolside/laguna-xs.2:free"
-    - "nvidia/nemotron-3-super-120b-a12b:free"
+    - "["
+    - "]"
   skills:
     - "politica-seguranca"
     - "innovation-research"
@@ -214,12 +215,13 @@ vp-pecas:
   forge_alias: pixel
   role: "Sites usinagem (VP-Pecas, vp-precision-studio)"
   description: "VP-Pecas — Sites usinagem (VP-Pecas, vp-precision-studio)"
-  model: "minimax/minimax-m2.5:free"
-  model_ref: "openrouter/minimax/minimax-m2.5:free"
+  model: "smollm2:360m"
+  model_ref: "ollama/smollm2:360m"
   max_tokens: 4096
   temperature: 0.7
   fallbacks:
-    - "poolside/laguna-xs.2:free"
+    - "["
+    - "]"
   skills:
     - "politica-seguranca"
     - "github-aldebaran"

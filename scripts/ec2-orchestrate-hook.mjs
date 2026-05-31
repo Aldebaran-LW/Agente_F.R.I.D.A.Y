@@ -7,7 +7,12 @@
 import http from 'node:http';
 import { readFileSync, existsSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ROOT = join(__dirname, '..');
 
 const PORT = Number(process.env.OPENCLAW_ORCHESTRATE_PORT || 8790);
 const HOST = process.env.OPENCLAW_ORCHESTRATE_HOST || '127.0.0.1';
@@ -42,6 +47,35 @@ function authorized(req) {
   return t === TOKEN;
 }
 
+function runMacofelImagesSync(params = {}, approved = false) {
+  const ean = String(params.ean || '').trim();
+  const urls = (Array.isArray(params.imageUrls) ? params.imageUrls : [])
+    .map((u) => String(u).trim())
+    .filter(Boolean);
+  if (!approved) {
+    return { ok: false, error: 'approval_required' };
+  }
+  if (!ean || !urls.length) {
+    return { ok: false, error: 'ean e imageUrls obrigatorios' };
+  }
+  const script = join(ROOT, 'scripts', 'macofel-images-sync.js');
+  const args = ['--ean', ean, '--urls', urls.join(','), '--approved'];
+  const run = spawnSync(process.execPath, [script, ...args], {
+    cwd: ROOT,
+    encoding: 'utf8',
+    env: process.env,
+  });
+  try {
+    return JSON.parse(run.stdout || '{}');
+  } catch {
+    return {
+      ok: false,
+      error: run.stderr?.trim() || run.stdout?.trim() || 'sync script failed',
+      code: run.status,
+    };
+  }
+}
+
 const server = http.createServer(async (req, res) => {
   const path = req.url?.split('?')[0] || '/';
 
@@ -62,10 +96,28 @@ const server = http.createServer(async (req, res) => {
     }
 
     const agent = String(body.agent || 'orchestrator').toLowerCase();
+    const skill = String(body.skill || '').trim();
     const task = String(body.task || '').slice(0, 8000);
+    const params = body.params || {};
+    const approved = Boolean(body.approved);
+
+    if (skill === 'macofel-images-sync' || (agent === 'macofel' && /sync imagem/i.test(task))) {
+      const result = runMacofelImagesSync(
+        { ean: params.ean || body.ean, imageUrls: params.imageUrls || body.imageUrls },
+        approved || Boolean(params.approved)
+      );
+      return json(res, result.ok ? 200 : 502, {
+        ok: result.ok,
+        skill: 'macofel-images-sync',
+        agent: 'macofel',
+        result,
+      });
+    }
+
     const entry = {
       at: new Date().toISOString(),
       agent,
+      skill: skill || null,
       task,
       source: body.source || 'gateway',
       async: Boolean(body.async),

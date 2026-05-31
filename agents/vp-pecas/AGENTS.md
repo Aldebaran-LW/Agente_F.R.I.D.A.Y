@@ -21,9 +21,9 @@ Arquitetura: `docs/ARQUITETURA-AGENTES.md`
 
 ## Skills
 
-- `github-aldebaran`
-- `deploy-monitor`
-- `vercel-status` (deployments Vercel dos projetos VP)
+- `vp-pecas-health` (health-check sites VP — owner exclusivo)
+- GitHub/repos → Jarvis delega a `ops` (`github-aldebaran`)
+- Deployments Vercel → Jarvis delega a `ops` (`vercel-status`)
 
 ## Scripts
 

@@ -33,6 +33,22 @@
       "requiresApproval": false,
       "timeoutMs": 20000,
       "telemetry": true
+    },
+    "vercel-status": {
+      "agent": "ops",
+      "mode": "read",
+      "permissions": ["read:deploy"],
+      "requiresApproval": false,
+      "timeoutMs": 25000,
+      "telemetry": true
+    },
+    "vp-pecas-health": {
+      "agent": "vp-pecas",
+      "mode": "read",
+      "permissions": ["read:deploy"],
+      "requiresApproval": false,
+      "timeoutMs": 20000,
+      "telemetry": true
     }
   }
 }

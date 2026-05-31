@@ -19,10 +19,13 @@ export default async function handler(req, res) {
       version: '1.1.0',
       agent_os: 'fase-a',
       endpoints: {
-        jarvis: 'POST /jarvis { "message": "...", "approved": false }',
+        jarvis: 'POST /jarvis { "message": "...", "approved": false, "ean": "...", "imageUrls": [] }',
         macofel: 'GET /openclaw/macofel/status',
+        macofelSync: 'POST /openclaw/macofel/images/sync',
         github: 'GET /openclaw/github/status',
         deploy: 'GET /openclaw/deploy/health',
+        vercel: 'GET /openclaw/vercel/status',
+        vpPecas: 'GET /openclaw/vp-pecas/health',
       },
       delegates: ['macofel', 'vp-pecas', 'ops'],
       workflows: ['portfolio-status', 'macofel-sync'],
@@ -39,10 +42,14 @@ export default async function handler(req, res) {
   const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};
   const message = body.message || body.text || '';
   const approved = Boolean(body.approved);
+  const params = {
+    ean: body.ean,
+    imageUrls: body.imageUrls,
+  };
 
   const traceId = newTraceId();
   const plan = planFromMessage(message, { approved });
-  const execution = await executePlan(plan, { message, approved });
+  const execution = await executePlan(plan, { message, approved, params });
 
   let reply;
   if (plan.kind === 'workflow') {

@@ -17,4 +17,4 @@ Não enviar mensagens em nome do Lucas sem política explícita — preparar tex
 
 ## Skills
 
-Reutiliza `deploy-monitor` e `vercel-status` onde fizer sentido.
+Reutiliza health via gateway (`deploy-monitor`, `vercel-status`) — **nao** duplicar no config; alertas via Jarvis.

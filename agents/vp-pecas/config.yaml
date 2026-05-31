@@ -9,9 +9,7 @@ llm:
 
 skills:
   - politica-seguranca
-  - github-aldebaran
-  - deploy-monitor
-  - vercel-status
+  - vp-pecas-health
 
 secrets:
   gateway: [OPENCLAW_GATEWAY_BASE_URL, OPENCLAW_AUTOMATION_TOKEN]

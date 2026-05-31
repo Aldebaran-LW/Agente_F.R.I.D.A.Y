@@ -1,7 +1,6 @@
+/** Ops deploy-monitor: Macofel apenas. VP usa skill vp-pecas-health. */
 const SITES = [
   { key: 'macofel', env: 'MACOFEL_URL', default: 'https://macofel-2-0.vercel.app' },
-  { key: 'vp-pecas', env: 'VP_PECAS_URL', default: 'https://vp-pecas.vercel.app' },
-  { key: 'vp-precision', env: 'VP_PRECISION_URL', default: null },
 ];
 
 export async function fetchDeployHealth() {

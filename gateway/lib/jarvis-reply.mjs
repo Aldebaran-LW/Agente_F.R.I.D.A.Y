@@ -23,8 +23,27 @@ export function buildReply(route, payload, { approvalBlocked = false } = {}) {
     );
     return (payload.ok ? 'Sites OK.\n' : 'Atencao:\n') + lines.join('\n');
   }
+  if (route.skill === 'vp-pecas-health' && payload?.sites) {
+    const lines = payload.sites.map((s) =>
+      s.ok ? `${s.site}: ${s.status} OK` : `${s.site}: FALHA`
+    );
+    return (payload.ok ? 'VP-Pecas OK.\n' : 'VP-Pecas atencao:\n') + lines.join('\n');
+  }
+  if (route.skill === 'vercel-status' && payload?.projects) {
+    const lines = payload.projects.map((p) => {
+      const st = p.latest?.state || 'sem deploy';
+      return `${p.name}: ${st}`;
+    });
+    return 'Vercel:\n' + lines.join('\n');
+  }
+  if (route.skill === 'macofel-images-sync') {
+    if (payload?.ok) {
+      return `Sync OK: EAN ${payload.ean}, ${payload.urlCount} imagem(ns).`;
+    }
+    return `Sync falhou: ${payload?.error || 'erro desconhecido'}`;
+  }
   if (route.skill === 'help') {
-    return 'Jarvis online. Diga: status macofel, repos github, sites no ar, resumo portfolio.';
+    return 'Jarvis online. Diga: status macofel, repos github, sites no ar, vp-pecas, vercel, resumo portfolio.';
   }
   return 'Reformule o pedido. Ex.: status macofel, repos github, resumo portfolio.';
 }
@@ -52,6 +71,14 @@ function sectionDeploy(data) {
   return (data.ok ? 'Sites:\n' : 'Sites (atencao):\n') + lines.join('\n');
 }
 
+function sectionVpPecas(data) {
+  if (!data?.sites) return 'VP-Pecas: sem dados.';
+  const lines = data.sites.map((s) =>
+    s.ok ? `${s.site}: OK` : `${s.site}: FALHA`
+  );
+  return (data.ok ? 'VP-Pecas:\n' : 'VP-Pecas (atencao):\n') + lines.join('\n');
+}
+
 /** Resposta agregada para workflows multi-step. */
 export function buildWorkflowReply({ workflowId, results = {}, approvalBlocked = false }) {
   if (approvalBlocked && workflowId === 'macofel-sync') {
@@ -68,6 +95,7 @@ export function buildWorkflowReply({ workflowId, results = {}, approvalBlocked =
       sectionMacofel(results['macofel-status']),
       sectionGithub(results['github-aldebaran']),
       sectionDeploy(results['deploy-monitor']),
+      sectionVpPecas(results['vp-pecas-health']),
     ];
     return parts.join('\n\n');
   }
@@ -76,6 +104,14 @@ export function buildWorkflowReply({ workflowId, results = {}, approvalBlocked =
     if (skill === 'macofel-status') return sectionMacofel(data);
     if (skill === 'github-aldebaran') return sectionGithub(data);
     if (skill === 'deploy-monitor') return sectionDeploy(data);
+    if (skill === 'vp-pecas-health') return sectionVpPecas(data);
+    if (skill === 'vercel-status') {
+      if (!data?.projects) return 'Vercel: sem dados.';
+      return (
+        'Vercel:\n' +
+        data.projects.map((p) => `${p.name}: ${p.latest?.state || '?'}`).join('\n')
+      );
+    }
     return `${skill}: executado.`;
   });
   return chunks.filter(Boolean).join('\n\n') || 'Workflow concluido.';

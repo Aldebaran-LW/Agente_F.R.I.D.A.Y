@@ -142,7 +142,7 @@ deploy:
 
 - [ ] EC2: OpenClaw + `ec2-orchestrate-hook.mjs` (:8790)
 - [ ] Vercel: secrets + `JARVIS_EC2_WEBHOOK_URL`, `HF_FRIDAY_PROD_URL`
-- [ ] HF: `friday-prod` deployed, UptimeRobot `/health`
+- [ ] HF: `openclaw-demo` com keepalive; `friday-prod` deployed (monitor externo opcional)
 - [ ] Dataset `openclaw-backup` privado
 - [ ] Teste: `curl -H "Authorization: Bearer …" https://openclaw…/openclaw/orchestrate -d '{"agent":"sophia","task":"teste"}'`
 

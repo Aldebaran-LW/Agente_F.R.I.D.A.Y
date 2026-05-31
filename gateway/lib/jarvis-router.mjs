@@ -1,8 +1,10 @@
 export const RULES = [
-  { agent: "macofel", skill: "macofel-status", patterns: [/macofel|catalogo|pendente|ean|imagem|produto/i] },
+  { agent: "macofel", skill: "macofel-status", patterns: [/macofel|catalogo|pendente|produto/i] },
+  { agent: "macofel", skill: "macofel-images-sync", patterns: [/sync imagem|sync imagens|sincronizar imagem/i] },
   { agent: "ops", skill: "github-aldebaran", patterns: [/github|repo|reposit|issue|commit|push|aldebaran/i] },
-  { agent: "ops", skill: "deploy-monitor", patterns: [/deploy|site|no ar|vercel|health|online/i] },
-  { agent: "vp-pecas", skill: "deploy-monitor", patterns: [/vp-pecas|vp-precision|usinagem|nalva/i] },
+  { agent: "ops", skill: "vercel-status", patterns: [/vercel|deployment|deployments|ultimo deploy/i] },
+  { agent: "ops", skill: "deploy-monitor", patterns: [/site.*no ar|sites no ar|health macofel|macofel.*no ar|online/i] },
+  { agent: "vp-pecas", skill: "vp-pecas-health", patterns: [/vp-pecas|vp-precision|usinagem|nalva/i] },
   { agent: "jarvis", skill: "help", patterns: [/ajuda|help|ola|jarvis|quem e voce/i] },
 ];
 

@@ -35,7 +35,25 @@
       "requiresApproval": false,
       "timeoutMs": 20000,
       "telemetry": true,
-      "description": "Health-check dos sites Vercel"
+      "description": "Health-check Macofel (Ops)"
+    },
+    "vercel-status": {
+      "agent": "ops",
+      "mode": "read",
+      "permissions": ["read:deploy"],
+      "requiresApproval": false,
+      "timeoutMs": 25000,
+      "telemetry": true,
+      "description": "Ultimos deployments Vercel (leitura)"
+    },
+    "vp-pecas-health": {
+      "agent": "vp-pecas",
+      "mode": "read",
+      "permissions": ["read:deploy"],
+      "requiresApproval": false,
+      "timeoutMs": 20000,
+      "telemetry": true,
+      "description": "Health-check sites VP-Pecas e vp-precision"
     },
     "politica-seguranca": {
       "agent": "orchestrator",

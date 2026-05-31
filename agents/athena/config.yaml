@@ -10,8 +10,6 @@ llm:
 skills:
   - politica-seguranca
   - innovation-monitor
-  - deploy-monitor
-  - vercel-status
 
 secrets:
   gateway: [OPENCLAW_GATEWAY_BASE_URL, OPENCLAW_AUTOMATION_TOKEN]

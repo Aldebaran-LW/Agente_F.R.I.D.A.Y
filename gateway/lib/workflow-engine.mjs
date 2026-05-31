@@ -1,13 +1,25 @@
 import { assertSkillAllowed, skillTimeoutMs } from './skill-registry.mjs';
 import { fetchMacofelStatus } from './macofel.mjs';
+import { syncMacofelImages } from './macofel-sync.mjs';
 import { fetchGithubStatus } from './github.mjs';
 import { fetchDeployHealth } from './deploy.mjs';
+import { fetchVercelStatus } from './vercel.mjs';
+import { fetchVpPecasHealth } from './vp-pecas.mjs';
 
-const EXECUTORS = {
-  'macofel-status': () => fetchMacofelStatus(),
-  'github-aldebaran': () => fetchGithubStatus(),
-  'deploy-monitor': () => fetchDeployHealth(),
-};
+function buildExecutors(params = {}) {
+  return {
+    'macofel-status': () => fetchMacofelStatus(),
+    'macofel-images-sync': () =>
+      syncMacofelImages({
+        ean: params.ean,
+        imageUrls: params.imageUrls,
+      }),
+    'github-aldebaran': () => fetchGithubStatus(),
+    'deploy-monitor': () => fetchDeployHealth(),
+    'vercel-status': () => fetchVercelStatus(),
+    'vp-pecas-health': () => fetchVpPecasHealth(),
+  };
+}
 
 function topoSort(tasks) {
   const byId = new Map(tasks.map((t) => [t.id, t]));
@@ -43,8 +55,9 @@ async function runWithTimeout(promise, ms) {
   }
 }
 
-async function executeSkill(skill) {
-  const run = EXECUTORS[skill];
+async function executeSkill(skill, params = {}) {
+  const executors = buildExecutors(params);
+  const run = executors[skill];
   if (!run) {
     return { ok: false, error: `executor nao implementado: ${skill}` };
   }
@@ -54,14 +67,14 @@ async function executeSkill(skill) {
 /**
  * Executa workflow ou rota unica. Retorna taskRuns + payloads por skill.
  */
-export async function executePlan(plan, { message = '', approved = false } = {}) {
+export async function executePlan(plan, { message = '', approved = false, params = {} } = {}) {
   if (plan.kind === 'single') {
-    return executeSingle(plan, { message, approved });
+    return executeSingle(plan, { message, approved, params });
   }
-  return executeWorkflow(plan, { message, approved });
+  return executeWorkflow(plan, { message, approved, params });
 }
 
-async function executeSingle(plan, { message, approved }) {
+async function executeSingle(plan, { message, approved, params }) {
   const { route, approvalRequired } = plan;
   const blocked =
     approvalRequired && !approved && !isApprovalMessage(message);
@@ -102,7 +115,7 @@ async function executeSingle(plan, { message, approved }) {
       const t0 = Date.now();
       try {
         data = await runWithTimeout(
-          executeSkill(route.skill),
+          executeSkill(route.skill, params),
           skillTimeoutMs(route.skill)
         );
         taskRuns.push({
@@ -140,7 +153,7 @@ async function executeSingle(plan, { message, approved }) {
   };
 }
 
-async function executeWorkflow(plan, { message, approved }) {
+async function executeWorkflow(plan, { message, approved, params }) {
   const wf = plan.workflow;
   const ordered = topoSort(wf.tasks ?? []);
   const taskRuns = [];
@@ -177,7 +190,8 @@ async function executeWorkflow(plan, { message, approved }) {
       continue;
     }
 
-    const executor = EXECUTORS[task.skill];
+    const executors = buildExecutors(params);
+    const executor = executors[task.skill];
     if (!executor) {
       taskRuns.push({
         id: task.id,
@@ -192,7 +206,7 @@ async function executeWorkflow(plan, { message, approved }) {
     const t0 = Date.now();
     try {
       const data = await runWithTimeout(
-        executeSkill(task.skill),
+        executeSkill(task.skill, params),
         skillTimeoutMs(task.skill)
       );
       results[task.skill] = data;

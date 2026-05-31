@@ -53,4 +53,10 @@ Cada pasta `agents/<id>/` inclui **`config.yaml`**: modelo LLM (OpenRouter free)
 
 Esquema: `agents/_shared/CONFIG-SCHEMA.md`. Validar: `node scripts/validate-agent-config.mjs`.
 
+**Matriz papel → skill → executor (diagnóstico):** [MATRIZ-AGENTE-FERRAMENTAS.md](./MATRIZ-AGENTE-FERRAMENTAS.md)
+
+**Residências:** gateway (API rápida) · EC2 (cron/scripts longos) · HF (inovação). Ver [MAPAS-RESIDENCIAS.md](./MAPAS-RESIDENCIAS.md).
+
+**Dados cruzados:** agentes não se chamam — Jarvis pede, consolida, devolve (workflows multi-step).
+
 Fase 1: uma `OPENROUTER_API_KEY` partilhada (`llm.env_key`). Chaves por cérebro só se houver rate limit.
