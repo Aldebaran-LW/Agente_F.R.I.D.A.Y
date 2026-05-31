@@ -15,7 +15,7 @@ if (existsSync(envPath)) {
   }
 }
 
-const handler = (await import('../gateway/api/openclaw/hub/health.mjs')).default;
+const { dispatchOpenclaw } = await import('../gateway/lib/openclaw-handlers.mjs');
 const token = process.env.OPENCLAW_AUTOMATION_TOKEN || 'test-token';
 process.env.OPENCLAW_AUTOMATION_TOKEN = token;
 
@@ -29,7 +29,8 @@ const res = {
   end() {},
 };
 
-await handler(
+await dispatchOpenclaw(
+  'hub/health',
   { method: 'GET', headers: { authorization: `Bearer ${token}` } },
   res,
 );

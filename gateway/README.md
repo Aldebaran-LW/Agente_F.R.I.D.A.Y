@@ -6,6 +6,8 @@ Dominio: https://openclaw.lwdigitalforge.com
 
 ## Deploy
 
+Plano Vercel **Hobby**: maximo **12** serverless functions. Rotas `/openclaw/*` usam um unico catch-all (`api/openclaw/[...path].mjs`) — total **3** funcoes (`health`, `jarvis`, `openclaw`).
+
 1. Vercel -> Add Project -> Root Directory: gateway
 2. Env: OPENCLAW_AUTOMATION_TOKEN, GITHUB_TOKEN, MONGODB_URI, MACOFEL_API_BASE, MACOFEL_CATALOG_SECRET, MACOFEL_URL, VP_PECAS_URL
 3. curl https://openclaw.lwdigitalforge.com/api/health
