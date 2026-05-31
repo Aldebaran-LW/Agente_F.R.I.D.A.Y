@@ -63,3 +63,41 @@ Visualização: [VISUALIZACAO-AGENTES.md](./VISUALIZACAO-AGENTES.md) · [DIGITAL
 | `openclaw.lwdigitalforge.com` | So funciona se ligado ao projeto gateway ativo |
 
 Telegram: [BASICO-OPENCLAW.md](./BASICO-OPENCLAW.md) fase 2.
+
+## Projeto Vercel (referencia)
+
+| Campo | Valor |
+|-------|--------|
+| Nome | `agente-openclaw` |
+| Project ID | `prj_m66Z8wWFqgUQBqfejjcRA1nhqkXP` |
+| Team (slug URL) | `lucas-willians-projects-506f0514` |
+| Team ID | `team_RZX8P6bxuYn7Aqq2jLgZ7Txm` (Settings → General da equipa) |
+| Root Directory | `gateway` |
+
+Ficheiro local: `gateway/.vercel/project.json` (deve estar em **UTF-8**, nao UTF-16).
+
+## Deploy pelo PC (CLI)
+
+No `.env` da raiz:
+
+```env
+VERCEL_API_TOKEN=   # https://vercel.com/account/tokens (scope Full Account)
+VERCEL_TEAM_ID=team_RZX8P6bxuYn7Aqq2jLgZ7Txm
+```
+
+Depois:
+
+```powershell
+.\scripts\deploy-gateway-vercel.ps1
+```
+
+Alternativa sem CLI: **push para `main`** no GitHub → deploy automatico (integracao Git).
+
+### Erros CLI
+
+| Sintoma | Correcao |
+|---------|----------|
+| `token is not valid` | Gerar novo token; nao reutilizar token de deploy antigo |
+| `Not able to load teams` | `VERCEL_TEAM_ID` deve comecar por `team_` (copiar do painel da equipa) |
+| `Project Settings could not be retrieved` | Apagar `gateway/.vercel` e voltar a ligar, ou garantir `project.json` em UTF-8 |
+| `desktop.ini` em `.git/` | Windows: remover `desktop.ini` dentro de `.git` (quebra `git fetch`) |
