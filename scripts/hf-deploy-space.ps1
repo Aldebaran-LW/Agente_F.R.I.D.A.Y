@@ -49,7 +49,11 @@ $hfUser = $vars.HF_USERNAME
 if (-not $hfUser) { $hfUser = ($repo -split '/')[0] }
 $cloneUrl = "https://${hfUser}:$hfToken@huggingface.co/spaces/$repo"
 Write-Host "==> Clone $repo" -ForegroundColor Cyan
-git clone $cloneUrl $work 2>&1 | ForEach-Object { Write-Host $_ }
+$prevEap = $ErrorActionPreference
+$ErrorActionPreference = 'Continue'
+& git clone $cloneUrl $work 2>&1 | ForEach-Object { Write-Host $_ }
+if ($LASTEXITCODE -ne 0) { throw "git clone falhou (exit $LASTEXITCODE)" }
+$ErrorActionPreference = $prevEap
 
 if (-not $SkipCopy) {
   Write-Host "==> Copiar ficheiros de $src" -ForegroundColor Cyan
