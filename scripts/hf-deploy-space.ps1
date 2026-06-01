@@ -57,6 +57,10 @@ $ErrorActionPreference = $prevEap
 
 if (-not $SkipCopy) {
   Write-Host "==> Copiar ficheiros de $src" -ForegroundColor Cyan
+  foreach ($dir in @('tools', 'lib')) {
+    $dest = Join-Path $work $dir
+    if (Test-Path $dest) { Remove-Item -Recurse -Force $dest }
+  }
   Get-ChildItem $src -Force | Where-Object { $_.Name -notin @('.git', 'desktop.ini', '__pycache__') } | ForEach-Object {
     Copy-Item -Recurse -Force $_.FullName (Join-Path $work $_.Name)
   }
