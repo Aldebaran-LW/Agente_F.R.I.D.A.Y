@@ -43,7 +43,15 @@ for (const agent of ['heimdall', 'rimuru']) {
 }
 
 const ROOT_PATCH =
-  "const root = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');";
+  "const root = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');";
+const DATA_ROOT_FN = `
+function openclawDataRoot() {
+  if (process.env.VERCEL || process.env.VERCEL_ENV) return '/tmp/openclaw';
+  return resolve(root, 'data');
+}`;
+// Só paths de escrita/leitura em data/* — não substituir dentro de openclawDataRoot()
+const DATA_PATH_RE = /resolve\(root, 'data',/g;
+const DATA_PATH_TO = "resolve(openclawDataRoot(),";
 
 for (const name of FILES) {
   let text = readFileSync(resolve(srcLib, name), 'utf8');
@@ -59,6 +67,13 @@ for (const name of FILES) {
     /const root = resolve\(dirname\(fileURLToPath\(import\.meta\.url\)\), '\.\.', '\.\.'\);/g,
     ROOT_PATCH,
   );
+  text = text.replaceAll('../../gateway/lib/', '../');
+  if (name === 'rimuru-token-core.mjs' || name === 'heimdall-flow-core.mjs') {
+    if (!text.includes('function openclawDataRoot')) {
+      text = text.replace(ROOT_PATCH, ROOT_PATCH + DATA_ROOT_FN);
+    }
+    text = text.replace(DATA_PATH_RE, DATA_PATH_TO);
+  }
   writeFileSync(resolve(dest, name), text, 'utf8');
 }
 

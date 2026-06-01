@@ -8,6 +8,10 @@ import {
 export async function runEcosystemWatch() {
   const report = await buildFlowMonitorReport();
   report.reply = formatFlowTelegram(report);
-  saveFlowSnapshot(report);
+  try {
+    saveFlowSnapshot(report);
+  } catch {
+    report.snapshot_saved = false;
+  }
   return report;
 }

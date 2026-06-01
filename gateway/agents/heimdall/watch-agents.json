@@ -1,0 +1,69 @@
+{
+  "_doc": "Regras de contexto — Heimdall observa via Hub + /office/status. Agentes não se chamam entre si (Jarvis orquestra).",
+  "alert_on": ["error", "context_violation", "deploy_down"],
+  "silent_on": ["idle", "working"],
+  "stale_minutes": 45,
+  "agents": [
+    {
+      "id": "orchestrator",
+      "label": "Jarvis",
+      "allowed_skills": ["openclaw-jarvis", "help", "clarify"],
+      "notes": "Delega skills operacionais; não executa Mongo"
+    },
+    {
+      "id": "macofel",
+      "label": "Macofel",
+      "allowed_skills": ["macofel-status", "macofel-images-sync"],
+      "forbidden_skills": ["github-aldebaran", "deploy-monitor"]
+    },
+    {
+      "id": "heimdall",
+      "label": "Heimdall",
+      "allowed_skills": ["github-aldebaran", "deploy-monitor", "vercel-status", "ecosystem-watch"]
+    },
+    {
+      "id": "vp-pecas",
+      "label": "VP-Peças",
+      "allowed_skills": ["vp-pecas-health", "github-aldebaran", "deploy-monitor"]
+    },
+    {
+      "id": "sophia",
+      "label": "Sophia",
+      "allowed_skills": ["innovation-knowledge", "innovation-research"],
+      "residence": "hf"
+    },
+    {
+      "id": "yato",
+      "label": "Yato",
+      "allowed_skills": ["innovation-market"],
+      "residence": "hf"
+    },
+    {
+      "id": "senku",
+      "label": "Senku",
+      "allowed_skills": ["innovation-analysis"],
+      "residence": "hf"
+    },
+    {
+      "id": "gideon",
+      "label": "Gideon",
+      "allowed_skills": ["innovation-forecast", "innovation-viability"],
+      "residence": "hf"
+    },
+    {
+      "id": "veldora",
+      "label": "Veldora",
+      "allowed_skills": ["security-audit", "politica-seguranca", "veldora-seguranca"]
+    },
+    {
+      "id": "rimuru",
+      "label": "Rimuru",
+      "allowed_skills": ["innovation-monitor"]
+    },
+    {
+      "id": "rebeca",
+      "label": "Rebeca",
+      "allowed_skills": ["innovation-design"]
+    }
+  ]
+}
