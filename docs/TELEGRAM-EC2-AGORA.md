@@ -27,20 +27,26 @@ Deves ver `telegram_html` em português na JSON.
 
 ---
 
-## Passo 2 — EC2: SOUL em português
+## Passo 2 — EC2: sync completo (recomendado)
 
-SSH na EC2:
+**Do PC (PowerShell):**
+
+```powershell
+cd "H:\Meu Drive\Projetos\OpenClaw"
+.\scripts\ec2-sync-from-pc.ps1
+```
+
+**Ou na EC2 (SSH):**
 
 ```bash
-cd /opt/openclaw   # ou ~/Agente_OpenClaw
-git pull
-
-# Copiar regras Jarvis PT (ou usar ec2-apply-agent-config.sh — copia SOUL automaticamente)
-sudo cp agents/_shared/SOUL-TELEGRAM-JARVIS.md /root/.openclaw/workspace/SOUL.md
-# Se o daemon corre como outro user, ajusta o path ~/.openclaw/workspace/
-
-sudo systemctl restart openclaw-gateway
+cd /opt/openclaw
+git pull origin main
+sudo bash scripts/ec2-sync-now.sh
 ```
+
+O script faz: `git pull`, SOUL Jarvis PT, `ec2-fix-telegram-models`, heartbeat/Heimdall, teste ao gateway Vercel (`routes_version: 3`).
+
+Guia: `docs/EC2-SYNC-NOW.md`
 
 ---
 
@@ -133,11 +139,23 @@ Depois no Telegram: **`/new`** → **`ajuda`**
 
 ---
 
-## Fase seguinte (elegante)
+## Jarvis integrado no OpenClaw (recomendado)
 
-Quando estiver estável:
+Um so bot. O agente corre o hook antes do LLM:
 
-1. Bridge Telegram → sempre `POST /jarvis` + `telegram_html` (custom hook EC2)
-2. Supabase para aprovações — `docs/SUPABASE-CENTRAL.md`
+```bash
+node scripts/openclaw-jarvis-hook.mjs "ajuda"
+```
 
-Ver também: `docs/TELEGRAM-UX.md` · `agents/orchestrator/AGENTS.md`
+Documentacao: `docs/OPENCLAW-JARVIS-INTEGRACAO.md`
+
+Apos redeploy Vercel: `ajuda` no Telegram deve mostrar botoes (reply_markup).
+
+**Nao** activar `openclaw-telegram-jarvis-bridge --poll` no mesmo token.
+
+## Fase seguinte
+
+1. Supabase para aprovações — `docs/SUPABASE-CENTRAL.md`
+2. Integrar bridge **dentro** do OpenClaw (um só `getUpdates`)
+
+Ver: `docs/TELEGRAM-UX.md` · `docs/TELEGRAM-WHATSAPP-FLOW.md`
