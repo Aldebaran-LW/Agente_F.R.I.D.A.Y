@@ -2,6 +2,7 @@
  * Formata respostas Jarvis para Telegram (parse_mode HTML).
  * https://core.telegram.org/bots/api#html-style
  */
+import { pickReplyMarkup } from './telegram-keyboards.mjs';
 
 export function escapeHtml(text) {
   return String(text)
@@ -26,8 +27,56 @@ export function formatHelpMenu() {
     '• <code>tokens openrouter</code> (Rimuru)',
     '• <code>auditoria seguranca</code> (Veldora)',
     '',
+    '<b>WhatsApp</b> (lembretes Twilio)',
+    '• <code>agendar whatsapp: DD/MM/AAAA HH:MM — texto</code>',
+    '• Atalhos: botão <b>📱 WhatsApp</b> abaixo',
+    '',
     'Escrita (sync, build) pede <b>sim</b> · <b>confirmar</b> · <b>ok</b>.',
   ].join('\n');
+}
+
+export function formatScheduleWhatsAppHtml(payload = {}, { approvalBlocked = false } = {}) {
+  if (approvalBlocked || payload?.needsApproval) {
+    const when = payload?.preview?.formatted || '';
+    const body = payload?.preview?.body || payload?.reply || '';
+    return [
+      '<b>📱 Lembrete WhatsApp</b>',
+      when ? `🕐 ${escapeHtml(when)}` : '',
+      '',
+      escapeHtml(String(body).slice(0, 400)),
+      '',
+      '⚠️ Confirma com os botões abaixo ou responde <b>sim</b>.',
+      'Imagem FRIDAY incluída se configurada no servidor.',
+    ]
+      .filter(Boolean)
+      .join('\n');
+  }
+  if (payload?.item?.id) {
+    return [
+      '<b>✅ Agendado</b>',
+      `🕐 ${escapeHtml(formatSpShort(payload.item.sendAt))}`,
+      `📝 ${escapeHtml(payload.item.body.slice(0, 200))}`,
+      `<code>${escapeHtml(payload.item.id)}</code>`,
+      '',
+      '<i>Envio automático no WhatsApp no horário marcado.</i>',
+    ].join('\n');
+  }
+  if (payload?.reply) {
+    return escapeHtml(payload.reply).replace(/\n/g, '\n');
+  }
+  return null;
+}
+
+function formatSpShort(iso) {
+  try {
+    return new Intl.DateTimeFormat('pt-BR', {
+      timeZone: 'America/Sao_Paulo',
+      dateStyle: 'short',
+      timeStyle: 'short',
+    }).format(new Date(iso));
+  } catch {
+    return String(iso);
+  }
 }
 
 export function formatApprovalBlock(preview = '') {
@@ -88,6 +137,23 @@ export function formatPortfolioHtml(results = {}) {
   ].join('\n');
 }
 
+export function formatAgentsStatusHtml(results = {}) {
+  const flow = results['ecosystem-watch'];
+  const lines = ['<b>🤖 Situação dos agentes</b>', ''];
+  if (flow?.reply) {
+    lines.push(escapeHtml(flow.reply).replace(/\n/g, '\n'));
+  } else if (flow?.operational?.length) {
+    for (const a of flow.operational) {
+      const st = a.state === 'working' ? '🔄' : a.state === 'error' ? '❌' : '✅';
+      lines.push(`${st} <b>${escapeHtml(a.id)}</b>${a.skill ? ` · ${escapeHtml(a.skill)}` : ''}`);
+    }
+  } else {
+    lines.push('<i>Heimdall: sem snapshot Hub (EC2/heartbeat).</i>');
+  }
+  lines.push('', lineDeploy(results['deploy-monitor']), '', lineGithub(results['github-aldebaran']));
+  return lines.join('\n');
+}
+
 export function formatSingleReply(route, payload, { approvalBlocked = false } = {}) {
   if (approvalBlocked) {
     return formatApprovalBlock(route?.intent);
@@ -110,6 +176,10 @@ export function formatSingleReply(route, payload, { approvalBlocked = false } = 
   if (route?.skill === 'deploy-monitor' && payload?.sites) {
     return lineDeploy(payload);
   }
+  if (route?.skill === 'schedule-whatsapp') {
+    const html = formatScheduleWhatsAppHtml(payload, { approvalBlocked });
+    if (html) return html;
+  }
   return escapeHtml(
     'Não entendi. Tente: status macofel · repos github · resumo portfolio'
   );
@@ -122,6 +192,9 @@ export function formatWorkflowHtml({
 }) {
   if (workflowId === 'portfolio-status') {
     return formatPortfolioHtml(results);
+  }
+  if (workflowId === 'agents-status') {
+    return formatAgentsStatusHtml(results);
   }
   if (approvalBlocked && workflowId === 'macofel-sync') {
     const pre = formatSingleReply(
@@ -159,9 +232,18 @@ export function buildTelegramPayload({
   if (!html && plainReply) {
     html = plainToTelegramHtml(plainReply);
   }
+
+  const reply_markup = pickReplyMarkup({
+    route,
+    payload,
+    approvalBlocked,
+    plainReply,
+  });
+
   return {
     text: plainReply,
     telegram_html: html,
     parse_mode: 'HTML',
+    ...(reply_markup ? { reply_markup } : {}),
   };
 }

@@ -18,7 +18,18 @@
 
 ## O que fazer primeiro (economia + precisão)
 
-Para pedidos operacionais, **usa a skill `openclaw-jarvis`** (gateway Vercel) — não inventes números:
+### Passo 0 — Hook (obrigatório antes de LLM)
+
+```bash
+node scripts/openclaw-jarvis-hook.mjs "<mensagem do utilizador>"
+```
+
+- Se a saída JSON tiver `"handled": true` → responde **só** com `telegram_html` (+ `reply_markup` se existir). **Não chames o LLM.**
+- Se `"handled": false` → conversa livre com o modelo.
+
+Forçar gateway: `/jarvis <comando>` (ex. `/jarvis repos github`).
+
+Para pedidos operacionais, o hook chama o **gateway Vercel** — não inventes números:
 
 | Utilizador diz | Envia ao gateway |
 |----------------|------------------|
@@ -26,7 +37,8 @@ Para pedidos operacionais, **usa a skill `openclaw-jarvis`** (gateway Vercel) �
 | github, repos | `repos github` |
 | sites, deploy | `sites no ar` |
 | resumo, portfolio | `resumo portfolio` |
-| pesquisa mercado, marketing | `pesquisa mercado` → **Yato** |
+| **situação dos agentes**, teste os agentes | gateway workflow (Heimdall + sites + GitHub) — **nunca inventar** |
+| ajuda, menu, comandos | `ajuda` |
 | viabilidade, previsão | `viabilidade` → **Gideon** |
 | design office/forge | `design rebeca` → **Rebeca** |
 | tokens, consumo OpenRouter | `tokens openrouter` → **Rimuru** |
@@ -46,6 +58,7 @@ Se a skill devolver `telegram.telegram_html`, **usa esse HTML** como resposta (p
 | macofel, catálogo, pendentes, imagens | `status macofel` |
 | sites, deploy, no ar, vercel | `sites no ar` |
 | portfolio, resumo geral | `resumo portfolio` |
+| situação dos agentes, teste os agentes | (hook envia ao gateway — dados reais) |
 | ajuda, menu, comandos | `ajuda` |
 
 ## Anti-alucinação (obrigatório)
@@ -105,6 +118,8 @@ Antes de sync imagens, deploy ou qualquer escrita com impacto:
 - `/github` → repos github
 - `/sites` → sites no ar
 - `/resumo` → resumo portfolio
+- `/jarvis <texto>` → gateway com o texto (forçar)
+- `/lembrete` → menu WhatsApp (botões)
 - `pesquisa mercado` → Yato (HF)
 - `tokens openrouter` → Rimuru
 - `auditoria seguranca` → Veldora

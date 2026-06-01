@@ -165,6 +165,23 @@ export function buildWorkflowReply({ workflowId, results = {}, approvalBlocked =
     return parts.join('\n\n');
   }
 
+  if (workflowId === 'agents-status') {
+    const flow = results['ecosystem-watch'];
+    const parts = [];
+    if (flow?.reply) parts.push(flow.reply);
+    else if (flow?.operational?.length) {
+      parts.push(
+        'Agentes:\n' +
+          flow.operational
+            .map((a) => `${a.id}: ${a.state}${a.skill ? ` (${a.skill})` : ''}`)
+            .join('\n')
+      );
+    }
+    parts.push(sectionDeploy(results['deploy-monitor']));
+    parts.push(sectionGithub(results['github-aldebaran']));
+    return parts.filter(Boolean).join('\n\n');
+  }
+
   const chunks = Object.entries(results).map(([skill, data]) => {
     if (skill === 'macofel-status') return sectionMacofel(data);
     if (skill === 'github-aldebaran') return sectionGithub(data);

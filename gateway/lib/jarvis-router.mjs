@@ -9,7 +9,11 @@ export const RULES = [
   {
     agent: "heimdall",
     skill: "ecosystem-watch",
-    patterns: [/heimdall\s+fluxo|fluxo\s+agentes|ecossistema|relatorio\s+agentes|observador/i],
+    patterns: [
+      /heimdall\s+fluxo|fluxo\s+agentes|ecossistema|relatorio\s+agentes|observador/i,
+      /situa(ç|c)(ã|a)o\s+(dos\s+)?agentes?|estado\s+(dos\s+)?agentes?|status\s+(dos\s+)?agentes?/i,
+      /como\s+est(a|ã|ao)\s+(os\s+)?agentes?/i,
+    ],
   },
   { agent: "vp-pecas", skill: "vp-pecas-health", patterns: [/vp-pecas|vp-precision|usinagem|nalva/i] },
   { agent: "sophia", skill: "innovation-knowledge", patterns: [/sophia|conhecimento|ferramentas? ia|pesquisa tecnica|tutorial|hf hub/i] },
@@ -43,7 +47,7 @@ export const RULES = [
     ],
   },
   { agent: "hefestos", skill: "innovation-build", patterns: [/hefestos|construir skill|implementar melhoria/i] },
-  { agent: "icaro", skill: "innovation-test", patterns: [/icaro|testar agente|validar config/i] },
+  { agent: "icaro", skill: "innovation-test", patterns: [/icaro|testar agente|validar config|teste?\s+(os\s+)?agentes?|testar\s+(os\s+)?agentes?/i] },
   {
     agent: "jarvis",
     skill: "schedule-whatsapp",

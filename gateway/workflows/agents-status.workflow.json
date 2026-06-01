@@ -1,0 +1,26 @@
+{
+  "id": "agents-status",
+  "version": "1.0.0",
+  "description": "Situação real dos agentes — Heimdall flow + sites + GitHub (sem LLM)",
+  "triggers": {
+    "patterns": [
+      "situacao dos agentes",
+      "situação dos agentes",
+      "estado dos agentes",
+      "status dos agentes",
+      "como estao os agentes",
+      "como estão os agentes",
+      "situacao agentes",
+      "teste os agentes",
+      "testar os agentes",
+      "testar agentes",
+      "teste agentes"
+    ]
+  },
+  "requiresApproval": false,
+  "tasks": [
+    { "id": "flow", "skill": "ecosystem-watch", "agent": "heimdall", "deps": [] },
+    { "id": "deploy", "skill": "deploy-monitor", "agent": "heimdall", "deps": [] },
+    { "id": "github", "skill": "github-aldebaran", "agent": "heimdall", "deps": [] }
+  ]
+}

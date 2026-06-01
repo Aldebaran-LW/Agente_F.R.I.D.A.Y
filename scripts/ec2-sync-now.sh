@@ -25,6 +25,12 @@ export OPENCLAW_CONFIG="${OPENCLAW_CONFIG:-/root/.openclaw/openclaw.json}"
 
 echo "==> Repo: $OPENCLAW_ROOT"
 
+# --- disco (heartbeat CRITICO se <10% livre) ---
+if [[ -f scripts/ec2-disk-cleanup.sh ]]; then
+  echo "==> ec2-disk-cleanup"
+  bash scripts/ec2-disk-cleanup.sh || echo "AVISO: cleanup disco incompleto"
+fi
+
 # --- git ---
 if [[ -d .git ]]; then
   git fetch origin main 2>/dev/null || git fetch origin 2>/dev/null || true
