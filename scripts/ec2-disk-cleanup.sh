@@ -35,12 +35,21 @@ if command -v docker &>/dev/null; then
   docker system prune -af --volumes 2>/dev/null || true
 fi
 
-echo "==> Ollama models (opcional — libera GB)"
+echo "==> Ollama models (libera ~700MB)"
 if command -v ollama &>/dev/null; then
   ollama list 2>/dev/null || true
-  # Descomente para remover modelos pesados:
-  # ollama rm smollm2:360m 2>/dev/null || true
+  for m in $(ollama list 2>/dev/null | awk 'NR>1 {print $1}'); do
+    ollama rm "$m" 2>/dev/null || true
+  done
+  systemctl stop ollama 2>/dev/null || true
+  systemctl disable ollama 2>/dev/null || true
 fi
+
+rm -rf /usr/share/ollama/.ollama/models/blobs/* 2>/dev/null || true
+rm -rf /home/ubuntu/macofel/.git/objects/pack/* 2>/dev/null || true
+rm -rf /home/ubuntu/macofel/node_modules 2>/dev/null || true
+
+echo "==> Ollama models (opcional — libera GB)"
 
 echo "==> Disco depois"
 df -h /

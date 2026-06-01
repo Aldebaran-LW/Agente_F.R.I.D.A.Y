@@ -2,7 +2,7 @@
  * Valida roteamento Jarvis vs contexto do agente (Heimdall watch-agents.json).
  * Apenas regista — não bloqueia pedidos (Jarvis orquestra).
  */
-import { checkAgentContext } from './repo-scripts/heimdall-flow-core.mjs';
+import { checkAgentContext } from './heimdall-watch.mjs';
 import { isHubEnabled, persistLearning } from './hub-store.mjs';
 
 export function validateJarvisRoute(route) {
