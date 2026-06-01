@@ -1,7 +1,7 @@
 import {
   handleScheduleCommand,
   loadPending,
-} from '../../scripts/lib/scheduled-whatsapp-core.mjs';
+} from './repo-scripts/scheduled-whatsapp-core.mjs';
 
 /** Confirma lembrete pendente quando o utilizador responde só "sim". */
 export async function tryConfirmPendingOnly(message = '') {

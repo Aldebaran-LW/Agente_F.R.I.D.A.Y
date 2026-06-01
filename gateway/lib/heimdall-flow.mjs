@@ -2,7 +2,7 @@ import {
   buildFlowMonitorReport,
   formatFlowTelegram,
   saveFlowSnapshot,
-} from '../../scripts/lib/heimdall-flow-core.mjs';
+} from './repo-scripts/heimdall-flow-core.mjs';
 
 /** Executor skill ecosystem-watch */
 export async function runEcosystemWatch() {

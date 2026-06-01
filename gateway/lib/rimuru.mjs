@@ -3,12 +3,12 @@ import {
   buildTokenMonitorReport,
   formatMonitorTelegram,
   fetchOpenRouterKeyInfo,
-} from '../../scripts/lib/rimuru-token-core.mjs';
+} from './repo-scripts/rimuru-token-core.mjs';
 import {
   checkAllProviders,
   summarizeProviders,
   providerAdvisories,
-} from '../../scripts/lib/rimuru-providers.mjs';
+} from './repo-scripts/rimuru-providers.mjs';
 
 /**
  * Executor gateway — skill innovation-monitor (Rimuru).

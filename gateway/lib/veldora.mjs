@@ -2,7 +2,7 @@ import {
   auditText,
   auditResearchUrl,
   formatAuditTelegram,
-} from '../../scripts/lib/veldora-audit-core.mjs';
+} from './repo-scripts/veldora-audit-core.mjs';
 
 /**
  * Executor gateway — skill security-audit (rápido, sem HF).

@@ -1,7 +1,7 @@
 import {
   buildDesignScanReport,
   formatDesignTelegram,
-} from '../../scripts/lib/rebeca-design-core.mjs';
+} from './repo-scripts/rebeca-design-core.mjs';
 
 /**
  * Executor gateway — skill innovation-design (scan determinístico; brief LLM no HF).

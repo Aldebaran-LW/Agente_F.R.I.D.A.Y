@@ -73,6 +73,7 @@ Telegram: [BASICO-OPENCLAW.md](./BASICO-OPENCLAW.md) fase 2.
 | Team (slug URL) | `lucas-willians-projects-506f0514` |
 | Team ID | `team_RZX8P6bxuYn7Aqq2jLgZ7Txm` (Settings → General da equipa) |
 | Root Directory | `gateway` |
+| Build | `npm run vercel-build` (copia `scripts/lib` → `gateway/lib/repo-scripts`) |
 
 Ficheiro local: `gateway/.vercel/project.json` (deve estar em **UTF-8**, nao UTF-16).
 
