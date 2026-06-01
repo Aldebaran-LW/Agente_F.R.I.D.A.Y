@@ -8,7 +8,7 @@ import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import {
   applyProviderContextWindows,
-  OLLAMA_SIMPLE_MODEL,
+  ec2BackgroundModel,
   orchestratorComplexFallbacks,
   orchestratorPrimaryModel,
 } from './lib/hf-inference-config.mjs';
@@ -50,6 +50,12 @@ function envFromDoc(baseDoc) {
 const runtimeEnv = envFromDoc(doc);
 const ORCH_PRIMARY = orchestratorPrimaryModel(runtimeEnv);
 const ORCH_FALLBACKS = orchestratorComplexFallbacks(runtimeEnv);
+const BACKGROUND = ec2BackgroundModel(runtimeEnv);
+
+if (!ORCH_PRIMARY) {
+  console.error('Sem provider cloud (HF_TOKEN/GROQ/etc). Configure /opt/openclaw/.env');
+  process.exit(1);
+}
 
 function fixModel(entry, primary, fallbacks) {
   entry.model = { primary, fallbacks };
@@ -63,7 +69,7 @@ for (const entry of doc.agents.list) {
     fixModel(entry, ORCH_PRIMARY, ORCH_FALLBACKS);
     entry.skills = ['politica-seguranca', 'openclaw-jarvis'];
   } else {
-    fixModel(entry, OLLAMA_SIMPLE_MODEL, []);
+    fixModel(entry, BACKGROUND, []);
   }
 }
 
@@ -85,4 +91,4 @@ doc.agents.defaults.compaction.reserveTokensFloor = 20000;
 
 writeFileSync(path + '.bak-tiered-llm', readFileSync(path));
 writeFileSync(path, JSON.stringify(doc, null, 2) + '\n');
-console.log('OK tiered: orchestrator', ORCH_PRIMARY, '->', ORCH_FALLBACKS.join(' -> '), '| outros', OLLAMA_SIMPLE_MODEL);
+console.log('OK tiered: orchestrator', ORCH_PRIMARY, '->', ORCH_FALLBACKS.join(' -> '), '| outros', BACKGROUND, '| ollama=off');

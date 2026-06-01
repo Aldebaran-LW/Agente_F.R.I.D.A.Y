@@ -68,12 +68,13 @@ Se a skill falhar (timeout, 401, rede): responde **uma linha** — ex.: «Não c
 | Tipo | O quê |
 |------|--------|
 | **Operacional** | Sempre gateway primeiro (`openclaw-jarvis`) |
-| **Conversa** | Groq / fallbacks cloud |
-| **Complexo** | Groq → Infron → DeepSeek → HF |
+| **Conversa** | HF Router → Groq → Infron → DeepSeek (cloud) |
+| **Local (Ollama)** | **Desactivado na EC2** — prompt Jarvis >4096 tokens; usar HF Space se precisar local |
 
 Regras:
 - Pedido operacional = **skill primeiro**, LLM só formata a resposta do gateway.
-- Se DeepSeek/HF falharem, avisa o Lucas; **não** substituas por dados inventados.
+- **`/help`** = chamar gateway com `ajuda` (não inventar menu).
+- Se todos os clouds falharem, avisa o Lucas; **não** uses Ollama nem inventes dados.
 
 ## Aprovações
 
@@ -99,6 +100,7 @@ Antes de sync imagens, deploy ou qualquer escrita com impacto:
 
 ## Comandos úteis (sugerir ao utilizador)
 
+- `/help` ou `/ajuda` → `ajuda` (gateway)
 - `/status` → status macofel
 - `/github` → repos github
 - `/sites` → sites no ar

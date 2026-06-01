@@ -3,20 +3,21 @@ id: orchestrator
 name: Jarvis
 role: Cérebro (Telegram, aprovacoes, delegacao)
 
-# Telegram: Groq (128k) + fallbacks cloud; operacional via skill openclaw-jarvis
+# Telegram: HF Router (32k) + fallbacks cloud; operacional via skill openclaw-jarvis
+# Ollama smollm2 NÃO cabe o prompt Jarvis — inferencia local fica no HF Space (friday-prod)
 llm:
-  provider: groq
-  model: llama-3.3-70b-versatile
+  provider: huggingface
+  model: Qwen/Qwen2.5-7B-Instruct:fastest
   fallbacks:
+    - groq/llama-3.3-70b-versatile
     - infron/deepseek/deepseek-v3.2
     - deepseek/deepseek-v4-flash
-    - huggingface/Qwen/Qwen2.5-7B-Instruct:fastest
 
 llm_policy:
-  order: [scripts, groq, infron, deepseek_direct, hf_inference, paid_explicit_only]
-  simple: groq/llama-3.3-70b-versatile
-  complex: groq/llama-3.3-70b-versatile
-  complex_fallback: infron/deepseek/deepseek-v3.2
+  order: [scripts, hf_inference, groq, infron, deepseek_direct, paid_explicit_only]
+  simple: huggingface/Qwen/Qwen2.5-7B-Instruct:fastest
+  complex: huggingface/Qwen/Qwen2.5-7B-Instruct:fastest
+  complex_fallback: groq/llama-3.3-70b-versatile
 
 skills:
   - politica-seguranca
@@ -29,4 +30,4 @@ deploy:
 
 secrets:
   gateway: [OPENCLAW_GATEWAY_BASE_URL, OPENCLAW_AUTOMATION_TOKEN]
-  optional: [GROQ_API_KEY, DEEPSEEK_API_KEY, HF_TOKEN, HF_INFERENCE_MODEL, INFRON_API_KEY]
+  optional: [HF_TOKEN, HF_INFERENCE_MODEL, GROQ_API_KEY, DEEPSEEK_API_KEY, INFRON_API_KEY]

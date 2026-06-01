@@ -21,6 +21,13 @@ openclaw config validate
 
 CLEAR_SESSIONS_NO_RESTART=1 bash scripts/ec2-clear-sessions.sh 2>/dev/null || true
 
+# Ollama smollm2 não serve Telegram (4096 ctx); libertar RAM na EC2
+if systemctl is-active ollama &>/dev/null; then
+  systemctl stop ollama 2>/dev/null || true
+  systemctl disable ollama 2>/dev/null || true
+  echo "Ollama parado (inferencia local -> HF Router / Space friday-prod)"
+fi
+
 systemctl restart openclaw-gateway
 sleep 4
 systemctl is-active openclaw-gateway

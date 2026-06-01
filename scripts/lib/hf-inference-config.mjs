@@ -60,13 +60,18 @@ export function groqModelRef(env = process.env) {
   return model.startsWith('groq/') ? model : `groq/${model}`;
 }
 
-/** Jarvis (SOUL + skills) ~4k+ tokens — evitar Ollama/HF sem contextWindow explícito. */
+/** Telegram/Jarvis: HF Router (32k+, grátis) — Ollama smollm2 não cabe o prompt (~4k+). */
 export function orchestratorPrimaryModel(env = process.env) {
+  if (hfTokenFromEnv(env)) return hfModelRef(hfInferenceModelFromEnv(env));
   if (groqTokenFromEnv(env)) return groqModelRef(env);
   if (infronTokenFromEnv(env)) return infronModelRef(env);
   if (env.DEEPSEEK_API_KEY?.trim()) return DEEPSEEK_PRIMARY_MODEL;
-  if (hfTokenFromEnv(env)) return hfModelRef(hfInferenceModelFromEnv(env));
-  return OLLAMA_SIMPLE_MODEL;
+  return null;
+}
+
+/** Modelo cloud para cérebros secundários na EC2 (sem Ollama local). */
+export function ec2BackgroundModel(env = process.env) {
+  return orchestratorPrimaryModel(env) || hfModelRef();
 }
 
 export function orchestratorComplexFallbacks(env = process.env) {
@@ -75,11 +80,10 @@ export function orchestratorComplexFallbacks(env = process.env) {
   const push = (ref) => {
     if (ref && ref !== primary && !out.includes(ref)) out.push(ref);
   };
+  push(groqTokenFromEnv(env) ? groqModelRef(env) : null);
   push(infronTokenFromEnv(env) ? infronModelRef(env) : null);
   push(env.DEEPSEEK_API_KEY?.trim() ? DEEPSEEK_PRIMARY_MODEL : null);
-  push(hfTokenFromEnv(env) ? hfModelRef(hfInferenceModelFromEnv(env)) : null);
-  push(groqTokenFromEnv(env) ? groqModelRef(env) : null);
-  push(OLLAMA_SIMPLE_MODEL);
+  if (hfTokenFromEnv(env)) push(hfModelRef(hfInferenceModelFromEnv(env)));
   return out.filter((m) => m !== primary);
 }
 
