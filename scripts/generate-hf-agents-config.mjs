@@ -39,6 +39,9 @@ const FORGE_ALIAS = {
   dedalo: 'dedalo',
 };
 
+/** Agentes inovação: rotas /run/* usam tools HTTP — não OpenRouter no Space. */
+const INNOVATION_SKIP_OPENROUTER = new Set(['sophia', 'yato', 'senku', 'gideon']);
+
 const HF_TOOLS = {
   orchestrator: [],
   macofel: ['buscar_peca', 'listar_categorias'],
@@ -88,6 +91,10 @@ for (const cfg of agents) {
     doc[id].kilo_model = cfg.model || 'kilo-auto/free';
     doc[id].kilo_fallbacks = cfg.fallbacks?.length ? cfg.fallbacks : ['kilo-auto/free'];
   }
+  if (INNOVATION_SKIP_OPENROUTER.has(id)) {
+    doc[id].llm_skip_openrouter = true;
+    doc[id].hf_inference_model = 'HuggingFaceH4/zephyr-7b-beta';
+  }
 }
 
 const yaml = [
@@ -121,6 +128,8 @@ for (const cfg of agents) {
     yaml.push('  kilo_fallbacks:');
     for (const f of a.kilo_fallbacks) yaml.push(`    - ${JSON.stringify(f)}`);
   }
+  if (a.llm_skip_openrouter) yaml.push('  llm_skip_openrouter: true');
+  if (a.hf_inference_model) yaml.push(`  hf_inference_model: ${JSON.stringify(a.hf_inference_model)}`);
   yaml.push('  fallbacks:');
   const fb = Array.isArray(a.fallbacks) ? a.fallbacks : [];
   if (!fb.length) yaml.push('    []');

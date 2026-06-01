@@ -24,6 +24,17 @@ Arquitetura: `docs/ARQUITETURA-AGENTES.md`
 
 **Não alerta** sempre que um agente está `working` (evita spam). Jarvis continua a ser o único hub de pedidos.
 
+## Não usar (propostas genéricas / F.R.I.D.A.Y.)
+
+| Evitar | Usar em vez disso |
+|--------|-------------------|
+| `heimdall_monitor.py` + `while True` | `node scripts/heimdall-flow-monitor.mjs` (one-shot) |
+| Cron **e** `sleep(300)` no mesmo script | Só cron **ou** só `heartbeat.py` (systemd 5 min) |
+| `message_tool` | `send_telegram` no `heartbeat.py` |
+| Alerta “agente trabalhando” | Transições + stale (`HEARTBEAT_AGENT_STALE_MIN`, default 60 min) |
+
+Validação de contexto: `gateway/lib/jarvis-context-guard.mjs` (log Hub em cada `POST /jarvis`).
+
 ## Skills
 
 - `github-aldebaran` · `deploy-monitor` · `vercel-status`

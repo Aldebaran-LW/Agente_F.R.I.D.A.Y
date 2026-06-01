@@ -1,5 +1,5 @@
 # Gerado automaticamente — nao editar a mao; use generate-hf-agents-config.mjs
-# 2026-06-01T11:35:41.090Z
+# 2026-06-01T13:19:07.694Z
 
 defaults:
   max_tokens: 4096
@@ -35,6 +35,8 @@ gideon:
   model_ref: "ollama/smollm2:360m"
   max_tokens: 4096
   temperature: 0.7
+  llm_skip_openrouter: true
+  hf_inference_model: "HuggingFaceH4/zephyr-7b-beta"
   fallbacks:
     []
   skills:
@@ -194,6 +196,8 @@ senku:
   model_ref: "ollama/smollm2:360m"
   max_tokens: 4096
   temperature: 0.7
+  llm_skip_openrouter: true
+  hf_inference_model: "HuggingFaceH4/zephyr-7b-beta"
   fallbacks:
     []
   skills:
@@ -212,6 +216,8 @@ sophia:
   model_ref: "ollama/smollm2:360m"
   max_tokens: 4096
   temperature: 0.7
+  llm_skip_openrouter: true
+  hf_inference_model: "HuggingFaceH4/zephyr-7b-beta"
   fallbacks:
     []
   skills:
@@ -268,6 +274,8 @@ yato:
   model_ref: "ollama/smollm2:360m"
   max_tokens: 4096
   temperature: 0.7
+  llm_skip_openrouter: true
+  hf_inference_model: "HuggingFaceH4/zephyr-7b-beta"
   fallbacks:
     []
   skills:

@@ -38,6 +38,18 @@ GLOBAL_OPENROUTER_FALLBACKS = [
     "openai/gpt-oss-20b:free",
 ]
 
+DEFAULT_HF_INFERENCE_MODEL = "HuggingFaceH4/zephyr-7b-beta"
+
+
+def _openrouter_disabled() -> bool:
+    v = (os.environ.get("FRIDAY_DISABLE_OPENROUTER") or os.environ.get("OPENROUTER_DISABLED") or "").strip().lower()
+    return v in ("1", "true", "yes", "on")
+
+
+def _is_quota_error(msg: str) -> bool:
+    m = (msg or "").lower()
+    return "402" in m or "insufficient balance" in m or "depleted" in m or "payment required" in m
+
 
 def load_config() -> dict[str, Any]:
     global _agents_cache
@@ -127,7 +139,60 @@ def _run_openrouter_chat(task: str, cfg: dict[str, Any]) -> str:
         except Exception as e:
             errors.append(f"{model_id}: {e}")
 
-    raise RuntimeError("; ".join(errors) if errors else "OpenRouter falhou")
+    err_text = "; ".join(errors) if errors else "OpenRouter falhou"
+    raise RuntimeError(err_text)
+
+
+def _run_hf_inference_chat(task: str, cfg: dict[str, Any]) -> str:
+    """Chat via HF Inference (HF_TOKEN) — fallback quando OpenRouter 402 ou desactivado."""
+    token = os.environ.get("HF_TOKEN", "").strip()
+    if not token:
+        raise ValueError("HF_TOKEN em falta")
+
+    model_id = (cfg.get("hf_inference_model") or DEFAULT_HF_INFERENCE_MODEL).strip()
+    system = cfg.get("description") or cfg.get("role") or "Assistente OpenClaw"
+    max_tokens = min(int(cfg.get("max_tokens") or 2048), 4096)
+    temperature = float(cfg.get("temperature") or 0.7)
+    messages = [
+        {"role": "system", "content": system},
+        {"role": "user", "content": task},
+    ]
+
+    try:
+        from huggingface_hub import InferenceClient
+
+        client = InferenceClient(model=model_id, token=token)
+        out = client.chat_completion(
+            messages=messages,
+            max_tokens=max_tokens,
+            temperature=temperature,
+        )
+        choices = out.choices if hasattr(out, "choices") else (out.get("choices") if isinstance(out, dict) else [])
+        if choices:
+            first = choices[0]
+            msg = first.message if hasattr(first, "message") else first.get("message", {})
+            content = msg.content if hasattr(msg, "content") else msg.get("content")
+            if content:
+                return str(content).strip()
+    except Exception as hub_err:
+        import httpx
+
+        r = httpx.post(
+            f"https://api-inference.huggingface.co/models/{model_id}",
+            headers={"Authorization": f"Bearer {token}"},
+            json={"inputs": f"{system}\n\nUser: {task}\nAssistant:", "parameters": {"max_new_tokens": max_tokens}},
+            timeout=120.0,
+        )
+        if r.status_code >= 400:
+            raise RuntimeError(f"{model_id}: HTTP {r.status_code} ({hub_err})") from hub_err
+        data = r.json()
+        if isinstance(data, list) and data and data[0].get("generated_text"):
+            return str(data[0]["generated_text"]).strip()
+        if isinstance(data, dict) and data.get("generated_text"):
+            return str(data["generated_text"]).strip()
+        raise RuntimeError(f"{model_id}: resposta vazia ({hub_err})") from hub_err
+
+    raise RuntimeError(f"{model_id}: resposta vazia")
 
 
 def _kilo_base_url() -> str:
@@ -203,6 +268,9 @@ def _build_smol_agent(agent_id: str, cfg: dict[str, Any]):
     hf_token = os.environ.get("HF_TOKEN", "").strip()
     kilo_key = os.environ.get("KILO_API_KEY", "").strip()
 
+    skip_or = bool(cfg.get("llm_skip_openrouter")) or _openrouter_disabled()
+    hf_model = (cfg.get("hf_inference_model") or DEFAULT_HF_INFERENCE_MODEL).strip()
+
     if agent_id in KILO_AGENT_IDS and kilo_key:
         model_id = (cfg.get("kilo_model") or cfg.get("model") or "kilo-auto/free").strip()
         model = OpenAIModel(
@@ -213,7 +281,15 @@ def _build_smol_agent(agent_id: str, cfg: dict[str, Any]):
             temperature=temperature,
             flatten_messages_as_text=True,
         )
-    elif openrouter_key:
+    elif hf_token and (skip_or or not openrouter_key):
+        model_id = hf_model if "/" in hf_model else f"HuggingFaceH4/{hf_model}"
+        model = InferenceClientModel(
+            model_id=model_id,
+            token=hf_token,
+            max_tokens=max_tokens,
+            temperature=temperature,
+        )
+    elif openrouter_key and not skip_or:
         model_id = _normalize_openrouter_model_id(raw_model)
         model = OpenAIModel(
             model_id=model_id,
@@ -362,14 +438,56 @@ class Orquestrador:
             except Exception as e:
                 return {"ok": False, "agent_id": target, "error": str(e)}
 
-        if not tool_names and os.environ.get("OPENROUTER_API_KEY", "").strip():
-            try:
-                result = _run_openrouter_chat(task, cfg)
-                out = {"ok": True, "mode": "openrouter-chat", "agent_id": target, "result": result}
-                _persist_learning(target, task, result, "openrouter-chat")
-                return out
-            except Exception as e:
-                return {"ok": False, "agent_id": target, "error": str(e)}
+        if not tool_names:
+            hf_token = os.environ.get("HF_TOKEN", "").strip()
+            skip_or = bool(cfg.get("llm_skip_openrouter")) or _openrouter_disabled()
+            or_key = os.environ.get("OPENROUTER_API_KEY", "").strip()
+
+            if skip_or and hf_token:
+                try:
+                    result = _run_hf_inference_chat(task, cfg)
+                    out = {"ok": True, "mode": "hf-inference-chat", "agent_id": target, "result": result}
+                    _persist_learning(target, task, result, "hf-inference-chat")
+                    return out
+                except Exception as e:
+                    return {"ok": False, "agent_id": target, "error": str(e)}
+
+            if or_key and not skip_or:
+                try:
+                    result = _run_openrouter_chat(task, cfg)
+                    out = {"ok": True, "mode": "openrouter-chat", "agent_id": target, "result": result}
+                    _persist_learning(target, task, result, "openrouter-chat")
+                    return out
+                except Exception as e:
+                    err = str(e)
+                    if hf_token and _is_quota_error(err):
+                        try:
+                            result = _run_hf_inference_chat(task, cfg)
+                            out = {
+                                "ok": True,
+                                "mode": "hf-inference-chat",
+                                "agent_id": target,
+                                "result": result,
+                                "fallback_from": "openrouter-quota",
+                            }
+                            _persist_learning(target, task, result, "hf-inference-chat")
+                            return out
+                        except Exception as hf_e:
+                            return {
+                                "ok": False,
+                                "agent_id": target,
+                                "error": f"openrouter: {err}; hf: {hf_e}",
+                            }
+                    return {"ok": False, "agent_id": target, "error": err}
+
+            if hf_token and not or_key:
+                try:
+                    result = _run_hf_inference_chat(task, cfg)
+                    out = {"ok": True, "mode": "hf-inference-chat", "agent_id": target, "result": result}
+                    _persist_learning(target, task, result, "hf-inference-chat")
+                    return out
+                except Exception as e:
+                    return {"ok": False, "agent_id": target, "error": str(e)}
 
         try:
             agent = get_agent(target)

@@ -17,6 +17,17 @@ Monitor **one-shot** Node.js — não usar `heimdall_monitor.py` com `while True
 */5 * * * * cd /opt/openclaw/Agente_OpenClaw && /usr/bin/node scripts/heimdall-flow-monitor.mjs --quiet --alert >> /var/log/openclaw-heimdall.log 2>&1
 ```
 
+## Inatividade (stale)
+
+Sem atividade no Hub por mais de **60 min** (ajustável):
+
+```bash
+# .env na EC2
+HEARTBEAT_AGENT_STALE_MIN=60
+```
+
+`watch-agents.json` → `stale_minutes` (fallback 45).
+
 ## Política de alertas
 
 - **Alerta:** erro de agente, deploy down, violação de contexto (skill errada no Hub)
