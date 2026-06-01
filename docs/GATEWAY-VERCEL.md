@@ -74,6 +74,7 @@ Telegram: [BASICO-OPENCLAW.md](./BASICO-OPENCLAW.md) fase 2.
 | Team ID | `team_RZX8P6bxuYn7Aqq2jLgZ7Txm` (Settings → General da equipa) |
 | Root Directory | `gateway` |
 | Build | `npm run vercel-build` (copia `scripts/lib` → `gateway/lib/repo-scripts`) |
+| Limite Hobby | **máx. 12 Serverless Functions** — rotas `/openclaw/*` só via `api/openclaw-router.mjs` + `api/openclaw.mjs` (não criar `api/openclaw/**/status.mjs` extra) |
 
 Ficheiro local: `gateway/.vercel/project.json` (deve estar em **UTF-8**, nao UTF-16).
 

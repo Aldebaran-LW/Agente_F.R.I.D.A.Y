@@ -33,7 +33,7 @@ if (-not (Test-Path (Join-Path $gateway ".vercel\project.json"))) {
 
 Set-Location $gateway
 Write-Host "Deploy agente-openclaw (scope: $scope)..." -ForegroundColor Cyan
-& vercel @vercelArgs
+& npx vercel @vercelArgs
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 Write-Host ""
 Write-Host "Testar:" -ForegroundColor Green
