@@ -15,6 +15,21 @@ import { applyProviderContextWindows, orchestratorComplexFallbacks } from './lib
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
+
+function loadEnv() {
+  const p = resolve(process.env.OPENCLAW_ROOT || root, '.env');
+  if (!existsSync(p)) return;
+  for (const line of readFileSync(p, 'utf8').split(/\r?\n/)) {
+    const t = line.trim();
+    if (!t || t.startsWith('#')) continue;
+    const eq = t.indexOf('=');
+    if (eq < 1) continue;
+    const k = t.slice(0, eq).trim();
+    if (!process.env[k]) process.env[k] = t.slice(eq + 1).trim();
+  }
+}
+
+loadEnv();
 const args = new Set(process.argv.slice(2));
 const dryRun = !args.has('--apply') && !args.has('--emit-sh');
 const emitSh = args.has('--emit-sh');

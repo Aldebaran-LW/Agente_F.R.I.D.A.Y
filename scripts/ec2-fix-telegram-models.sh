@@ -24,5 +24,5 @@ CLEAR_SESSIONS_NO_RESTART=1 bash scripts/ec2-clear-sessions.sh 2>/dev/null || tr
 systemctl restart openclaw-gateway
 sleep 4
 systemctl is-active openclaw-gateway
-ORCH_PRIMARY="$(openclaw config get agents.list.0.model.primary 2>/dev/null || echo '?')"
-echo "Telegram: /new | orchestrator=${ORCH_PRIMARY} | heimdall=gateway (openclaw-jarvis)"
+ORCH_PRIMARY="$(node -e "const f=process.env.OPENCLAW_CONFIG||'/root/.openclaw/openclaw.json';const d=JSON.parse(require('fs').readFileSync(f,'utf8'));console.log(d.agents?.list?.find(x=>x.id==='orchestrator')?.model?.primary||'?')")"
+echo "Telegram: /new | orchestrator=${ORCH_PRIMARY} | ops=gateway (openclaw-jarvis)"
