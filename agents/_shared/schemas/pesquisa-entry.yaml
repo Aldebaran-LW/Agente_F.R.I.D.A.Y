@@ -1,5 +1,6 @@
 # Esquema de saída — Yato (pesquisa de mercado / marketing)
 # Ficheiros em data/innovation/YYYY-MM-DD/yato_YYYYMMDD_NNN.yaml
+# Validar com Veldora: node scripts/veldora-audit.mjs --file <este-ficheiro>
 
 pesquisa_id: yato_20260529_001
 gerado_em: "2026-05-29T12:00:00.000Z"

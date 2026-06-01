@@ -15,6 +15,9 @@ import { fetchOfficeSnapshot } from './office.mjs';
 import { forwardTask, listRoutes, resolveRoute } from './orchestrate.mjs';
 import { fetchVercelStatus } from './vercel.mjs';
 import { fetchVpPecasHealth } from './vp-pecas.mjs';
+import { runInnovationMonitor } from './rimuru.mjs';
+import { runEcosystemWatch } from './heimdall-flow.mjs';
+import { fetchInnovationStatus } from './innovation-status.mjs';
 
 const HUB_INGEST_TYPES = new Set([
   'workflow_run',
@@ -225,6 +228,34 @@ async function handleVercelStatus(req, res) {
   return res.status(data.ok ? 200 : 503).json(data);
 }
 
+async function handleHeimdallFlow(req, res) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ ok: false, error: 'method not allowed' });
+  }
+  if (!requireAuth(req, res)) return;
+  const data = await runEcosystemWatch();
+  return res.status(data.ok ? 200 : 503).json(data);
+}
+
+async function handleInnovationStatus(req, res) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ ok: false, error: 'method not allowed' });
+  }
+  if (!requireAuth(req, res)) return;
+  const days = Number(req.query?.days) || 7;
+  const data = await fetchInnovationStatus({ days });
+  return res.status(data.ok ? 200 : 503).json(data);
+}
+
+async function handleRimuruStatus(req, res) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ ok: false, error: 'method not allowed' });
+  }
+  if (!requireAuth(req, res)) return;
+  const data = await runInnovationMonitor({ deploy: req.query?.deploy !== '0' });
+  return res.status(data.ok ? 200 : 503).json(data);
+}
+
 async function handleVpPecasHealth(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ ok: false, error: 'method not allowed' });
@@ -244,6 +275,9 @@ export const OPENCLAW_ROUTES = {
   'macofel/images/sync': handleMacofelImagesSync,
   'office/status': handleOfficeStatus,
   orchestrate: handleOrchestrate,
+  'rimuru/status': handleRimuruStatus,
+  'heimdall/flow': handleHeimdallFlow,
+  'innovation/status': handleInnovationStatus,
   'vercel/status': handleVercelStatus,
   'vp-pecas/health': handleVpPecasHealth,
 };

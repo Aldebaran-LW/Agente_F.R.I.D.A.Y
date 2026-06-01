@@ -1,6 +1,6 @@
 id: gideon
 name: Gideon
-role: Prevê o Futuro — analisa dados e soluções antes que aconteçam
+role: Predição e cenários futuros (após Senku)
 
 llm:
   provider: ollama
@@ -9,7 +9,7 @@ llm:
 
 skills:
   - politica-seguranca
-  - innovation-viability
+  - innovation-forecast
 
 secrets:
   optional: [OPENROUTER_API_KEY]
@@ -20,6 +20,7 @@ deploy:
   hf_path: /run/gideon
 
 pipeline:
+  dataset_folder: predictions/
   output_schema: agents/_shared/schemas/pesquisa-entry.yaml
   weights:
     custo_implementacao: 0.3

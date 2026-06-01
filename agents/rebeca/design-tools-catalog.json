@@ -1,0 +1,75 @@
+{
+  "_doc": "Ferramentas gratuitas ou freemium documentadas — Rebeca não faz checkout.",
+  "tools": [
+    {
+      "nome": "Penpot",
+      "categoria": ["web", "ui"],
+      "link": "https://penpot.app/",
+      "tier": "gratuito",
+      "nota": "UI open-source, colaboração"
+    },
+    {
+      "nome": "Figma",
+      "categoria": ["web", "ui"],
+      "link": "https://www.figma.com/",
+      "tier": "freemium",
+      "nota": "Starter free; sem pagamento automático pelo agente"
+    },
+    {
+      "nome": "GIMP",
+      "categoria": ["foto"],
+      "link": "https://www.gimp.org/",
+      "tier": "gratuito",
+      "nota": "Edição raster"
+    },
+    {
+      "nome": "Inkscape",
+      "categoria": ["web", "foto"],
+      "link": "https://inkscape.org/",
+      "tier": "gratuito",
+      "nota": "Vetorial"
+    },
+    {
+      "nome": "Blender",
+      "categoria": ["3d", "animacao", "video"],
+      "link": "https://www.blender.org/",
+      "tier": "gratuito",
+      "nota": "3D e animação"
+    },
+    {
+      "nome": "Three.js",
+      "categoria": ["web", "3d"],
+      "link": "https://threejs.org/",
+      "tier": "gratuito",
+      "nota": "WebGL — stack /office e /forge"
+    },
+    {
+      "nome": "React Three Fiber",
+      "categoria": ["web", "3d"],
+      "link": "https://docs.pmnd.rs/react-three-fiber/getting-started/introduction",
+      "tier": "gratuito",
+      "nota": "3D em React"
+    },
+    {
+      "nome": "DaVinci Resolve",
+      "categoria": ["video"],
+      "link": "https://www.blackmagicdesign.com/products/davinciresolve",
+      "tier": "freemium",
+      "nota": "Versão free robusta"
+    },
+    {
+      "nome": "Krita",
+      "categoria": ["foto", "animacao"],
+      "link": "https://krita.org/",
+      "tier": "gratuito",
+      "nota": "Pintura e 2D animation"
+    },
+    {
+      "nome": "Spline",
+      "categoria": ["web", "3d"],
+      "link": "https://spline.design/",
+      "tier": "freemium",
+      "nota": "3D web; tier free limitado"
+    }
+  ]
+}

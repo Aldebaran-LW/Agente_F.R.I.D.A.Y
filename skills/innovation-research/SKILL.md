@@ -1,7 +1,10 @@
-# Skill: innovation-research (Sophia)
-
-Modo: leitura + relatório YAML.
-
-Pesquisar mercado e marketing digital conforme `agents/yato/AGENTS.md` e `agents/_shared/schemas/pesquisa-entry.yaml`.
-
-Não instalar, não fazer deploy, não expor secrets.
+---
+name: innovation-research
+description: Alias legado → innovation-knowledge (Sophia).
+---
+
+# innovation-research (legado)
+
+Redireciona conceptualmente para **Sophia** / `innovation-knowledge`.
+
+Use `node scripts/sophia-research.mjs` ou skill `innovation-knowledge`.

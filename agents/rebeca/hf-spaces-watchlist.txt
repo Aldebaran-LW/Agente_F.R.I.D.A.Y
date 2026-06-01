@@ -1,0 +1,3 @@
+# Spaces HF a avaliar (org/nome — API Hub pública)
+Aldebaran-LW/friday-prod
+Aldebaran-LW/openclaw-office

@@ -9,11 +9,13 @@ Script: `scripts/heartbeat.py`
 - telegram (getMe)
 - mongodb (opcional, via macofel-count-pending.js)
 - host_resources (RAM/disco, so Linux)
+- **heimdall_flow** — `node scripts/heimdall-flow-monitor.mjs` (agentes + contexto Hub)
 
 ## Variaveis .env
 
 TELEGRAM_BOT_TOKEN, TELEGRAM_ADMIN_CHAT_ID, OPENCLAW_GATEWAY_PORT,
-HEARTBEAT_ALERT_COOLDOWN_SEC (3600), HEARTBEAT_CHECK_GATEWAY, HEARTBEAT_CHECK_MONGODB
+HEARTBEAT_ALERT_COOLDOWN_SEC (3600), HEARTBEAT_CHECK_GATEWAY, HEARTBEAT_CHECK_MONGODB,
+HEARTBEAT_CHECK_HEIMDALL_FLOW (1), HEARTBEAT_AGENT_STALE_MIN (60)
 
 ## PC (teste)
 

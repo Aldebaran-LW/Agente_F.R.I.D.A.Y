@@ -16,8 +16,9 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
 from tools import TOOL_REGISTRY
+from lib.innovation_runner import INNOVATION_HANDLERS, extract_topic
 
-app = FastAPI(title="OpenClaw F.R.I.D.A.Y. (HF prototype)", version="0.1.0")
+app = FastAPI(title="OpenClaw F.R.I.D.A.Y. (HF prototype)", version="0.2.0")
 
 CONFIG_PATH = Path(__file__).parent / "agents-config.yaml"
 _agents_cache: dict[str, Any] | None = None
@@ -25,6 +26,9 @@ _runtime_agents: dict[str, Any] = {}
 
 # Agentes que preferem Kilo Gateway (construcao / codegen)
 KILO_AGENT_IDS = {"hefestos"}
+
+# Inovacao: tools deterministicas (Fase 2+) — antes de OpenRouter/smolagents
+INNOVATION_AGENT_IDS = set(INNOVATION_HANDLERS.keys())  # incl. hefestos (proposta)
 KILO_GATEWAY_BASE_DEFAULT = "https://api.kilo.ai/api/gateway"
 
 # Ultimo recurso quando primary/fallbacks do agente falham (429/404)
@@ -295,6 +299,7 @@ def _persist_learning(agent_id: str, task: str, result: str, mode: str) -> None:
 class RunRequest(BaseModel):
     task: str = Field(..., min_length=1, max_length=8000)
     agent_id: str | None = None
+    context: dict[str, Any] | None = None
 
 
 class Orquestrador:
@@ -317,10 +322,30 @@ class Orquestrador:
             for aid, c in self.configs.items()
         ]
 
-    def run(self, task: str, agent_id: str | None = None) -> dict[str, Any]:
+    def run(
+        self,
+        task: str,
+        agent_id: str | None = None,
+        context: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         target = agent_id or "orchestrator"
-        if target not in self.configs:
+        if target not in self.configs and target not in INNOVATION_AGENT_IDS:
             raise HTTPException(404, f"Agente desconhecido: {target}")
+
+        if target in INNOVATION_AGENT_IDS:
+            topic = extract_topic(task, context)
+            try:
+                handler = INNOVATION_HANDLERS[target]
+                out = handler(topic, ctx=context)
+                _persist_learning(
+                    target,
+                    task,
+                    json.dumps(out.get("result") or out, ensure_ascii=False)[:1800],
+                    out.get("mode", "innovation"),
+                )
+                return out
+            except Exception as e:
+                return {"ok": False, "agent_id": target, "error": str(e)}
 
         cfg = self.configs[target]
         tool_names = cfg.get("tools") or []
@@ -390,6 +415,8 @@ def root():
             "agents": "GET /agents",
             "run": "POST /run",
             "run_agent": "POST /run/{agent_id}",
+            "pipeline": "POST /run/pipeline",
+            "innovation_agents": sorted(INNOVATION_AGENT_IDS),
             "openapi": "GET /docs",
         },
         "agent_count": len(configs),
@@ -422,12 +449,17 @@ def agents():
 
 @app.post("/run")
 def run(req: RunRequest):
-    return orch.run(req.task, req.agent_id)
+    return orch.run(req.task, req.agent_id, req.context)
+
+
+@app.post("/run/pipeline")
+def run_pipeline(req: RunRequest):
+    return orch.run(req.task, "pipeline", req.context)
 
 
 @app.post("/run/{agent_id}")
 def run_agent(agent_id: str, req: RunRequest):
-    return orch.run(req.task, agent_id)
+    return orch.run(req.task, agent_id, req.context)
 
 
 @app.on_event("startup")

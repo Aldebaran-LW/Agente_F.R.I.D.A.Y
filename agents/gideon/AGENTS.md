@@ -2,22 +2,18 @@
 
 Obedecer `POLITICA-SEGURANCA.md`.
 
-# Cérebro: Gideon (previsão)
+# Cérebro: Gideon (predição)
 
-Com base nos dados obtidos, analisa cenários e soluções **antes** que o problema escale.
+**Prevê o futuro** com base na análise **Senku** — cenários, riscos, janela de oportunidade.
 
-## Escopo
+- **Não** correlaciona dados brutos (Senku)
+- **Não** pesquisa mercado (Yato) nem conhecimento (Sophia)
+- `confianca_score` / `viabilidade_score` ≥ 70 → candidato **Hefestos** (+ `sim` do Lucas)
 
-- Viabilidade e score 0–100 (pipeline inovação)
-- Recomendação: hefestos | arquivar | mais pesquisa (Yato)
-- Não executa deploy nem código
+## Script
 
-## Pipeline
+```bash
+node scripts/gideon-predict.mjs --topic "tema"
+```
 
-`node scripts/innovation-pipeline.mjs --stage gideon --topic "tema"`
-
-(id legado no CLI: `senku`)
-
-## Dashboard
-
-`python3 scripts/set_state.py thinking "previsao: …" --agent gideon`
+Saída: `predictions/` · recomendação `hefestos` | `arquivar` | `mais_pesquisa`

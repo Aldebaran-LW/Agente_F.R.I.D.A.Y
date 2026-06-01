@@ -3,7 +3,11 @@
  * Nao executa tarefas longas; apenas encaminha com timeout curto.
  */
 
+import { guardOrchestrateForward, logSecurityEvent } from './veldora-guard.mjs';
+
 const VERCEL_TIMEOUT_MS = Number(process.env.ORCHESTRATE_TIMEOUT_MS || 8000);
+const INNOVATION_AGENT_IDS = new Set(['sophia', 'yato', 'senku', 'gideon', 'pipeline']);
+const INNOVATION_TIMEOUT_MS = Number(process.env.ORCHESTRATE_INNOVATION_TIMEOUT_MS || 120000);
 
 /** @type {Record<string, { residence: string, label: string }>} */
 export const AGENT_RESIDENCE = {
@@ -12,11 +16,12 @@ export const AGENT_RESIDENCE = {
   macofel: { residence: 'aws', label: 'Macofel (EC2/API)' },
   heimdall: { residence: 'aws', label: 'Heimdall (EC2 cron)' },
   'vp-pecas': { residence: 'aws', label: 'VP-Pecas (EC2)' },
-  yato: { residence: 'hf', label: 'Yato (HF Space)' },
-  sophia: { residence: 'hf', label: 'Yato (HF Space)' },
+  sophia: { residence: 'hf', label: 'Sophia — conhecimento (HF)' },
+  yato: { residence: 'hf', label: 'Yato — mercado (HF)' },
   rebeca: { residence: 'hf', label: 'Rebeca (HF Space)' },
-  gideon: { residence: 'hf', label: 'Gideon (HF Space)' },
-  senku: { residence: 'hf', label: 'Gideon (HF Space)' },
+  senku: { residence: 'hf', label: 'Senku — análise (HF)' },
+  gideon: { residence: 'hf', label: 'Gideon — predição (HF)' },
+  pipeline: { residence: 'hf', label: 'Pipeline inovação (HF)' },
   hefestos: { residence: 'hf', label: 'Hefestos (HF Space)' },
   icaro: { residence: 'aws', label: 'Ícaro (EC2 scripts)' },
   rimuru: { residence: 'aws', label: 'Rimuru (EC2 + gateway)' },
@@ -52,7 +57,8 @@ export function resolveRoute(agentId) {
   if (meta.residence === 'hf') {
     const base = envUrl('HF_FRIDAY_PROD_URL') || envUrl('HF_INNOVATION_SPACE_URL');
     const perAgent = envUrl(`HF_${id.toUpperCase().replace(/-/g, '_')}_SPACE_URL`);
-    const endpoint = perAgent || (base ? `${base.replace(/\/$/, '')}/run/${id}` : null);
+    const path = id === 'pipeline' ? '/run/pipeline' : `/run/${id}`;
+    const endpoint = perAgent || (base ? `${base.replace(/\/$/, '')}${path}` : null);
     return {
       target: 'hf',
       endpoint,
@@ -73,6 +79,23 @@ export async function forwardTask(agentId, task, opts = {}) {
   const route = resolveRoute(agentId);
   if (!route) {
     return { ok: false, status: 404, error: 'agent not found', agent: agentId };
+  }
+
+  const guard = guardOrchestrateForward(agentId, task);
+  if (!guard.allowed) {
+    await logSecurityEvent({
+      ...guard,
+      source: 'gateway-orchestrate',
+      taskPreview: String(task).slice(0, 200),
+    });
+    return {
+      ok: false,
+      status: 403,
+      error: guard.reason,
+      agent: agentId,
+      blockedBy: 'veldora',
+      veldora: guard,
+    };
   }
 
   if (!route.endpoint) {
@@ -106,14 +129,19 @@ export async function forwardTask(agentId, task, opts = {}) {
     task: String(task).slice(0, 8000),
     source: 'gateway-orchestrate',
     async: Boolean(opts.async),
+    context: opts.context && typeof opts.context === 'object' ? opts.context : undefined,
   });
+
+  const timeoutMs = INNOVATION_AGENT_IDS.has(String(agentId).toLowerCase())
+    ? INNOVATION_TIMEOUT_MS
+    : VERCEL_TIMEOUT_MS;
 
   try {
     const res = await fetch(route.endpoint, {
       method: 'POST',
       headers,
       body,
-      signal: AbortSignal.timeout(VERCEL_TIMEOUT_MS),
+      signal: AbortSignal.timeout(timeoutMs),
     });
     const text = await res.text();
     let data;

@@ -6,14 +6,55 @@ export const RULES = [
   { agent: "heimdall", skill: "github-aldebaran", patterns: [/github|repo|reposit|issue|commit|push|aldebaran|texte|lwdigitalforge/i] },
   { agent: "heimdall", skill: "vercel-status", patterns: [/vercel|deployment|deployments|ultimo deploy/i] },
   { agent: "heimdall", skill: "deploy-monitor", patterns: [/site.*no ar|sites no ar|health macofel|macofel.*no ar|online/i] },
+  {
+    agent: "heimdall",
+    skill: "ecosystem-watch",
+    patterns: [/heimdall\s+fluxo|fluxo\s+agentes|ecossistema|relatorio\s+agentes|observador/i],
+  },
   { agent: "vp-pecas", skill: "vp-pecas-health", patterns: [/vp-pecas|vp-precision|usinagem|nalva/i] },
-  { agent: "yato", skill: "innovation-research", patterns: [/pesquisa( de)? mercado|marketing digital|yato|sophia|tendencia|concorren/i] },
-  { agent: "gideon", skill: "innovation-viability", patterns: [/viabil|gideon|senku|previs|antecip|score inov/i] },
-  { agent: "rebeca", skill: "innovation-design", patterns: [/design|rebeca|brief visual|ui office|ui forge/i] },
-  { agent: "veldora", skill: "security-audit", patterns: [/seguranc|veldora|odin|auditoria|politica openclaw/i] },
-  { agent: "rimuru", skill: "innovation-monitor", patterns: [/token|consumo|rimuru|athena|openrouter|quota|uso api/i] },
+  { agent: "sophia", skill: "innovation-knowledge", patterns: [/sophia|conhecimento|ferramentas? ia|pesquisa tecnica|tutorial|hf hub/i] },
+  { agent: "yato", skill: "innovation-market", patterns: [/yato|mercado|concorren|marketing digital|product hunt|demanda/i] },
+  { agent: "senku", skill: "innovation-analysis", patterns: [/senku|correlacion|analis(e|ar) dados|analysis/i] },
+  { agent: "gideon", skill: "innovation-forecast", patterns: [/gideon|previs|antecip|cen[aá]rio|futuro|projec/i] },
+  {
+    agent: "rebeca",
+    skill: "innovation-design",
+    patterns: [
+      /design|rebeca|brief visual|ui office|ui forge/i,
+      /ferramentas?\s+(gratuit|design|3d|video|foto)/i,
+      /hf\s*spaces?|testar\s+space/i,
+      /rebeca\s+(pesquisar|relatorio|lista)/i,
+    ],
+  },
+  {
+    agent: "veldora",
+    skill: "security-audit",
+    patterns: [
+      /seguranc|veldora|odin|auditoria|politica openclaw|relatorio seguranca/i,
+      /verificar\s+fonte/i,
+    ],
+  },
+  {
+    agent: "rimuru",
+    skill: "innovation-monitor",
+    patterns: [
+      /token|consumo|rimuru|athena|openrouter|quota|uso api/i,
+      /rimuru\s+(status|alertar)/i,
+    ],
+  },
   { agent: "hefestos", skill: "innovation-build", patterns: [/hefestos|construir skill|implementar melhoria/i] },
   { agent: "icaro", skill: "innovation-test", patterns: [/icaro|testar agente|validar config/i] },
+  {
+    agent: "jarvis",
+    skill: "schedule-whatsapp",
+    patterns: [
+      /agendar\s+whatsapp/i,
+      /lista\s+agendamentos?\s+whatsapp/i,
+      /listar\s+agendamentos?\s+whatsapp/i,
+      /meus\s+lembretes?\s+whatsapp/i,
+      /cancelar\s+(?:agendamento\s+)?whatsapp/i,
+    ],
+  },
   { agent: "jarvis", skill: "help", patterns: [/^(ajuda|help|menu|comandos|agentes)$/i, /ola|jarvis|quem e voce/i] },
 ];
 

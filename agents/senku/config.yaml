@@ -1,0 +1,28 @@
+id: senku
+name: Senku
+role: Análise e correlação de dados (presente)
+
+llm:
+  provider: ollama
+  model: smollm2:360m
+  fallbacks: []
+
+skills:
+  - politica-seguranca
+  - innovation-analysis
+
+secrets:
+  optional: [OPENROUTER_API_KEY]
+
+deploy:
+  mode: hf_space
+  hf_space: Aldebaran-LW/friday-prod
+  hf_path: /run/senku
+
+pipeline:
+  dataset_folder: analysis/
+  inputs:
+    - sophia
+    - yato
+    - rebeca
+  proximo: gideon

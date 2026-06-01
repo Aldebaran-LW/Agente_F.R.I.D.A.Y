@@ -90,6 +90,47 @@ function readTokenFromHash() {
   history.replaceState(null, '', window.location.pathname + window.location.search);
 }
 
+function formatInnovation(data) {
+  if (!data.ok) return data.error || 'Sem dados';
+  const lines = [];
+  if (data.predictions?.length) {
+    lines.push('Predições (≥70):');
+    for (const p of data.predictions) {
+      lines.push(`  · ${p.topico || p.file} — score ${p.score} → ${p.recomendacao || '?'}`);
+    }
+  } else {
+    lines.push('Predições ≥70: nenhuma no período.');
+  }
+  if (data.knowledge?.length) lines.push(`Conhecimento: ${data.knowledge.length} entradas`);
+  if (data.market?.length) lines.push(`Mercado: ${data.market.length} entradas`);
+  if (data.analysis?.length) lines.push(`Análises Senku: ${data.analysis.length}`);
+  if (data.ultimo_pipeline) {
+    lines.push(`Último: ${data.ultimo_pipeline.file} (${data.ultimo_pipeline.at})`);
+  }
+  lines.push(`Fonte: ${data.source}`);
+  return lines.join('\n');
+}
+
+async function fetchInnovation() {
+  const token = getToken();
+  const el = $('innovation-body');
+  if (!token) {
+    el.textContent = 'Token necessário.';
+    return;
+  }
+  el.textContent = 'A carregar…';
+  const url = `${baseUrl()}/openclaw/innovation/status?days=7`;
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    el.textContent = body.error || `HTTP ${res.status}`;
+    return;
+  }
+  el.textContent = formatInnovation(body);
+}
+
 function init() {
   readTokenFromHash();
   const saved = sessionStorage.getItem(TOKEN_KEY);
@@ -98,14 +139,22 @@ function init() {
   $('save-token').addEventListener('click', () => {
     saveToken();
     fetchOffice();
+    fetchInnovation();
   });
-  $('refresh').addEventListener('click', fetchOffice);
+  $('refresh').addEventListener('click', () => {
+    fetchOffice();
+    fetchInnovation();
+  });
+  if ($('refresh-innovation')) {
+    $('refresh-innovation').addEventListener('click', fetchInnovation);
+  }
 
   tickClock();
   setInterval(tickClock, 1000);
   setInterval(fetchOffice, POLL_MS);
 
   fetchOffice();
+  fetchInnovation();
 }
 
 init();

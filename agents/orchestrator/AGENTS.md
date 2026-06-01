@@ -32,13 +32,15 @@ Antes de produção, deploy, Git destrutivo ou qualquer escrita com impacto:
 | Site no ar, deploy Vercel | `heimdall` | `deploy-monitor`, `vercel-status` |
 | VP-Pecas / usinagem | `vp-pecas` | `github-aldebaran`, `deploy-monitor` |
 | Vários temas | Resumo por cérebro, uma mensagem curta | — |
-| Pesquisa de mercado / marketing digital | `yato` | `innovation-research` |
+| Conhecimento / ferramentas / tech | `sophia` | `innovation-knowledge` |
+| Pesquisa de mercado | `yato` | `innovation-market` |
 | Design `/office` / `/forge` | `rebeca` | `innovation-design` |
-| Prever riscos / viabilidade | `gideon` | `innovation-viability` |
-| Implementar melhoria aprovada | `hefestos` | `innovation-build` (score Gideon ≥ 70 + teu ok) |
+| Correlacionar dados (presente) | `senku` | `innovation-analysis` |
+| Predição / cenários futuros | `gideon` | `innovation-forecast` |
+| Implementar melhoria aprovada | `hefestos` | `innovation-build` (Gideon ≥ 70 + teu ok) |
 | Testes após mudança | `icaro` | `innovation-test` |
 | Dados e consumo de tokens | `rimuru` | `innovation-monitor` |
-| Segurança e política | `veldora` | `politica-seguranca` |
+| Segurança e política | `veldora` | `politica-seguranca`, `security-audit` |
 | Schema Dataset HF | `dedalo` | `data-schema` |
 
 Pipeline: `node scripts/innovation-pipeline.mjs` · Doc: `docs/ARQUITETURA-INOVACAO.md`

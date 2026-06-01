@@ -1,0 +1,31 @@
+id: sophia
+name: Sophia
+role: Pesquisa de Conhecimento — ferramentas, tecnologias, tutoriais
+
+llm:
+  provider: ollama
+  model: smollm2:360m
+  fallbacks: []
+
+skills:
+  - politica-seguranca
+  - innovation-knowledge
+
+secrets:
+  optional: [HF_TOKEN, GITHUB_TOKEN]
+
+deploy:
+  mode: hf_space
+  hf_space: Aldebaran-LW/friday-prod
+  hf_path: /run/sophia
+  dataset: Aldebaran-LW/openclaw-backup
+
+pipeline:
+  output_schema: agents/_shared/schemas/pesquisa-entry.yaml
+  dataset_folder: knowledge/
+  sources:
+    - huggingface_hub
+    - github
+    - papers_with_code
+    - reddit
+    - youtube

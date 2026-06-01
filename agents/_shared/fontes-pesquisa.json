@@ -1,0 +1,6 @@
+{
+  "_deprecated": "Usar agents/veldora/sources-allowlist.txt (prefixos HTTPS). Mantido só como referência de domínios.",
+  "tier1": ["github.com", "huggingface.co", "arxiv.org", "paperswithcode.com"],
+  "tier2": ["reddit.com", "stackoverflow.com"],
+  "blocked": ["bit.ly", "t.co", "pastebin.com"]
+}

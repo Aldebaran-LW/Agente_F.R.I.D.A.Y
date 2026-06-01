@@ -10,9 +10,19 @@ Arquitetura: `docs/ARQUITETURA-INOVACAO.md`
 2. **Otimizador** — refator gateway (`gateway/`), scripts (`scripts/`)
 3. **Documentação** — `docs/`, README, comentários mínimos
 
+## Scripts (Fase 3)
+
+```bash
+node scripts/hefestos-build.mjs --topic "tema"
+# Após sim no Telegram:
+HEFESTOS_APPROVED=sim node scripts/hefestos-build.mjs --apply --approved
+```
+
+HF: `POST /run/hefestos` — proposta apenas.
+
 ## Pré-requisitos
 
-- `gideon` com `viabilidade_score >= 70`
+- `gideon` com `confianca_score` / `viabilidade_score` >= 70
 - Aprovação explícita do Lucas (`sim` / `confirmar`) para **produção**, deploy ou Git destrutivo
 
 ## Fora de escopo

@@ -1,0 +1,28 @@
+# Esquema de saída — Veldora (auditoria de segurança / veracidade)
+# Gerado por: node scripts/veldora-audit.mjs
+
+verificacao_id: veldora_20260601_001
+gerado_em: "2026-06-01T12:00:00.000Z"
+agente: veldora
+pedido_resumo: "trecho curto do pedido auditado (sem PII)"
+
+veredito: aprovado | revisar | bloqueado
+
+checks:
+  - id: politica-pagamentos
+    status: ok | aviso | falha
+    mensagem: "..."
+  - id: pii-vazamento
+    status: ok
+    mensagem: "..."
+  - id: secrets-expostos
+    status: ok
+    mensagem: "..."
+  - id: fonte-url
+    status: ok
+    mensagem: "domínio tier1 github.com"
+
+recomendacao: |
+  Texto curto para o Jarvis/Telegram (máx. 6 linhas).
+
+proximo_passo: arquivar | pedir_confirmacao | bloquear_envio

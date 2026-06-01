@@ -15,6 +15,12 @@ secrets:
   gateway: [OPENCLAW_GATEWAY_BASE_URL, OPENCLAW_AUTOMATION_TOKEN]
   optional: [OPENROUTER_API_KEY, TELEGRAM_ADMIN_CHAT_ID]
 
+providers:
+  - openrouter
+  - deepseek
+  - groq
+  - huggingface
+
 pipeline:
   watch:
     - gateway_vercel

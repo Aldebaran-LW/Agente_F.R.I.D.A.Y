@@ -1,7 +1,8 @@
-# Skill: innovation-viability (Senku)
-
-Modo: leitura + score 0–100.
-
-Pesos: custo 30%, retorno 35%, stack 20%, manutenção 15%. Threshold Hefestos: 70.
-
-Ver `agents/gideon/config.yaml` pipeline.weights.
+---
+name: innovation-viability
+description: Alias legado → innovation-forecast (Gideon).
+---
+
+# innovation-viability (legado)
+
+Redireciona para **Gideon** / `innovation-forecast`. Análise de dados = **Senku** (`innovation-analysis`).

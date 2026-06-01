@@ -5,6 +5,7 @@ import { buildReply, buildWorkflowReply } from '../lib/jarvis-reply.mjs';
 import { newTraceId, buildAuditEntry } from '../lib/audit.mjs';
 import { listSkills } from '../lib/skill-registry.mjs';
 import { buildTelegramPayload } from '../lib/telegram-format.mjs';
+import { logContextViolation } from '../lib/jarvis-context-guard.mjs';
 
 export default async function handler(req, res) {
   setCors(res);
@@ -26,6 +27,8 @@ export default async function handler(req, res) {
         deploy: 'GET /openclaw/deploy/health',
         vercel: 'GET /openclaw/vercel/status',
         vpPecas: 'GET /openclaw/vp-pecas/health',
+        rimuru: 'GET /openclaw/rimuru/status',
+        heimdallFlow: 'GET /openclaw/heimdall/flow',
       },
       delegates: [
         'macofel', 'vp-pecas', 'heimdall',
@@ -45,14 +48,25 @@ export default async function handler(req, res) {
   const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};
   const message = body.message || body.text || '';
   const approved = Boolean(body.approved);
+  const urlInMessage = String(message).match(/https?:\/\/[^\s<>"')\]]+/i)?.[0];
   const params = {
     ean: body.ean,
     imageUrls: body.imageUrls,
+    message,
+    url: body.url || urlInMessage || undefined,
   };
 
   const traceId = newTraceId();
   const plan = planFromMessage(message, { approved });
   const execution = await executePlan(plan, { message, approved, params });
+
+  const routeForContext =
+    plan.kind === 'workflow' ? null : execution.route ?? plan.route ?? null;
+  if (routeForContext?.agent && routeForContext?.skill) {
+    logContextViolation({ route: routeForContext, messagePreview: message }).catch((e) => {
+      console.warn(JSON.stringify({ event: 'jarvis.context_log_failed', error: e.message }));
+    });
+  }
 
   let reply;
   if (plan.kind === 'workflow') {

@@ -25,7 +25,7 @@ const EXCLUSIVE_SECRETS = {
 };
 
 /** Skills que podem estar em vários agentes (policy / shared read). */
-const SHARED_SKILLS_OK = new Set(['politica-seguranca']);
+const SHARED_SKILLS_OK = new Set(['politica-seguranca', 'veldora-seguranca']);
 
 /** Skills operacionais que devem ter SKILL.md completo (frontmatter name:). */
 const SKILLS_REQUIRE_DOC = new Set([
@@ -36,6 +36,10 @@ const SKILLS_REQUIRE_DOC = new Set([
   'vercel-status',
   'vp-pecas-health',
   'openclaw-jarvis',
+  'security-audit',
+  'innovation-monitor',
+  'innovation-design',
+  'ecosystem-watch',
 ]);
 
 /** Executores registados no gateway (workflow-engine.mjs). */
@@ -46,6 +50,10 @@ const GATEWAY_EXECUTORS = new Set([
   'deploy-monitor',
   'vercel-status',
   'vp-pecas-health',
+  'security-audit',
+  'innovation-monitor',
+  'innovation-design',
+  'ecosystem-watch',
 ]);
 
 /** Agentes que devem estar no daemon OpenClaw (fase operação). */

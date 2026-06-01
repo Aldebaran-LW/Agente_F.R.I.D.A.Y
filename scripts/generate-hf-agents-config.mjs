@@ -24,9 +24,9 @@ const FORGE_ALIAS = {
   rimuru: 'rimuru',
   athena: 'rimuru',
   gideon: 'gideon',
-  senku: 'gideon',
+  senku: 'senku',
   yato: 'yato',
-  sophia: 'yato',
+  sophia: 'sophia',
   'vp-pecas': 'vp-pecas',
   macofel: 'macofel',
   ops: 'heimdall',
@@ -44,6 +44,10 @@ const HF_TOOLS = {
   macofel: ['buscar_peca', 'listar_categorias'],
   heimdall: ['status_github', 'status_deploy'],
   'vp-pecas': ['health_site_vp'],
+  sophia: [],
+  yato: [],
+  senku: [],
+  gideon: [],
 };
 
 const agents = loadAllAgentConfigs(resolve(root, 'agents'));

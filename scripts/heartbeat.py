@@ -172,8 +172,69 @@ def check_host_resources() -> CheckResult:
     return CheckResult("host_resources", True, "RAM/disco OK")
 
 
-def run_checks() -> list[CheckResult]:
+def check_heimdall_flow() -> tuple[CheckResult, dict[str, str], list[str]]:
+    """Executa heimdall-flow-monitor.mjs; devolve estados por agente e alertas de transição."""
+    if not env_bool("HEARTBEAT_CHECK_HEIMDALL_FLOW", True):
+        return CheckResult("heimdall_flow", True, "desativado"), {}, []
+    script = SCRIPT_DIR / "heimdall-flow-monitor.mjs"
+    if not script.is_file():
+        return CheckResult("heimdall_flow", False, "heimdall-flow-monitor.mjs ausente"), {}, []
+    node = shutil.which("node") or "node"
+    try:
+        proc = subprocess.run(
+            [node, str(script), "--json"],
+            cwd=str(WORKSPACE),
+            capture_output=True,
+            text=True,
+            timeout=env_int("HEARTBEAT_HEIMDALL_TIMEOUT_SEC", 90),
+            check=False,
+            env=os.environ.copy(),
+        )
+        raw = (proc.stdout or "").strip()
+        if not raw:
+            return CheckResult(
+                "heimdall_flow",
+                False,
+                (proc.stderr or "sem stdout")[:200],
+            ), {}, []
+        flow = json.loads(raw)
+        activity: dict[str, str] = flow.get("agent_activity") or {}
+        detail = (
+            f"ok={flow.get('ok')} erros={flow.get('error_count', 0)} "
+            f"ativos={flow.get('working_count', 0)}"
+        )
+        ok = bool(flow.get("ok"))
+        transition_msgs: list[str] = []
+        return CheckResult("heimdall_flow", ok, detail), activity, transition_msgs
+    except subprocess.TimeoutExpired:
+        return CheckResult("heimdall_flow", False, "timeout"), {}, []
+    except (json.JSONDecodeError, OSError) as exc:
+        return CheckResult("heimdall_flow", False, str(exc)[:200]), {}, []
+
+
+def agent_transition_alerts(
+    prev_agents: dict[str, str],
+    new_agents: dict[str, str],
+) -> list[str]:
+    """Alerta só em transições (evita spam de 'working')."""
+    msgs: list[str] = []
+    for agent_id, status in new_agents.items():
+        prev = prev_agents.get(agent_id)
+        if prev is None:
+            continue
+        if prev in ("error", "stale", "fail") and status in ("idle", "working"):
+            msgs.append(f"[RECUPERADO] Agente {agent_id} — estado {status}.")
+        elif prev in ("working", "idle") and status == "stale":
+            msgs.append(f"[AVISO] Agente {agent_id} sem atividade Hub (stale).")
+        elif prev != "error" and status == "error":
+            msgs.append(f"[CRITICO] Agente {agent_id} em erro de contexto/fluxo.")
+    return msgs
+
+
+def run_checks() -> tuple[list[CheckResult], dict[str, str], list[str]]:
     results: list[CheckResult] = []
+    agent_states: dict[str, str] = {}
+    extra_alerts: list[str] = []
     if env_bool("HEARTBEAT_CHECK_GATEWAY", True):
         results.append(check_gateway_service())
         results.append(check_gateway_http())
@@ -183,7 +244,9 @@ def run_checks() -> list[CheckResult]:
     results.append(check_telegram())
     results.append(check_mongodb())
     results.append(check_host_resources())
-    return results
+    flow_check, agent_states, _ = check_heimdall_flow()
+    results.append(flow_check)
+    return results, agent_states, extra_alerts
 
 
 def load_state(path: Path) -> dict[str, Any]:
@@ -198,6 +261,17 @@ def load_state(path: Path) -> dict[str, Any]:
 def save_state(path: Path, state: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(state, indent=2), encoding="utf-8")
+
+
+def cooldown_ok_transition(state: dict[str, Any], cooldown_sec: int) -> bool:
+    last = state.get("last_agent_alert_at") or state.get("last_alert_at")
+    if not last:
+        return True
+    try:
+        last_dt = datetime.fromisoformat(last.replace("Z", "+00:00"))
+        return (datetime.now(timezone.utc) - last_dt).total_seconds() >= cooldown_sec
+    except ValueError:
+        return True
 
 
 def should_alert(results: list[CheckResult], state: dict[str, Any], cooldown_sec: int) -> tuple[bool, bool]:
@@ -236,6 +310,29 @@ def format_message(results: list[CheckResult], recovered: bool) -> str:
     return "\n".join(lines)
 
 
+def dispatch_scheduled_whatsapp(dry_run: bool) -> None:
+    if not env_bool("SCHEDULED_WHATSAPP_ENABLED", True):
+        return
+    script = WORKSPACE / "scripts" / "scheduled-whatsapp-dispatch.mjs"
+    if not script.is_file():
+        return
+    node = shutil.which("node")
+    if not node:
+        print("AVISO: node ausente — lembretes WhatsApp nao enviados", file=sys.stderr)
+        return
+    cmd = [node, str(script)]
+    if dry_run:
+        cmd.append("--dry-run")
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=120, check=False)
+        if proc.stdout.strip():
+            print(proc.stdout.strip())
+        if proc.returncode != 0 and proc.stderr.strip():
+            print(f"AVISO WhatsApp dispatch: {proc.stderr.strip()}", file=sys.stderr)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        print(f"AVISO WhatsApp dispatch: {exc}", file=sys.stderr)
+
+
 def send_telegram(text: str, dry_run: bool) -> bool:
     token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
     chat_id = os.environ.get("TELEGRAM_ADMIN_CHAT_ID", "").strip()
@@ -270,13 +367,16 @@ def main() -> int:
     load_env(Path(args.env))
     dry_run = env_bool("HEARTBEAT_DRY_RUN", False) or args.dry_run
     cooldown = env_int("HEARTBEAT_ALERT_COOLDOWN_SEC", 3600)
-    results = run_checks()
+    results, agent_states, _ = run_checks()
     state = load_state(Path(args.state))
+    prev_agents: dict[str, str] = state.get("agents", {})
+    transition_msgs = agent_transition_alerts(prev_agents, agent_states)
     alert_fail, alert_recover = should_alert(results, state, cooldown)
     all_ok = all(r.ok for r in results)
     print(json.dumps({"ok": all_ok, "checks": {r.name: r.detail for r in results}}, ensure_ascii=False))
     new_state: dict[str, Any] = {
         "checks": {r.name: ("ok" if r.ok else "fail") for r in results},
+        "agents": agent_states,
         "last_run_at": datetime.now(timezone.utc).isoformat(),
     }
     if alert_fail:
@@ -284,7 +384,12 @@ def main() -> int:
             new_state["last_alert_at"] = datetime.now(timezone.utc).isoformat()
     elif alert_recover:
         send_telegram(format_message(results, True), dry_run)
+    elif transition_msgs and cooldown_ok_transition(state, cooldown):
+        text = "[Heimdall fluxo]\n" + "\n".join(transition_msgs)
+        if send_telegram(text, dry_run):
+            new_state["last_agent_alert_at"] = datetime.now(timezone.utc).isoformat()
     save_state(Path(args.state), {**state, **new_state})
+    dispatch_scheduled_whatsapp(dry_run)
     return 0 if all_ok else 1
 
 

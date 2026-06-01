@@ -1,19 +1,20 @@
 #!/usr/bin/env node
 /**
- * Pipeline Yato → Rebeca (opcional) → Gideon → recomendação Hefestos
- * Uso: node scripts/innovation-pipeline.mjs --topic "tema" [--dry-run] [--stage all|yato|gideon]
- * Aliases legados: sophia → yato, senku → gideon
+ * Pipeline Sophia (conhecimento) → Yato (mercado) → Rebeca? → Senku → Gideon → Hefestos
+ * Uso: node scripts/innovation-pipeline.mjs --topic "tema" [--dry-run] [--deterministic]
+ *       [--stage all|sophia|yato|rebeca|senku|gideon]
  */
 import { mkdirSync, writeFileSync, readFileSync, existsSync, readdirSync } from 'fs';
 import { resolve, dirname, join } from 'path';
 import { fileURLToPath } from 'url';
+import { spawnSync } from 'child_process';
 import { loadAllAgentConfigs } from './lib/parse-agent-yaml.mjs';
+import { FILE_PREFIXES, findLatestOne } from './lib/innovation-io.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
 
-const STAGE_ALIASES = { sophia: 'yato', senku: 'gideon' };
-const FILE_PREFIX_ALIASES = { yato: ['yato_', 'sophia_'], gideon: ['gideon_', 'senku_'] };
+const FILE_PREFIX_ALIASES = FILE_PREFIXES;
 
 function loadEnv() {
   const p = resolve(root, '.env');
@@ -40,16 +41,26 @@ function argValue(flag) {
 }
 
 function normStage(raw) {
-  const s = (raw || 'all').toLowerCase();
-  return STAGE_ALIASES[s] || s;
+  return (raw || 'all').toLowerCase();
 }
 
 function resolveAgentId(agentId) {
-  return STAGE_ALIASES[agentId] || agentId;
+  return agentId;
+}
+
+function runScript(name, extra = []) {
+  const script = resolve(__dirname, name);
+  const r = spawnSync(process.execPath, [script, '--topic', topic, ...extra], {
+    cwd: root,
+    stdio: 'inherit',
+    env: process.env,
+  });
+  if (r.status !== 0) throw new Error(`${name} exit ${r.status}`);
 }
 
 const topic = argValue('--topic') || 'ferramentas IA gratuitas para OpenClaw';
 const dryRun = process.argv.includes('--dry-run');
+const deterministic = process.argv.includes('--deterministic') || dryRun || !process.env.OPENROUTER_API_KEY;
 const stage = normStage(argValue('--stage'));
 const GIDEON_THRESHOLD = Number(
   process.env.GIDEON_THRESHOLD || process.env.SENKU_THRESHOLD || 70,
@@ -128,63 +139,58 @@ function writeYaml(path, obj) {
   writeFileSync(path, lines.join('\n') + '\n', 'utf8');
 }
 
-async function runYato() {
-  const pesquisaId = nextId('yato');
+async function runSophia() {
+  if (deterministic) {
+    runScript('sophia-research.mjs');
+    return { outPath: findLatestOne(todayDir(), 'sophia', '.json') };
+  }
+  const pesquisaId = nextId('sophia');
   const outPath = join(todayDir(), `${pesquisaId}.yaml`);
-  const system = `Tu es Yato, agente de pesquisa de mercado e marketing digital OpenClaw. Responde em portugues.
-Gera UM unico bloco YAML valido (sem markdown) com: pesquisa_id, gerado_em, agente, topico, ferramenta (nome, categoria, link, caso_uso, retorno_estimado: baixa|media|alta, fonte), notas, proximo_passo.
-Fontes: mercado, concorrentes, HF Hub, Product Hunt, redes sociais, tendencias digitais.`;
-
+  const system = `Tu es Sophia, pesquisa de CONHECIMENTO OpenClaw (ferramentas, libs, tutoriais, tecnologias). Portugues, YAML unico:
+pesquisa_id, gerado_em, agente: sophia, topico, ferramenta (nome, categoria, link, caso_uso, retorno_estimado, fonte), notas, proximo_passo: senku`;
   let body;
   if (dryRun || !process.env.OPENROUTER_API_KEY) {
-    body = {
-      pesquisa_id: pesquisaId,
-      gerado_em: new Date().toISOString(),
-      agente: 'yato',
-      topico: topic,
-      ferramenta: {
-        nome: '[dry-run] Exemplo Tool',
-        categoria: ['gratuita', 'api'],
-        link: 'https://huggingface.co',
-        caso_uso: `Aplicar ao tema: ${topic}`,
-        retorno_estimado: 'media',
-        fonte: 'dry-run',
-      },
-      notas: 'Executar sem --dry-run e com OPENROUTER_API_KEY para pesquisa LLM.',
-      proximo_passo: 'gideon',
-    };
+    body = { pesquisa_id: pesquisaId, agente: 'sophia', topico: topic, proximo_passo: 'senku', notas: 'dry-run' };
   } else {
-    const raw = await callOpenRouter('yato', system, `Topico: ${topic}`);
-    try {
-      const cleaned = raw.replace(/^```ya?ml?\n?/i, '').replace(/\n?```$/i, '');
-      body = { pesquisa_id: pesquisaId, parse_llm: true, raw: cleaned };
-    } catch {
-      body = { pesquisa_id: pesquisaId, agente: 'yato', topico: topic, raw_llm: raw };
-    }
+    const raw = await callOpenRouter('sophia', system, `Topico: ${topic}`);
+    body = { pesquisa_id: pesquisaId, agente: 'sophia', topico: topic, raw_llm: raw, proximo_passo: 'senku' };
   }
-
   writeYaml(outPath, body);
-  console.log('[Yato] ->', outPath);
-  return { outPath, body, pesquisaId };
+  console.log('[Sophia] ->', outPath);
+  return { outPath, pesquisaId };
 }
 
-async function runRebeca(yatoPath) {
-  const designId = nextId('rebeca');
-  const outPath = join(todayDir(), `${designId}.yaml`);
-  const yatoText = readFileSync(yatoPath, 'utf8').slice(0, 3000);
-  const system = `Tu es Rebeca, design para dashboards /office e /forge OpenClaw. Responde em portugues com brief YAML: design_id, paleta, componentes[], referencias_visuais[], notas.`;
-
+async function runYato() {
+  if (deterministic) {
+    runScript('yato-market-search.mjs');
+    return { outPath: findLatestOne(todayDir(), 'yato', '.json') };
+  }
+  const pesquisaId = nextId('yato');
+  const outPath = join(todayDir(), `${pesquisaId}.yaml`);
+  const system = `Tu es Yato, pesquisa de MERCADO OpenClaw (concorrencia, demanda, posicionamento). Portugues, YAML:
+pesquisa_id, gerado_em, agente: yato, topico, ferramenta, notas, proximo_passo: senku`;
   let body;
   if (dryRun || !process.env.OPENROUTER_API_KEY) {
-    body = {
-      design_id: designId,
-      baseado_em: yatoPath,
-      paleta: ['#0b0f14', '#6eb5ff', '#3dd68c'],
-      componentes: ['cards agentes', 'status forge'],
-      notas: 'dry-run',
-    };
+    body = { pesquisa_id: pesquisaId, agente: 'yato', topico: topic, proximo_passo: 'senku', notas: 'dry-run' };
   } else {
-    const raw = await callOpenRouter('rebeca', system, `Pesquisa Yato:\n${yatoText}`);
+    const raw = await callOpenRouter('yato', system, `Topico mercado: ${topic}`);
+    body = { pesquisa_id: pesquisaId, agente: 'yato', topico: topic, raw_llm: raw, proximo_passo: 'senku' };
+  }
+  writeYaml(outPath, body);
+  console.log('[Yato mercado] ->', outPath);
+  return { outPath, pesquisaId };
+}
+
+async function runRebeca(contextPath) {
+  const designId = nextId('rebeca');
+  const outPath = join(todayDir(), `${designId}.yaml`);
+  const ctx = contextPath && existsSync(contextPath) ? readFileSync(contextPath, 'utf8').slice(0, 3000) : '';
+  const system = `Tu es Rebeca, design /office e /forge. YAML: design_id, paleta, componentes[], notas.`;
+  let body;
+  if (dryRun || !process.env.OPENROUTER_API_KEY) {
+    body = { design_id: designId, notas: 'dry-run', proximo_passo: 'senku' };
+  } else {
+    const raw = await callOpenRouter('rebeca', system, `Contexto:\n${ctx}`);
     body = { design_id: designId, raw_llm: raw };
   }
   writeYaml(outPath, body);
@@ -192,49 +198,36 @@ async function runRebeca(yatoPath) {
   return outPath;
 }
 
-async function runGideon(yatoPath, rebecaPath) {
+async function runSenku() {
+  if (deterministic) {
+    runScript('senku-process.mjs');
+    return findLatestOne(todayDir(), 'senku', '.json');
+  }
+  console.log('[Senku] Use --deterministic ou OPENROUTER stage futuro');
+  runScript('senku-process.mjs');
+  return findLatestOne(todayDir(), 'senku', '.json');
+}
+
+async function runGideon() {
+  if (deterministic) {
+    runScript('gideon-predict.mjs');
+    return findLatestOne(todayDir(), 'gideon', '.json');
+  }
+  const senkuPath = findLatestOne(todayDir(), 'senku', '.json');
+  const context = senkuPath ? readFileSync(senkuPath, 'utf8').slice(0, 5000) : '';
   const gideonId = nextId('gideon');
   const outPath = join(todayDir(), `${gideonId}.yaml`);
-  const context = readFileSync(yatoPath, 'utf8').slice(0, 4000)
-    + (rebecaPath && existsSync(rebecaPath) ? '\n' + readFileSync(rebecaPath, 'utf8').slice(0, 2000) : '');
-
-  const system = `Tu es Gideon. Com base nos dados, antecipa riscos e oportunidades antes que aconteçam.
-Avalia viabilidade com 4 subscores 0-100: custo_implementacao, retorno_lucrativo, compatibilidade_stack, manutenibilidade.
-Pesos: 30%, 35%, 20%, 15%. Calcula viabilidade_score final.
-Responde YAML: gideon_id, pesquisa_id, subscores{}, viabilidade_score, recomendacao (hefestos|arquivar|mais_pesquisa), justificativa.`;
-
+  const system = `Tu es Gideon — PREDICAO e cenarios futuros a partir da analise Senku. NAO correlacionas dados (isso e Senku).
+YAML: gideon_id, cenarios[], confianca_score 0-100, recomendacao (hefestos|arquivar|mais_pesquisa), justificativa.`;
   let body;
   if (dryRun || !process.env.OPENROUTER_API_KEY) {
-    const sub = { custo_implementacao: 75, retorno_lucrativo: 70, compatibilidade_stack: 85, manutenibilidade: 80 };
-    const score = Math.round(
-      sub.custo_implementacao * 0.3
-      + sub.retorno_lucrativo * 0.35
-      + sub.compatibilidade_stack * 0.2
-      + sub.manutenibilidade * 0.15,
-    );
-    body = {
-      gideon_id: gideonId,
-      subscores: sub,
-      viabilidade_score: score,
-      recomendacao: score >= GIDEON_THRESHOLD ? 'hefestos' : 'arquivar',
-      justificativa: 'dry-run com subscores exemplo',
-      threshold: GIDEON_THRESHOLD,
-    };
-  } else {
-    const raw = await callOpenRouter('gideon', system, context);
-    body = { gideon_id: gideonId, raw_llm: raw };
-    const m = raw.match(/viabilidade_score:\s*(\d+)/i);
-    if (m) body.viabilidade_score = Number(m[1]);
+    runScript('gideon-predict.mjs');
+    return findLatestOne(todayDir(), 'gideon', '.json');
   }
-
+  const raw = await callOpenRouter('gideon', system, context);
+  body = { gideon_id: gideonId, raw_llm: raw };
   writeYaml(outPath, body);
-  console.log('[Gideon] ->', outPath, 'score=', body.viabilidade_score ?? '?');
-
-  if ((body.viabilidade_score ?? 0) >= GIDEON_THRESHOLD) {
-    console.log('[OK] Elegivel para Hefestos — requer aprovacao humana para producao.');
-  } else {
-    console.log('[--] Abaixo do threshold', GIDEON_THRESHOLD, '— arquivar ou mais pesquisa.');
-  }
+  console.log('[Gideon LLM] ->', outPath);
   return outPath;
 }
 
@@ -250,31 +243,35 @@ function findLatestResearchFile(dir, agentStage) {
 async function main() {
   console.log('=== Innovation pipeline ===');
   console.log('Topico:', topic);
-  console.log('Stage:', stage, dryRun ? '(dry-run)' : '');
+  console.log('Stage:', stage, deterministic ? '(deterministico)' : dryRun ? '(dry-run)' : '');
+
+  let sophiaPath;
+  if (stage === 'all' || stage === 'sophia') {
+    sophiaPath = (await runSophia())?.outPath;
+  }
 
   let yatoPath;
   if (stage === 'all' || stage === 'yato') {
-    const s = await runYato();
-    yatoPath = s.outPath;
-  } else {
-    const dir = todayDir();
-    yatoPath = findLatestResearchFile(dir, 'yato');
-    if (!yatoPath) {
-      console.error('Sem ficheiro yato_* ou sophia_* em', dir);
-      process.exit(1);
-    }
+    yatoPath = (await runYato())?.outPath;
   }
 
   let rebecaPath;
-  if (stage === 'all' || stage === 'rebeca') {
-    rebecaPath = await runRebeca(yatoPath);
+  const wantRebeca =
+    stage === 'rebeca' || (stage === 'all' && process.argv.includes('--with-rebeca'));
+  if (wantRebeca) {
+    rebecaPath = await runRebeca(sophiaPath || yatoPath);
+  }
+
+  if (stage === 'all' || stage === 'senku') {
+    await runSenku();
   }
 
   if (stage === 'all' || stage === 'gideon') {
-    await runGideon(yatoPath, rebecaPath);
+    await runGideon();
   }
 
-  console.log('\nMemoria opcional: node scripts/hf-ingest-learning.mjs --agent yato --text "resumo"');
+  console.log('\nDataset HF (futuro): knowledge/ market/ analysis/ predictions/');
+  console.log('Memoria: node scripts/hf-ingest-learning.mjs --agent gideon --text "resumo"');
 }
 
 main().catch((e) => {

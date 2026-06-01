@@ -9,6 +9,8 @@ llm:
 
 skills:
   - politica-seguranca
+  - veldora-seguranca
+  - security-audit
 
 secrets:
   gateway: [OPENCLAW_GATEWAY_BASE_URL, OPENCLAW_AUTOMATION_TOKEN]

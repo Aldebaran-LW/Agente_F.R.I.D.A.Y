@@ -28,6 +28,15 @@
       "telemetry": true,
       "description": "Status dos repos Aldebaran-LW (incl. LWDigitalForge_Texte)"
     },
+    "ecosystem-watch": {
+      "agent": "heimdall",
+      "mode": "read",
+      "permissions": ["read:monitor"],
+      "requiresApproval": false,
+      "timeoutMs": 30000,
+      "telemetry": true,
+      "description": "Observador fluxo agentes + contexto Hub"
+    },
     "deploy-monitor": {
       "agent": "heimdall",
       "mode": "read",
@@ -82,14 +91,59 @@
       "telemetry": false,
       "description": "Menu de ajuda Jarvis"
     },
-    "innovation-research": {
+    "schedule-whatsapp": {
+      "agent": "jarvis",
+      "mode": "write",
+      "permissions": ["write:notify"],
+      "requiresApproval": false,
+      "timeoutMs": 15000,
+      "telemetry": true,
+      "description": "Lembrete WhatsApp agendado (Twilio, so admin)"
+    },
+    "innovation-knowledge": {
+      "agent": "sophia",
+      "mode": "read",
+      "permissions": ["read:innovation"],
+      "requiresApproval": false,
+      "timeoutMs": 30000,
+      "telemetry": true,
+      "description": "Sophia — conhecimento e ferramentas"
+    },
+    "innovation-market": {
       "agent": "yato",
       "mode": "read",
       "permissions": ["read:innovation"],
       "requiresApproval": false,
       "timeoutMs": 30000,
       "telemetry": true,
-      "description": "Pesquisa de mercado / marketing (HF Yato)"
+      "description": "Yato — pesquisa de mercado"
+    },
+    "innovation-analysis": {
+      "agent": "senku",
+      "mode": "read",
+      "permissions": ["read:innovation"],
+      "requiresApproval": false,
+      "timeoutMs": 30000,
+      "telemetry": true,
+      "description": "Senku — correlacao de dados"
+    },
+    "innovation-forecast": {
+      "agent": "gideon",
+      "mode": "read",
+      "permissions": ["read:innovation"],
+      "requiresApproval": false,
+      "timeoutMs": 30000,
+      "telemetry": true,
+      "description": "Gideon — predicao e cenarios"
+    },
+    "innovation-research": {
+      "agent": "sophia",
+      "mode": "read",
+      "permissions": ["read:innovation"],
+      "requiresApproval": false,
+      "timeoutMs": 30000,
+      "telemetry": true,
+      "description": "Alias legado → Sophia"
     },
     "innovation-viability": {
       "agent": "gideon",
@@ -98,7 +152,7 @@
       "requiresApproval": false,
       "timeoutMs": 30000,
       "telemetry": true,
-      "description": "Previsao e viabilidade (HF Gideon)"
+      "description": "Alias legado → Gideon"
     },
     "innovation-design": {
       "agent": "rebeca",
@@ -143,7 +197,16 @@
       "requiresApproval": false,
       "timeoutMs": 30000,
       "telemetry": true,
-      "description": "Auditoria de seguranca (HF Veldora)"
+      "description": "Auditoria de seguranca (gateway + script)"
+    },
+    "veldora-seguranca": {
+      "agent": "veldora",
+      "mode": "policy",
+      "permissions": ["read:security"],
+      "requiresApproval": false,
+      "timeoutMs": 0,
+      "telemetry": true,
+      "description": "Allowlist de fontes e guard no orchestrate"
     }
   }
 }

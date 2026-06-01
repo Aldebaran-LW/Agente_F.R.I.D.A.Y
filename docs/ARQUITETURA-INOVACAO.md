@@ -1,119 +1,75 @@
 # Arquitetura de inovação contínua — OpenClaw
 
-Camada **cognitiva** (pesquisa → design → viabilidade → construção) sobre os cérebros **operacionais** já existentes (Jarvis, Macofel, Ops, VP-Pecas).
+Quatro cérebros de pesquisa/análise + Rebeca (design) + Hefestos (construção), orquestrados pelo **Jarvis**.
 
-**Produção e segurança:** `POLITICA-SEGURANCA.md` — Hefestos **não** altera produção sem `sim`/`confirmar` do Lucas (via Jarvis/Telegram).
-
----
-
-## Duas camadas
-
-| Camada | Agentes | Função |
-|--------|---------|--------|
-| **Operação** | `orchestrator`, `macofel`, `heimdall`, `vp-pecas` | Portfólio, catálogo, GitHub, deploy |
-| **Inovação** | `yato`, `rebeca`, `gideon`, `hefestos` | Mercado, design, previsão, implementar |
-| **Suporte** | `icaro`, `rimuru`, `veldora`, `dedalo` | Testes, dados/tokens, segurança, schemas HF |
-
-**Memória:** Dataset HF `openclaw-backup` + `hf-ingest-learning.mjs` (papel “Friday” no ecossistema F.R.I.D.A.Y.).
-
-**GitHub org:** cérebro `heimdall` (Aldebaran-LW).
+**Segurança:** `POLITICA-SEGURANCA.md` — Hefestos só em produção com `sim`/`confirmar`.
 
 ---
 
-## Pipeline principal
+## Pipeline (versão final)
 
 ```mermaid
 flowchart TB
-  S[Yato — Mercado]
-  R[Rebeca — Design]
-  N[Gideon — Previsão]
-  H[Hefestos — Constrói]
-  J[Jarvis — Coordena]
-  F[Friday — Memória HF Dataset]
+  S[Sophia — conhecimento]
+  Y[Yato — mercado]
+  R[Rebeca — design]
+  N[Senku — correlação]
+  G[Gideon — predição]
+  H[Hefestos — constrói]
+  J[Jarvis]
   S --> N
+  Y --> N
   R --> N
-  N -->|score >= 70| H
+  N --> G
+  G -->|confiança ≥ 70| H
+  G -->|mais_pesquisa| S
+  G -->|mais_pesquisa| Y
   H --> J
-  J --> F
-  H --> I[Ícaro — Testes]
-  A[Rimuru — Dados/Tokens] --> J
 ```
 
-### Yato (pesquisa de mercado / marketing)
+| Agente | ID | Foco | Saída (Dataset HF) |
+|--------|-----|------|-------------------|
+| **Sophia** | `sophia` | Ferramentas, libs, tutoriais, tecnologias | `knowledge/` |
+| **Yato** | `yato` | Mercado, concorrência, demanda | `market/` |
+| **Senku** | `senku` | Correlaciona presente; pede nova pesquisa | `analysis/` |
+| **Gideon** | `gideon` | Cenários e predição futura | `predictions/` |
+| **Rebeca** | `rebeca` | Design UI/forge | — |
+| **Hefestos** | `hefestos` | Implementação | — |
 
-Fontes recomendadas: Web, Hugging Face Hub, GitHub Trending, Papers with Code, Product Hunt, Reddit (r/LocalLLaMA, r/OpenClaw, etc.).
-
-Saída: YAML em `data/innovation/` — esquema `agents/_shared/schemas/pesquisa-entry.yaml`.
-
-### Rebeca (design)
-
-UI/UX (Penpot, Figma free), 3D/Web (Three.js, R3F), assets IA, inspiração (Awwwards, Dribbble). Foco: dashboards `/office` e `/forge`.
-
-### Senku (viabilidade)
-
-| Critério | Peso |
-|----------|------|
-| Custo de implementação | 30% |
-| Retorno lucrativo potencial | 35% |
-| Compatibilidade stack (Node, Python, HF, Vercel, AWS) | 20% |
-| Manutenibilidade | 15% |
-
-**`viabilidade_score` 0–100.** Hefestos só executa se **≥ 70** (e aprovação humana para produção).
-
-### Hefestos (construtor)
-
-Subfunções: integrador de skills, otimizador (gateway/scripts), documentação (`docs/`).
+**Senku** processa o **presente**. **Gideon** projeta o **futuro**.
 
 ---
 
-## Agentes sugeridos (implementados)
+## Scripts
 
-| Agente | ID | Prioridade | Forge alias |
-|--------|-----|------------|-------------|
-| Ícaro | `icaro` | Alta | `icaro` |
-| Athena | `athena` | Média | `athena` |
-| Dédalo | `dedalo` | Média | `dedalo` |
+```bash
+# Conhecimento
+node scripts/sophia-research.mjs --topic "ai agents" --yaml
 
-### VP-Pecas (futuro — cotação B2B)
+# Mercado
+node scripts/yato-market-search.mjs --topic "saas agents" --yaml
 
-Escopo alvo: lista de peças + tolerâncias → comparativo fornecedores (preço, lead time, frete) → recomendação. Ver `agents/vp-pecas/AGENTS.md`.
+# Análise → Predição
+node scripts/senku-process.mjs --topic "ai agents"
+node scripts/gideon-predict.mjs --topic "ai agents"
 
-### Hermes (POC — não criado)
-
-Atendimento Telegram white-label; reutiliza base Jarvis. Só após política de mensagens em nome do Lucas estiver explícita.
-
----
-
-## Mapeamento F.R.I.D.A.Y. ↔ OpenClaw
-
-| Persona | Cérebro OpenClaw |
-|---------|------------------|
-| Jarvis | `orchestrator` |
-| Friday | Memória (`hf-ingest-learning`, Dataset) |
-| Macofel / Lala | `macofel` |
-| Heimdall | `heimdall` |
-| Pixel | `vp-pecas` |
-| Yato, Rebeca, Gideon, Hefestos | `yato` … `hefestos` |
-| Veldora, Rimuru | `veldora`, `rimuru` |
-
----
-
-## Comandos
-
-```powershell
-# Pipeline completo (dry-run sem OPENROUTER_API_KEY)
-node scripts/innovation-pipeline.mjs --topic "nova skill OpenClaw" --dry-run
-
-# Com LLM
-node scripts/innovation-pipeline.mjs --topic "ferramentas HF gratuitas"
-
-# Atalho PowerShell
-.\scripts\roda-pesquisa.ps1 -Topic "dashboard forge melhorias"
-
-# Regenerar openclaw + validar
-node scripts/validate-agent-config.mjs
-node scripts/sync-agent-config-to-openclaw.mjs --dry-run
+# Pipeline completo (determinístico, sem OpenRouter)
+node scripts/innovation-pipeline.mjs --topic "tema" --deterministic
 ```
+
+Legado: `yato-search-hf.mjs` redirecciona para **Sophia**.
+
+---
+
+## Camadas do ecossistema
+
+| Camada | Agentes |
+|--------|---------|
+| Operação | `orchestrator`, `macofel`, `heimdall`, `vp-pecas` |
+| Inovação | `sophia`, `yato`, `rebeca`, `senku`, `gideon`, `hefestos` |
+| Suporte | `icaro`, `rimuru`, `veldora`, `dedalo` |
+
+Memória: Dataset `openclaw-backup` · ingest: `hf-ingest-learning.mjs`
 
 ---
 
@@ -121,23 +77,8 @@ node scripts/sync-agent-config-to-openclaw.mjs --dry-run
 
 | Caminho | Conteúdo |
 |---------|----------|
-| `agents/yato/` … `agents/hefestos/` | Config + AGENTS.md |
-| `agents/icaro/`, `rimuru/`, `veldora/`, `dedalo/` | Suporte |
-| `scripts/innovation-pipeline.mjs` | Orquestração Yato→Gideon |
-| `data/innovation/` | Artefactos YAML (gitignored) |
-| `docs/ARQUITETURA-AGENTES.md` | Hub operacional |
+| `agents/sophia/` … `agents/hefestos/` | Config + AGENTS.md |
+| `scripts/innovation-pipeline.mjs` | Orquestração |
+| `data/innovation/` | Artefactos locais (gitignored) |
 
----
-
-## Residências (onde cada um mora)
-
-Mapa oficial: **`docs/MAPAS-RESIDENCIAS.md`** — AWS (Jarvis/Macofel), Vercel (Friday gateway), HF (inovação provisória).
-
-Broker: `POST /openclaw/orchestrate` · EC2: `scripts/ec2-orchestrate-hook.mjs`
-
-## Ver também
-
-- `docs/MAPAS-RESIDENCIAS.md` — moradia EC2 / Vercel / HF
-- `docs/HF-DEPLOY-FRIDAY.md` — Spaces HF
-- `docs/DIGITAL-FORGE-FRIDAY.md` — `/forge` 3D
-- `docs/OPENROUTER-MODELOS-FREE.md` — modelos por cérebro
+Ver também: `docs/MAPAS-RESIDENCIAS.md`, `docs/OPENROUTER-MODELOS-FREE.md`

@@ -1,5 +1,5 @@
 # Gerado automaticamente — nao editar a mao; use generate-hf-agents-config.mjs
-# 2026-05-31T19:43:37.745Z
+# 2026-06-01T11:35:41.090Z
 
 defaults:
   max_tokens: 4096
@@ -29,8 +29,8 @@ gideon:
   id: gideon
   name: "Gideon"
   forge_alias: gideon
-  role: "Prevê o Futuro — analisa dados e soluções antes que aconteçam"
-  description: "Gideon — Prevê o Futuro — analisa dados e soluções antes que aconteçam"
+  role: "Predição e cenários futuros (após Senku)"
+  description: "Gideon — Predição e cenários futuros (após Senku)"
   model: "smollm2:360m"
   model_ref: "ollama/smollm2:360m"
   max_tokens: 4096
@@ -39,7 +39,7 @@ gideon:
     []
   skills:
     - "politica-seguranca"
-    - "innovation-viability"
+    - "innovation-forecast"
   tools:
   hub_tools: []
 
@@ -83,6 +83,7 @@ heimdall:
     - "github-aldebaran"
     - "deploy-monitor"
     - "vercel-status"
+    - "ecosystem-watch"
   tools:
     - "status_github"
     - "status_deploy"
@@ -133,14 +134,14 @@ orchestrator:
   forge_alias: friday
   role: "Cérebro (Telegram, aprovacoes, delegacao)"
   description: "Jarvis — Cérebro (Telegram, aprovacoes, delegacao)"
-  model: "llama-3.3-70b-versatile"
-  model_ref: "groq/llama-3.3-70b-versatile"
+  model: "Qwen/Qwen2.5-7B-Instruct:fastest"
+  model_ref: "huggingface/Qwen/Qwen2.5-7B-Instruct:fastest"
   max_tokens: 4096
   temperature: 0.7
   fallbacks:
+    - "groq/llama-3.3-70b-versatile"
     - "infron/deepseek/deepseek-v3.2"
     - "deepseek/deepseek-v4-flash"
-    - "huggingface/Qwen/Qwen2.5-7B-Instruct:fastest"
   skills:
     - "politica-seguranca"
     - "openclaw-jarvis"
@@ -183,6 +184,42 @@ rimuru:
   tools:
   hub_tools: []
 
+senku:
+  id: senku
+  name: "Senku"
+  forge_alias: senku
+  role: "Análise e correlação de dados (presente)"
+  description: "Senku — Análise e correlação de dados (presente)"
+  model: "smollm2:360m"
+  model_ref: "ollama/smollm2:360m"
+  max_tokens: 4096
+  temperature: 0.7
+  fallbacks:
+    []
+  skills:
+    - "politica-seguranca"
+    - "innovation-analysis"
+  tools:
+  hub_tools: []
+
+sophia:
+  id: sophia
+  name: "Sophia"
+  forge_alias: sophia
+  role: "Pesquisa de Conhecimento — ferramentas, tecnologias, tutoriais"
+  description: "Sophia — Pesquisa de Conhecimento — ferramentas, tecnologias, tutoriais"
+  model: "smollm2:360m"
+  model_ref: "ollama/smollm2:360m"
+  max_tokens: 4096
+  temperature: 0.7
+  fallbacks:
+    []
+  skills:
+    - "politica-seguranca"
+    - "innovation-knowledge"
+  tools:
+  hub_tools: []
+
 veldora:
   id: veldora
   name: "Veldora Tempest"
@@ -197,6 +234,8 @@ veldora:
     []
   skills:
     - "politica-seguranca"
+    - "veldora-seguranca"
+    - "security-audit"
   tools:
   hub_tools: []
 
@@ -233,6 +272,6 @@ yato:
     []
   skills:
     - "politica-seguranca"
-    - "innovation-research"
+    - "innovation-market"
   tools:
   hub_tools: []

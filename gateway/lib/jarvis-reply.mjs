@@ -35,6 +35,27 @@ export function buildReply(route, payload, { approvalBlocked = false } = {}) {
     });
     return 'Vercel:\n' + lines.join('\n');
   }
+  if (route.skill === 'security-audit' && payload?.reply) {
+    return payload.reply;
+  }
+  if (route.skill === 'security-audit' && payload?.veredito) {
+    return `Veldora [${payload.veredito}]: ${payload.recomendacao || 'auditoria concluida.'}`;
+  }
+  if (route.skill === 'innovation-monitor' && payload?.reply) {
+    return payload.reply;
+  }
+  if (route.skill === 'innovation-design' && payload?.reply) {
+    return payload.reply;
+  }
+  if (route.skill === 'ecosystem-watch' && payload?.reply) {
+    return payload.reply;
+  }
+  if (route.skill === 'schedule-whatsapp' && payload?.reply) {
+    return payload.reply;
+  }
+  if (route.skill === 'schedule-whatsapp' && payload?.error) {
+    return `WhatsApp: ${payload.error}`;
+  }
   if (route.skill === 'macofel-images-sync') {
     if (payload?.ok) {
       return `Sync OK: EAN ${payload.ean}, ${payload.urlCount} imagem(ns).`;
@@ -51,17 +72,21 @@ export function buildReply(route, payload, { approvalBlocked = false } = {}) {
       'Operacao: status macofel · repos github · sites no ar · resumo portfolio · vp-pecas',
       'Inovacao: pesquisa mercado (Yato) · viabilidade (Gideon) · design (Rebeca) · construir (Hefestos, pede sim)',
       'Suporte: tokens/consumo (Rimuru) · seguranca (Veldora)',
+      'Lembretes: agendar whatsapp: DD/MM/AAAA HH:MM — texto · lista agendamentos whatsapp',
     ].join('\n');
   }
   return 'Reformule o pedido. Ex.: status macofel, pesquisa mercado, tokens openrouter, resumo portfolio.';
 }
 
 const ORCHESTRATE_REPLY_AGENTS = new Set([
-  'yato', 'gideon', 'rebeca', 'hefestos', 'rimuru', 'veldora', 'icaro',
+  'yato', 'gideon', 'hefestos', 'veldora', 'icaro',
 ]);
 
 function formatOrchestrateReply(agentId, payload) {
   if (payload.ok === false) {
+    if (payload.blockedBy === 'veldora' || payload.status === 403) {
+      return `Veldora bloqueou ${agentId}: ${payload.error || payload.veldora?.reason || 'fonte nao autorizada'}`;
+    }
     const hint = payload.hint || payload.error || 'servico indisponivel';
     if (payload.status === 503) {
       return `${agentId}: upstream nao configurado (${hint}).`;

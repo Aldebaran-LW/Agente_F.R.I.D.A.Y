@@ -12,6 +12,7 @@ skills:
   - github-aldebaran
   - deploy-monitor
   - vercel-status
+  - ecosystem-watch
 
 secrets:
   gateway: [OPENCLAW_GATEWAY_BASE_URL, OPENCLAW_AUTOMATION_TOKEN]

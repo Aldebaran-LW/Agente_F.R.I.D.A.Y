@@ -9,7 +9,7 @@ llm:
 
 skills:
   - politica-seguranca
-  - innovation-research
+  - innovation-market
 
 secrets:
   optional: [GOOGLE_API_KEY, HF_TOKEN]
@@ -22,9 +22,9 @@ deploy:
 
 pipeline:
   output_schema: agents/_shared/schemas/pesquisa-entry.yaml
+  dataset_folder: market/
   sources:
-    - web
-    - mercado
-    - marketing_digital
-    - huggingface_hub
     - product_hunt
+    - google_trends
+    - g2
+    - crunchbase

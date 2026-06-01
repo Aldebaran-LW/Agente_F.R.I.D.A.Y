@@ -1,0 +1,7 @@
+# Prefixos bloqueados (sempre rejeitar, mesmo se parecer legítimo)
+https://bit.ly/
+https://t.co/
+https://tinyurl.com/
+https://pastebin.com/
+https://ghostbin.com/
+https://0x0.st/

@@ -6,16 +6,25 @@ import { fetchDeployHealth } from './deploy.mjs';
 import { fetchVercelStatus } from './vercel.mjs';
 import { fetchVpPecasHealth } from './vp-pecas.mjs';
 import { forwardTask } from './orchestrate.mjs';
+import { runSecurityAudit } from './veldora.mjs';
+import { runInnovationMonitor } from './rimuru.mjs';
+import { runInnovationDesignScan } from './rebeca.mjs';
+import { runEcosystemWatch } from './heimdall-flow.mjs';
+import {
+  runScheduledWhatsApp,
+  tryConfirmPendingOnly,
+} from './scheduled-whatsapp.mjs';
 
 /** Skills sem executor local — delegam via orchestrate (HF / EC2). */
 const ORCHESTRATE_SKILLS = new Set([
+  'innovation-knowledge',
+  'innovation-market',
+  'innovation-analysis',
+  'innovation-forecast',
   'innovation-research',
   'innovation-viability',
-  'innovation-design',
   'innovation-build',
-  'innovation-monitor',
   'innovation-test',
-  'security-audit',
 ]);
 
 function buildExecutors(params = {}) {
@@ -30,6 +39,21 @@ function buildExecutors(params = {}) {
     'deploy-monitor': () => fetchDeployHealth(),
     'vercel-status': () => fetchVercelStatus(),
     'vp-pecas-health': () => fetchVpPecasHealth(),
+    'security-audit': () =>
+      runSecurityAudit({
+        message: params.message,
+        url: params.url,
+      }),
+    'innovation-monitor': () =>
+      runInnovationMonitor({ deploy: true, message: params.message }),
+    'innovation-design': () =>
+      runInnovationDesignScan({
+        message: params.message,
+        category: params.category,
+      }),
+    'ecosystem-watch': () => runEcosystemWatch(),
+    'schedule-whatsapp': () =>
+      runScheduledWhatsApp({ message: params.message }),
   };
 }
 
@@ -94,6 +118,23 @@ async function executeSingle(plan, { message, approved, params }) {
   const taskRuns = [];
   let data = null;
 
+  const pendingWa = await tryConfirmPendingOnly(message);
+  if (pendingWa.handled) {
+    taskRuns.push({
+      id: 'single',
+      skill: 'schedule-whatsapp',
+      status: pendingWa.ok === false ? 'failed' : 'done',
+      ms: 0,
+    });
+    return {
+      route: { agent: 'jarvis', skill: 'schedule-whatsapp', intent: 'confirm' },
+      approvalBlocked: false,
+      taskRuns,
+      data: pendingWa,
+      results: { 'schedule-whatsapp': pendingWa },
+    };
+  }
+
   // Ajuda e respostas estaticas — sem executor externo
   if (route.skill === 'help') {
     taskRuns.push({
@@ -128,7 +169,11 @@ async function executeSingle(plan, { message, approved, params }) {
       try {
         const run = ORCHESTRATE_SKILLS.has(route.skill)
           ? () => forwardTask(route.agent, message)
-          : () => executeSkill(route.skill, params);
+          : () =>
+              executeSkill(route.skill, {
+                ...params,
+                message: params.message ?? message,
+              });
         data = await runWithTimeout(run(), skillTimeoutMs(route.skill));
         taskRuns.push({
           id: 'single',

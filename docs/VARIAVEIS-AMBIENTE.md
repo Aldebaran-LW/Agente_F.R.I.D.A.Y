@@ -79,8 +79,14 @@ Aí entram:
 | `HEARTBEAT_ALERT_COOLDOWN_SEC` | Intervalo mínimo entre alertas (default 3600) |
 | `HEARTBEAT_MIN_FREE_RAM_MB` | Alerta se RAM livre abaixo deste valor |
 | `OPENCLAW_GATEWAY_PORT` | Porta do gateway (heartbeat HTTP) |
+| `TWILIO_ACCOUNT_SID` | Conta Twilio (WhatsApp) |
+| `TWILIO_AUTH_TOKEN` | Token Twilio |
+| `TWILIO_WHATSAPP_FROM` | Remetente sandbox/produção (`whatsapp:+…`) |
+| `TWILIO_WHATSAPP_TO` | Teu número (só lembretes para ti) |
+| `SCHEDULED_WHATSAPP_ENABLED` | `1`/`0` — dispatcher no heartbeat (default `1`) |
 
-Ver `docs/HEARTBEAT.md` para o script `scripts/heartbeat.py`.
+Ver `docs/HEARTBEAT.md` para o script `scripts/heartbeat.py`.  
+Lembretes: `skills/scheduled-whatsapp/SKILL.md`.
 
 ---
 

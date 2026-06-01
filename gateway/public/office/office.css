@@ -304,6 +304,33 @@ button:hover {
   bottom: 40px;
 }
 
+.innovation-panel {
+  margin: 1rem 1.25rem 2rem;
+  padding: 1rem;
+  background: #252941;
+  border: 2px solid #3d4563;
+  border-radius: 4px;
+}
+
+.innovation-panel h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.innovation-body {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--muted);
+  white-space: pre-wrap;
+  max-height: 220px;
+  overflow: auto;
+}
+
+.innovation-body .score-ok {
+  color: var(--accent);
+}
+
 .foot {
   text-align: center;
   padding: 1rem;

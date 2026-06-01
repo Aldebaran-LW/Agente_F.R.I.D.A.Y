@@ -1,0 +1,18 @@
+{
+  "_doc": "Política Rimuru — cotas e ordem de custo (ver docs/OPENROUTER-MODELOS-FREE.md)",
+  "daily_token_budget": 500000,
+  "warn_usage_pct": 80,
+  "block_usage_pct": 95,
+  "prefer_order": ["scripts", "gateway_read", "ollama_ec2", "openrouter_free", "openrouter_paid"],
+  "free_model_hints": [
+    "deepseek/deepseek-v4-flash:free",
+    "nvidia/nemotron-3-super:free",
+    "qwen/qwen3-4b:free"
+  ],
+  "learning_tips": [
+    "Usar scripts (macofel-status, github-repo-status) antes de LLM",
+    "Respostas operacionais no gateway sem HF quando possível",
+    "Modelos :free no OpenRouter para tarefas simples",
+    "Ingerir aprendizados no Hub/Dataset para reduzir prompts repetidos"
+  ]
+}
