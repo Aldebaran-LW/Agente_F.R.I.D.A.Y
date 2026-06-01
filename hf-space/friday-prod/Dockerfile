@@ -3,6 +3,7 @@ WORKDIR /app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 COPY agents-config.yaml app.py sync.py ./
+COPY lib ./lib
 COPY tools ./tools
 ENV PORT=7860
 EXPOSE 7860
