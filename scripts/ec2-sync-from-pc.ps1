@@ -20,13 +20,14 @@ if (-not $key -or -not (Test-Path $key)) { Write-Host "Defina AWS_EC2_KEY_PATH (
 
 $script = Join-Path $root "scripts\ec2-sync-now.sh"
 $remote = "/tmp/ec2-sync-now.sh"
-$ssh = @("-i", $key, "-o", "StrictHostKeyChecking=accept-new", "-o", "ConnectTimeout=20", "${user}@${host_}")
+$target = "${user}@${host_}"
+$sshOpts = @("-i", $key, "-o", "StrictHostKeyChecking=accept-new", "-o", "ConnectTimeout=20")
 
 Write-Host "==> Copiar script para EC2 $host_" -ForegroundColor Cyan
-& scp @ssh $script "${user}@${host_}:${remote}"
+& scp @sshOpts $script "${target}:${remote}"
 
 Write-Host "==> Executar (sudo) na EC2" -ForegroundColor Cyan
-& ssh @ssh "${user}@${host_}" "chmod +x $remote && sudo bash $remote"
+& ssh @sshOpts $target "sed -i 's/\r$//' $remote && chmod +x $remote && sudo bash $remote"
 
 Write-Host ""
 Write-Host "Concluido. Testa no Telegram: ajuda" -ForegroundColor Green
