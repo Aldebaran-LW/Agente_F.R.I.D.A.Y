@@ -2,7 +2,8 @@
   "version": 2,
   "builds": [
     { "src": "api/*.js", "use": "@vercel/node" },
-    { "src": "api/*.mjs", "use": "@vercel/node" }
+    { "src": "api/*.mjs", "use": "@vercel/node" },
+    { "src": "public/**", "use": "@vercel/static" }
   ],
   "env": {
     "HF_FRIDAY_PROD_URL": "https://aldebaran-lw-friday-prod.hf.space"
@@ -18,6 +19,10 @@
     },
     {
       "source": "/friday",
+      "destination": "/friday/index.html"
+    },
+    {
+      "source": "/friday/",
       "destination": "/friday/index.html"
     },
     {

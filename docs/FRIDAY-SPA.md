@@ -57,15 +57,16 @@ gateway/public/friday/
 
 ## Deploy
 
-Incluído no deploy Vercel do `gateway/` — rewrite em `gateway/vercel.json`:
+Incluído no deploy Vercel do `gateway/` — `gateway/vercel.json` inclui:
 
-```json
-{ "source": "/friday", "destination": "/friday/index.html" }
-```
+- `builds`: `public/**` → `@vercel/static` (ficheiros estáticos)
+- `rewrites`: `/friday` e `/friday/` → `/friday/index.html`
 
 ```bash
 cd gateway && vercel --prod
 ```
+
+**Se vires 404:** o domínio de produção pode estar num deploy antigo (antes do commit da SPA). No painel Vercel → **Deployments** → **Redeploy** do `main` mais recente (`c13844d+`). Confirma em `GET /api/health` que o campo `commit` corresponde ao GitHub.
 
 ## Mobile
 
