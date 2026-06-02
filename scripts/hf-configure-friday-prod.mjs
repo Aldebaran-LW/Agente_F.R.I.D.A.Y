@@ -37,6 +37,9 @@ const variables = [
   ['HF_BACKUP_DATASET', process.env.HF_BACKUP_DATASET || 'Aldebaran-LW/openclaw-backup'],
   ['HF_LEARNING_AUTO', process.env.HF_LEARNING_AUTO?.trim() || 'true'],
   ['KILO_GATEWAY_BASE_URL', process.env.KILO_GATEWAY_BASE_URL?.trim() || 'https://api.kilo.ai/api/gateway'],
+  ['OLLAMA_API_URL', process.env.OLLAMA_API_URL?.trim()],
+  ['OLLAMA_MODEL', process.env.OLLAMA_MODEL?.trim() || 'smollm2:360m'],
+  ['FRIDAY_DISABLE_OPENROUTER', process.env.FRIDAY_DISABLE_OPENROUTER?.trim()],
 ];
 
 console.log('Space', SPACE);
@@ -56,6 +59,10 @@ for (const [key, value] of secrets) {
 }
 
 for (const [key, value] of variables) {
+  if (value === undefined || value === '') {
+    console.log('  [SKIP] variable', key);
+    continue;
+  }
   const res = await fetch(`https://huggingface.co/api/spaces/${SPACE}/variables`, {
     method: 'POST',
     headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },

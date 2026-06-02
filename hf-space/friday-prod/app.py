@@ -143,6 +143,44 @@ def _run_openrouter_chat(task: str, cfg: dict[str, Any]) -> str:
     raise RuntimeError(err_text)
 
 
+def _ollama_api_base() -> str:
+    return (os.environ.get("OLLAMA_API_URL") or "").strip().rstrip("/")
+
+
+def _run_ollama_chat(task: str, cfg: dict[str, Any]) -> str:
+    """Último recurso: Ollama na EC2 (OLLAMA_API_URL). Requer porta acessível do Space."""
+    import httpx
+
+    base = _ollama_api_base()
+    if not base:
+        raise ValueError("OLLAMA_API_URL em falta")
+
+    model = (os.environ.get("OLLAMA_MODEL") or "smollm2:360m").strip()
+    system = cfg.get("description") or cfg.get("role") or "Assistente OpenClaw"
+    max_tokens = min(int(cfg.get("max_tokens") or 2048), 4096)
+
+    r = httpx.post(
+        f"{base}/api/chat",
+        json={
+            "model": model,
+            "messages": [
+                {"role": "system", "content": system},
+                {"role": "user", "content": task},
+            ],
+            "stream": False,
+            "options": {"num_predict": max_tokens},
+        },
+        timeout=120.0,
+    )
+    if r.status_code >= 400:
+        raise RuntimeError(f"ollama/{model}: HTTP {r.status_code} {r.text[:200]}")
+    data = r.json()
+    content = (data.get("message") or {}).get("content")
+    if content:
+        return str(content).strip()
+    raise RuntimeError(f"ollama/{model}: resposta vazia")
+
+
 def _run_hf_inference_chat(task: str, cfg: dict[str, Any]) -> str:
     """Chat via HF Inference (HF_TOKEN) — fallback quando OpenRouter 402 ou desactivado."""
     token = os.environ.get("HF_TOKEN", "").strip()
@@ -442,6 +480,24 @@ class Orquestrador:
             hf_token = os.environ.get("HF_TOKEN", "").strip()
             skip_or = bool(cfg.get("llm_skip_openrouter")) or _openrouter_disabled()
             or_key = os.environ.get("OPENROUTER_API_KEY", "").strip()
+            ollama_url = _ollama_api_base()
+
+            def _finish_ollama(prior: str) -> dict[str, Any] | None:
+                if not ollama_url:
+                    return None
+                try:
+                    result = _run_ollama_chat(task, cfg)
+                    out = {
+                        "ok": True,
+                        "mode": "ollama-fallback",
+                        "agent_id": target,
+                        "result": result,
+                        "fallback_from": prior,
+                    }
+                    _persist_learning(target, task, result, "ollama-fallback")
+                    return out
+                except Exception:
+                    return None
 
             if skip_or and hf_token:
                 try:
@@ -450,6 +506,9 @@ class Orquestrador:
                     _persist_learning(target, task, result, "hf-inference-chat")
                     return out
                 except Exception as e:
+                    ollama_out = _finish_ollama("hf-inference")
+                    if ollama_out:
+                        return ollama_out
                     return {"ok": False, "agent_id": target, "error": str(e)}
 
             if or_key and not skip_or:
@@ -473,11 +532,17 @@ class Orquestrador:
                             _persist_learning(target, task, result, "hf-inference-chat")
                             return out
                         except Exception as hf_e:
+                            ollama_out = _finish_ollama("openrouter+hf")
+                            if ollama_out:
+                                return ollama_out
                             return {
                                 "ok": False,
                                 "agent_id": target,
                                 "error": f"openrouter: {err}; hf: {hf_e}",
                             }
+                    ollama_out = _finish_ollama("openrouter")
+                    if ollama_out:
+                        return ollama_out
                     return {"ok": False, "agent_id": target, "error": err}
 
             if hf_token and not or_key:
@@ -487,7 +552,15 @@ class Orquestrador:
                     _persist_learning(target, task, result, "hf-inference-chat")
                     return out
                 except Exception as e:
+                    ollama_out = _finish_ollama("hf-inference")
+                    if ollama_out:
+                        return ollama_out
                     return {"ok": False, "agent_id": target, "error": str(e)}
+
+            if ollama_url:
+                ollama_out = _finish_ollama("direct")
+                if ollama_out:
+                    return ollama_out
 
         try:
             agent = get_agent(target)
@@ -541,6 +614,7 @@ def root():
         "openrouter": bool(os.environ.get("OPENROUTER_API_KEY")),
         "kilo": bool(os.environ.get("KILO_API_KEY")),
         "hf_token": bool(os.environ.get("HF_TOKEN")),
+        "ollama": bool(_ollama_api_base()),
         "gateway": bool(os.environ.get("OPENCLAW_GATEWAY_BASE_URL")),
         "learning_auto": _learning_auto_enabled(),
     }
@@ -554,6 +628,7 @@ def health():
         "openrouter": bool(os.environ.get("OPENROUTER_API_KEY")),
         "kilo": bool(os.environ.get("KILO_API_KEY")),
         "hf_token": bool(os.environ.get("HF_TOKEN")),
+        "ollama": bool(_ollama_api_base()),
         "gateway": bool(os.environ.get("OPENCLAW_GATEWAY_BASE_URL")),
         "learning_auto": _learning_auto_enabled(),
         "backup_dataset": os.environ.get("HF_BACKUP_DATASET", "Aldebaran-LW/openclaw-backup"),

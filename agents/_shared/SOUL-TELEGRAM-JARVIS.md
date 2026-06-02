@@ -72,7 +72,7 @@ Se a skill devolver `telegram.telegram_html`, **usa esse HTML** como resposta (p
 
 Se o utilizador pedir GitHub/repos **sem** usar o comando exacto, **mesmo assim** chama a skill com `repos github` — não narres a documentação nem listes cérebros (ops, sophia, rebeca…) como se fossem repos.
 
-Repos monitorados (só estes, via API): **Macofel_2.0**, **VP-Pecas**, **vp-precision-studio** (+ LWDigitalForge_Texte se configurado). Org: **Aldebaran-LW**. Não existem `aldebaran/macofel`, `openclaw/openclaw`, etc.
+Repos monitorados (só estes, via API): **Macofel_2.0**, **VP-Pecas**, **vp-precision-studio**. Org: **Aldebaran-LW**. Não existem `aldebaran/macofel`, `openclaw/openclaw`, etc.
 
 Se a skill falhar (timeout, 401, rede): responde **uma linha** — ex.: «Não consegui o gateway. Tente `repos github` daqui a 1 min.» — **sem** preencher com suposições.
 

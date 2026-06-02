@@ -4,7 +4,7 @@ import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const REPOS = ['Macofel_2.0', 'VP-Pecas', 'vp-precision-studio', 'LWDigitalForge_Texte'];
+const REPOS = ['Macofel_2.0', 'VP-Pecas', 'vp-precision-studio'];
 
 function loadEnv() {
   const p = resolve(__dirname, '..', '.env');

@@ -9,7 +9,8 @@ node scripts/rimuru-token-monitor.mjs
 | Origem do 402 | Sintoma | Acção |
 |---------------|---------|--------|
 | **OpenRouter** (chave no Space) | `openrouter-chat: HTTP 402` | Modelos `:free` em `GLOBAL_OPENROUTER_FALLBACKS` ou `FRIDAY_DISABLE_OPENROUTER=1` |
-| **HF Inference Providers** | mensagem “depleted monthly credits” no playground | Rotas inovação (`/run/sophia` …) não usam Inference Providers; agentes chat caem para `hf-inference-chat` |
+| **HF Inference Providers** | mensagem “depleted monthly credits” no playground | Rotas inovação (`/run/sophia` …) não usam Inference Providers; agentes chat caem para `hf-inference-chat`, depois **Ollama** se `OLLAMA_API_URL` no Space |
+| **Ollama EC2** | último recurso no Space | `OLLAMA_API_URL` + `OLLAMA_MODEL` — deploy: `scripts/fix-hf-fallback-ollama.sh` ou `hf-deploy-space.ps1 -ConfigureSecrets` |
 | **DeepSeek API** | `Insufficient Balance` no gateway EC2 | Rimuru mostra `deepseek: ok` com saldo $0 — consultar billing |
 
 Agentes **Sophia, Yato, Senku, Gideon**: `llm_skip_openrouter: true` em `agents-config.yaml` (gerado por `generate-hf-agents-config.mjs`). No Space só correm handlers em `lib/innovation_runner.py`.

@@ -26,7 +26,7 @@
       "requiresApproval": false,
       "timeoutMs": 20000,
       "telemetry": true,
-      "description": "Status dos repos Aldebaran-LW (incl. LWDigitalForge_Texte)"
+      "description": "Status dos repos Aldebaran-LW (Macofel, VP-Pecas, vp-precision-studio)"
     },
     "ecosystem-watch": {
       "agent": "heimdall",

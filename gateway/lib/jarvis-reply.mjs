@@ -106,7 +106,7 @@ function formatOrchestrateReply(agentId, payload) {
 function formatGithubRepoLine(r) {
   if (r.error) return `${r.name}: erro ${r.error}`;
   const push = r.pushed_at ? r.pushed_at.slice(0, 10) : '?';
-  const label = r.name === 'LWDigitalForge_Texte' ? 'LWDigitalForge_Texte (portal)' : r.name;
+  const label = r.name;
   return `${label}: ${r.open_issues} issues, ultimo push ${push}`;
 }
 

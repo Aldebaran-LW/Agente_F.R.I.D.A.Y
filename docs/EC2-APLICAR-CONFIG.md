@@ -36,3 +36,22 @@ Telegram: status macofel
 ## .env na EC2 (/opt/openclaw/.env)
 
 OPENCLAW_GATEWAY_BASE_URL, OPENCLAW_AUTOMATION_TOKEN, OPENROUTER_API_KEY, TELEGRAM_*
+
+### VP-Peças e heartbeat `heimdall_flow`
+
+O office snapshot do gateway usa `VP_PECAS_URL` para o agente **vp-pecas** (evita “URL não configurada” e `office_ok=false`).
+
+```bash
+# Em /opt/openclaw/.env (e no .env do projeto Vercel gateway)
+VP_PECAS_URL=https://vp-pecas.vercel.app
+MACOFEL_URL=https://www.macofelparapua.com
+```
+
+Depois de `git pull` e alterar o `.env`:
+
+```bash
+sudo systemctl restart openclaw-gateway
+sudo systemctl start openclaw-heartbeat.service
+```
+
+Repos GitHub monitorados: **Macofel_2.0**, **VP-Pecas**, **vp-precision-studio** (removido `LWDigitalForge_Texte` — repo 404).

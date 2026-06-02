@@ -199,10 +199,17 @@ def check_heimdall_flow() -> tuple[CheckResult, dict[str, str], list[str]]:
             ), {}, []
         flow = json.loads(raw)
         activity: dict[str, str] = flow.get("agent_activity") or {}
+        office = "OK" if flow.get("office_ok") else "degradado"
         detail = (
-            f"ok={flow.get('ok')} erros={flow.get('error_count', 0)} "
-            f"ativos={flow.get('working_count', 0)}"
+            f"ok={flow.get('ok')} office={office} "
+            f"erros={flow.get('error_count', 0)} ativos={flow.get('working_count', 0)}"
         )
+        if not flow.get("ok"):
+            alerts = flow.get("alerts") or []
+            if alerts:
+                hint = str(alerts[0].get("mensagem", ""))[:100]
+                if hint:
+                    detail += f" | {hint}"
         ok = bool(flow.get("ok"))
         transition_msgs: list[str] = []
         return CheckResult("heimdall_flow", ok, detail), activity, transition_msgs

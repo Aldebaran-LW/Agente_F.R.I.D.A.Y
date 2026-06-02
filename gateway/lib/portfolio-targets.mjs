@@ -4,11 +4,11 @@ export const GITHUB_REPOS = [
   'Macofel_2.0',
   'VP-Pecas',
   'vp-precision-studio',
-  'LWDigitalForge_Texte',
 ];
 
 export const DEPLOY_SITES = [
   { key: 'macofel', env: 'MACOFEL_URL', default: 'https://macofel-2-0.vercel.app' },
+  { key: 'vp-pecas', env: 'VP_PECAS_URL', default: 'https://vp-pecas.vercel.app' },
   { key: 'portal', env: 'LWDIGITALFORGE_URL', default: 'https://www.lwdigitalforge.com' },
 ];
 
