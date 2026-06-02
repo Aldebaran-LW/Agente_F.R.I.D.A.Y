@@ -14,7 +14,10 @@ O `POST /jarvis` inclui:
   "telegram": {
     "text": "igual ao reply",
     "telegram_html": "<b>Macofel</b> …",
-    "parse_mode": "HTML"
+    "parse_mode": "HTML",
+    "reply_markup": {
+      "inline_keyboard": [[{ "text": "📱 WhatsApp", "callback_data": "j:m:wa" }]]
+    }
   }
 }
 ```
@@ -22,11 +25,14 @@ O `POST /jarvis` inclui:
 Na EC2, ao responder ao utilizador:
 
 ```javascript
-// Preferir HTML formatado
+// Preferir HTML formatado + botões quando existirem
 await sendMessage(chatId, body.telegram.telegram_html, {
   parse_mode: 'HTML',
+  reply_markup: body.telegram.reply_markup,
 });
 ```
+
+**Callbacks:** ver `docs/TELEGRAM-WHATSAPP-FLOW.md` e `scripts/lib/telegram-callback-bridge.mjs`.
 
 Se `telegram_html` falhar (caracteres inválidos), usar `reply` em texto simples.
 
@@ -46,6 +52,7 @@ Se `telegram_html` falhar (caracteres inválidos), usar `reply` em texto simples
 | `/github` | `repos github` |
 | `/sites` | `sites no ar` |
 | `/resumo` | `resumo portfolio` |
+| `/lembrete` | Menu WhatsApp (botão 📱) |
 | `pesquisa mercado` | Yato (inovação HF) |
 | `tokens openrouter` | Rimuru (consumo APIs) |
 | `auditoria seguranca` | Veldora |

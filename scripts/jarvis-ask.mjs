@@ -24,7 +24,9 @@ function loadEnv() {
 async function main() {
   loadEnv();
 
-  const message = process.argv.slice(2).join(' ') || 'ajuda';
+  const args = process.argv.slice(2).filter((a) => !a.startsWith('--'));
+  const message = args.join(' ') || 'ajuda';
+  const approved = process.argv.includes('--approved');
   const base = process.env.OPENCLAW_GATEWAY_BASE_URL?.replace(/\/$/, '');
   const token = process.env.OPENCLAW_AUTOMATION_TOKEN;
 
@@ -50,14 +52,18 @@ async function main() {
   const res = await fetch(url, {
     method: 'POST',
     headers,
-    body: JSON.stringify({ message }),
+    body: JSON.stringify({ message, approved }),
     signal: AbortSignal.timeout(30000),
   });
 
   const body = await res.json().catch(() => ({}));
-  if (body.telegram?.telegram_html && process.argv.includes('--telegram')) {
+  if (process.argv.includes('--telegram')) {
     console.log('\n--- Telegram HTML ---\n');
-    console.log(body.telegram.telegram_html);
+    console.log(body.telegram?.telegram_html || body.reply);
+    if (body.telegram?.reply_markup) {
+      console.log('\n--- reply_markup ---\n');
+      console.log(JSON.stringify(body.telegram.reply_markup, null, 2));
+    }
     console.log('\n--- JSON ---\n');
   }
   console.log(JSON.stringify({ http: res.status, ...body }, null, 2));

@@ -80,6 +80,9 @@ if (orch) {
 
 doc.tools = doc.tools || {};
 doc.tools.profile = 'messaging';
+// O perfil "messaging" remove `exec`, mas o Telegram-Jarvis precisa executar
+// o hook `scripts/openclaw-jarvis-hook.mjs` localmente.
+doc.tools.allow = Array.from(new Set([...(doc.tools.allow || []), 'exec']));
 
 doc.models = doc.models || {};
 doc.models.providers = doc.models.providers || {};
