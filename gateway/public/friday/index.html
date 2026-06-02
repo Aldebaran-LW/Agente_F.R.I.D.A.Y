@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>F.R.I.D.A.Y. — OpenClaw Multi-Agent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;600&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/friday/css/friday.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/renderers/CSS2DRenderer.js"></script>
+</head>
+<body>
+  <div id="custom-cursor" aria-hidden="true"></div>
+  <div id="custom-cursor-dot" aria-hidden="true"></div>
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <div id="home-blobs">
+    <div class="blob blob-a"></div>
+    <div class="blob blob-b"></div>
+  </div>
+
+  <header class="site-nav glass-panel">
+    <div class="nav-inner">
+      <button type="button" class="logo" onclick="location.hash='#home'">
+        <span class="logo-mark" aria-hidden="true">◎</span>
+        <span class="logo-text glitch-text" data-text="F.R.I.D.A.Y.">F.R.I.D.A.Y.</span>
+      </button>
+
+      <nav class="nav-links" aria-label="Principal">
+        <a href="#home" class="nav-link active">Visão Geral</a>
+        <a href="#sala" class="nav-link">Sala</a>
+        <a href="#rede" class="nav-link">Rede 3D</a>
+        <a href="#metrics" class="nav-link">Métricas</a>
+        <a href="#playground" class="nav-link">Playground</a>
+      </nav>
+
+      <div class="nav-actions">
+        <div class="api-status" id="api-status-badge" title="Estado da API">
+          <span style="position:relative;width:8px;height:8px">
+            <span class="api-ping on" id="api-ping"></span>
+            <span class="api-dot on" id="api-dot"></span>
+          </span>
+          <span id="sys-status">A conectar…</span>
+        </div>
+        <button type="button" class="icon-btn" id="btn-sync" title="Sincronizar"><i data-lucide="refresh-cw"></i></button>
+        <button type="button" class="icon-btn" id="btn-open-token" title="Token API"><i data-lucide="key"></i></button>
+        <button type="button" class="icon-btn menu-toggle" id="menu-toggle" aria-label="Menu"><i data-lucide="menu"></i></button>
+      </div>
+    </div>
+    <div id="mobile-menu">
+      <a href="#home">Visão Geral</a>
+      <a href="#sala">Sala de Trabalho</a>
+      <a href="#rede">Rede Neural 3D</a>
+      <a href="#metrics">Métricas</a>
+      <a href="#playground">Playground Jarvis</a>
+    </div>
+  </header>
+
+  <main id="app">
+    <section id="view-home" class="view-container active">
+      <div class="hero">
+        <p class="badge">OpenClaw · Multi-Agente</p>
+        <h1>
+          Ecossistema<br />
+          <span class="gradient-text glitch-text" data-text="OpenClaw">OpenClaw</span>
+        </h1>
+        <p>Infraestrutura autónoma com Jarvis, Macofel, Heimdall e VP-Peças — dados em tempo real via gateway Vercel.</p>
+        <div class="hero-actions">
+          <a href="#sala" class="btn-primary clickable">Entrar no Laboratório <i data-lucide="monitor-play"></i></a>
+          <a href="#rede" class="btn-ghost clickable">Matriz 3D <i data-lucide="box"></i></a>
+          <a href="#playground" class="btn-ghost clickable">Playground <i data-lucide="message-square"></i></a>
+        </div>
+      </div>
+
+      <div class="badges">
+        <span class="badge glass-panel">AWS EC2</span>
+        <span class="badge glass-panel">Vercel Gateway</span>
+        <span class="badge glass-panel">HF Spaces</span>
+        <span class="badge glass-panel">OpenRouter Free</span>
+      </div>
+
+      <div class="dashboard-panel glass-panel">
+        <div class="section-head" style="margin:0;padding:0 0 1rem">
+          <h2 style="margin:0;font-family:'Space Grotesk',sans-serif">Telemetria (24h)</h2>
+          <span class="mono" id="last-sync-time" style="font-size:0.7rem;color:var(--muted)">—</span>
+        </div>
+        <div class="chart-wrap"><canvas id="trafficChart"></canvas></div>
+        <p class="mono chart-hint">Eventos agregados do Hub (últimas 24h) quando Supabase está activo.</p>
+      </div>
+
+      <div class="dashboard-panel glass-panel activity-panel">
+        <h2 style="margin:0 0 1rem;font-family:'Space Grotesk',sans-serif;font-size:1.1rem">
+          <i data-lucide="radio" style="width:1rem;height:1rem;vertical-align:middle"></i> Actividade recente (Hub)
+        </h2>
+        <ul id="activity-feed" class="activity-list">
+          <li class="activity-empty">A carregar…</li>
+        </ul>
+      </div>
+
+      <div class="section-head">
+        <h2 style="margin:0;font-family:'Space Grotesk',sans-serif">Cérebros Conectados</h2>
+        <span class="mono" style="font-size:0.7rem;color:var(--muted)">● ao vivo</span>
+      </div>
+      <div class="cards-grid" id="home-agents-grid"></div>
+
+      <footer class="site-footer">
+        <a href="https://github.com/Aldebaran-LW/Agente_OpenClaw" target="_blank" rel="noopener">GitHub</a>
+        <a href="/office">Painel /office</a>
+        <a href="/api/health" target="_blank" rel="noopener">Health</a>
+        <p style="margin-top:0.75rem">Política: intervenção humana para mutações de produção.</p>
+      </footer>
+    </section>
+
+    <section id="view-sala" class="view-container">
+      <canvas id="sala-canvas" aria-label="Sala de trabalho animada"></canvas>
+      <div class="overlay-panel glass-panel sala-top-left">
+        <h2><i data-lucide="terminal-square"></i> Centro de Comando</h2>
+        <p class="mono" style="font-size:0.7rem;color:var(--muted)">Canvas 2D · clique num agente para detalhes</p>
+      </div>
+      <div id="sala-tooltip" class="glass-panel hidden">
+        <div id="tooltip-name" style="font-weight:700"></div>
+        <div id="tooltip-role" class="mono" style="font-size:0.7rem;margin:0.25rem 0"></div>
+        <div id="tooltip-model" style="font-size:0.75rem;color:var(--muted)"></div>
+        <div id="tooltip-action" class="mono" style="font-size:0.75rem;color:var(--cyan);margin-top:0.35rem"></div>
+      </div>
+      <div id="sala-modal" class="modal-backdrop hidden" role="dialog">
+        <div class="modal-card glass-panel">
+          <h3 id="modal-name" style="margin:0 0 0.25rem"></h3>
+          <p id="modal-role" class="mono" style="font-size:0.75rem;color:var(--muted)"></p>
+          <p class="mono" style="margin:1rem 0 0.35rem;font-size:0.7rem;color:var(--muted)">Modelo</p>
+          <p id="modal-model" class="mono" style="color:var(--cyan)"></p>
+          <p class="mono" style="margin:0.75rem 0 0.35rem;font-size:0.7rem;color:var(--muted)">Última acção (API)</p>
+          <p id="modal-detail"></p>
+          <p class="mono" style="margin:0.75rem 0 0.35rem;font-size:0.7rem;color:var(--muted)">Tarefas simuladas hoje</p>
+          <p id="modal-tasks" class="mono"></p>
+          <div id="modal-icon-bg" style="display:none"></div>
+          <button type="button" class="btn-ghost" id="sala-modal-close" style="margin-top:1rem;border:none;cursor:pointer">Fechar</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-rede" class="view-container">
+      <div id="rede-canvas"></div>
+      <div class="overlay-panel glass-panel rede-top-right">
+        <h2>Matriz Neural <i data-lucide="share-2"></i></h2>
+        <p class="mono" style="font-size:0.7rem;color:var(--muted)">Arrasta · zoom · clique · duplo-clique = logs Hub</p>
+      </div>
+      <div class="overlay-panel glass-panel rede-controls">
+        <button type="button" class="icon-btn active" id="btn-auto-rotate" title="Auto-rotação"><i data-lucide="rotate-3d"></i></button>
+        <button type="button" class="icon-btn" id="btn-reset-cam" title="Reset câmara"><i data-lucide="crosshair"></i></button>
+        <button type="button" class="icon-btn" id="btn-focus-rede" title="Modo foco"><i data-lucide="maximize-2"></i></button>
+        <button type="button" class="icon-btn" id="btn-exit-focus" title="Sair foco"><i data-lucide="minimize-2"></i></button>
+        <button type="button" class="icon-btn" id="btn-cursor-pref" title="Cursor neon"><i data-lucide="mouse-pointer-2"></i></button>
+      </div>
+      <div id="rede-panel" class="overlay-panel glass-panel hidden">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem">
+          <span id="panel-color" style="width:10px;height:10px;border-radius:50%"></span>
+          <h3 id="panel-name" style="margin:0;font-family:'Space Grotesk',sans-serif"></h3>
+        </div>
+        <p id="panel-model" class="mono" style="font-size:0.7rem;color:var(--muted)"></p>
+        <p id="panel-desc" style="font-size:0.85rem;line-height:1.5;margin-top:0.5rem"></p>
+        <div id="panel-logs-wrap" class="panel-logs-wrap hidden">
+          <p class="mono" style="font-size:0.65rem;color:var(--muted);margin:0.75rem 0 0.35rem">Logs Hub (duplo-clique)</p>
+          <ul id="panel-logs" class="panel-logs"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-metrics" class="view-container page-scroll">
+      <div class="page-inner">
+        <div class="page-head">
+          <h1 class="page-title">Métricas & KPIs</h1>
+          <p class="page-desc">Agregação em tempo real de <code>office/status</code> e <code>hub/recent</code>.</p>
+          <div class="page-actions">
+            <button type="button" class="btn-ghost clickable" id="btn-export-csv"><i data-lucide="download"></i> CSV</button>
+            <button type="button" class="btn-ghost clickable" id="btn-export-json"><i data-lucide="file-json"></i> JSON</button>
+          </div>
+        </div>
+        <p id="metrics-sources" class="mono metrics-sources hidden"></p>
+        <div id="metrics-kpis" class="kpi-grid"></div>
+        <div class="dashboard-panel glass-panel">
+          <div class="section-head" style="margin:0 0 1rem">
+            <h2 style="margin:0;font-size:1.1rem">Agentes</h2>
+            <select id="metrics-filter-agent" class="metrics-select mono"></select>
+          </div>
+          <div class="table-wrap">
+            <table class="metrics-table">
+              <thead>
+                <tr><th>Agente</th><th>Estado</th><th>Detalhe</th><th>Hub 24h</th></tr>
+              </thead>
+              <tbody id="metrics-agents-body"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="dashboard-panel glass-panel">
+          <h2 style="margin:0 0 1rem;font-size:1.1rem">Eventos Hub (24h)</h2>
+          <div class="table-wrap table-wrap-tall">
+            <table class="metrics-table">
+              <thead>
+                <tr><th>Tipo</th><th>Agente</th><th>Data</th><th>Descrição</th></tr>
+              </thead>
+              <tbody id="metrics-events-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-playground" class="view-container page-scroll">
+      <div class="page-inner playground-wrap">
+        <div class="page-head">
+          <h1 class="page-title">Playground Jarvis</h1>
+          <p class="page-desc">Chat com <code>POST /jarvis</code> ou encaminhamento via <code>POST /openclaw/orchestrate</code>.</p>
+        </div>
+        <div class="pg-mode glass-panel">
+          <label class="pg-mode-opt"><input type="radio" name="pg-mode" value="jarvis" checked /> Jarvis (planner)</label>
+          <label class="pg-mode-opt"><input type="radio" name="pg-mode" value="orchestrate" /> Orquestrar agente</label>
+        </div>
+        <div id="pg-jarvis-options" class="pg-options glass-panel">
+          <label class="pg-check highlight">
+            <input type="checkbox" id="pg-jarvis-approved" />
+            Marcar como aprovado (<code>approved: true</code> — acções de escrita)
+          </label>
+          <p id="pg-approval-hint" class="mono pg-hint hidden">Esta mensagem pode exigir confirmação explícita no Telegram ou aqui.</p>
+        </div>
+        <div id="pg-orchestrate-options" class="pg-options glass-panel hidden">
+          <label for="pg-orchestrate-agent">Agente destino</label>
+          <select id="pg-orchestrate-agent" class="metrics-select mono"></select>
+          <label class="pg-check">
+            <input type="checkbox" id="pg-orchestrate-confirm" />
+            Confirmo que autorizo o encaminhamento desta tarefa (não é pagamento nem envio de PII)
+          </label>
+        </div>
+        <div id="playground-log" class="playground-log glass-panel" role="log"></div>
+        <div class="pg-compose glass-panel">
+          <textarea id="pg-input" rows="3" placeholder="Ex: status macofel · status github · ajuda" class="pg-input mono"></textarea>
+          <div class="pg-compose-actions">
+            <button type="button" class="btn-ghost" id="pg-clear">Limpar</button>
+            <button type="button" class="btn-primary" id="pg-send">Enviar</button>
+          </div>
+        </div>
+        <p class="mono chart-hint">Histórico só nesta sessão (sessionStorage). Nunca coloques tokens ou secrets nas mensagens.</p>
+      </div>
+    </section>
+  </main>
+
+  <div id="token-modal" class="modal-backdrop hidden" role="dialog" aria-labelledby="token-title">
+    <div class="modal-card wide glass-panel">
+      <h2 id="token-title" style="margin:0 0 0.5rem;font-family:'Space Grotesk',sans-serif">Autenticação Gateway</h2>
+      <p style="font-size:0.85rem;color:var(--muted);line-height:1.5">
+        Usa o mesmo <code>OPENCLAW_AUTOMATION_TOKEN</code> da Vercel. Guardado só em <code>sessionStorage</code> (não envies por chat).
+      </p>
+      <label for="token-input" style="margin-top:1rem">Bearer token</label>
+      <input id="token-input" type="password" autocomplete="off" placeholder="cole o token aqui" />
+      <div class="modal-actions">
+        <button type="button" class="btn-primary" id="btn-save-token" style="border:none;cursor:pointer">Guardar e sincronizar</button>
+        <button type="button" class="btn-ghost" id="btn-clear-token" style="cursor:pointer">Limpar</button>
+        <button type="button" class="btn-ghost" id="btn-close-token" style="cursor:pointer">Fechar</button>
+      </div>
+      <p class="mono" style="font-size:0.65rem;color:var(--muted);margin-top:0.75rem">
+        Endpoint: <code>GET /openclaw/office/status</code> · partilhado com <a href="/office">/office</a>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('menu-toggle')?.addEventListener('click', () => {
+      document.getElementById('mobile-menu')?.classList.toggle('open');
+    });
+  </script>
+  <script type="module" src="/friday/js/main.js"></script>
+</body>
+</html>

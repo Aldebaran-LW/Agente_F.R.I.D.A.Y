@@ -9,7 +9,7 @@ Três camadas complementares para ver o OpenClaw sem depender só do Telegram ou
 | Etapa | O quê | Onde corre | Ligação |
 |-------|--------|------------|---------|
 | **1** | Gateway + rotas de status | Vercel (`gateway/`) | REST + Bearer |
-| **2** | Landing + painel pixel-art | Vercel `/` e `/office` | `GET /api/health` · `GET /openclaw/office/status` |
+| **2** | Landing + painel pixel-art + SPA `/friday` | Vercel `/`, `/office`, `/friday` | `GET /api/health` · `GET /openclaw/office/status` |
 | **3** | Claw3D / openclaw-office | PC browser → EC2 | WebSocket OpenClaw `:18789` |
 
 Telegram **nunca** fala com estes painéis. Fluxo de produção: **Telegram → AWS → Gateway → APIs**.
