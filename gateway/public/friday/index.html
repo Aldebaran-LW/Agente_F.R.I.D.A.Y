@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="dark scroll-smooth">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,28 +7,61 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;600&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/friday/css/friday.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['Geist Mono', 'monospace'],
+            display: ['Space Grotesk', 'sans-serif'],
+          },
+          colors: {
+            bgDark: '#050508',
+            cardDark: '#0c0c12',
+            brand: {
+              blue: '#3b82f6',
+              purple: '#8b5cf6',
+              cyan: '#06b6d4',
+              emerald: '#10b981',
+              amber: '#f59e0b',
+              danger: '#ef4444',
+            },
+          },
+          boxShadow: {
+            'neon-blue': '0 0 20px rgba(59, 130, 246, 0.5)',
+            'neon-purple': '0 0 20px rgba(139, 92, 246, 0.5)',
+            'neon-emerald': '0 0 20px rgba(16, 185, 129, 0.5)',
+            'neon-amber': '0 0 24px rgba(245, 158, 11, 0.5)',
+          },
+        },
+      },
+    };
+  </script>
+  <link rel="stylesheet" href="/friday/css/friday.css?v=tw-20260602" />
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/renderers/CSS2DRenderer.js"></script>
 </head>
-<body>
+<body class="flex flex-col min-h-screen bg-bgDark text-slate-200 overflow-x-hidden">
   <div id="custom-cursor" aria-hidden="true"></div>
   <div id="custom-cursor-dot" aria-hidden="true"></div>
   <div class="scanlines" aria-hidden="true"></div>
 
-  <div id="home-blobs">
-    <div class="blob blob-a"></div>
-    <div class="blob blob-b"></div>
+  <div id="home-blobs" class="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+    <div class="absolute -top-32 -left-24 h-[600px] w-[600px] rounded-full bg-brand-blue/20 blur-[120px] animate-pulse"></div>
+    <div class="absolute bottom-[10%] -right-24 h-[500px] w-[500px] rounded-full bg-brand-purple/20 blur-[120px]"></div>
   </div>
 
-  <header class="site-nav glass-panel">
-    <div class="nav-inner">
-      <button type="button" class="logo" onclick="location.hash='#home'">
-        <span class="logo-mark" aria-hidden="true">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <nav class="site-nav glass-panel fixed top-0 z-50 w-full border-b border-slate-800/50">
+    <div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+      <button type="button" class="logo group flex cursor-pointer items-center gap-3 border-0 bg-transparent p-0 text-inherit" onclick="location.hash='#home'">
+        <span class="logo-mark flex h-9 w-9 items-center justify-center rounded-lg border border-brand-cyan/50 bg-cardDark shadow-neon-blue transition-colors group-hover:bg-brand-cyan/10">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-brand-cyan">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path>
             <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
             <line x1="9" y1="9" x2="9.01" y2="9"></line>
@@ -36,189 +69,200 @@
             <path d="M12 11v2"></path>
           </svg>
         </span>
-        <span class="logo-text glitch-text" data-text="F.R.I.D.A.Y.">F.R.I.D.A.Y.</span>
+        <span class="logo-text glitch-text hidden font-display text-xl font-bold tracking-widest text-white sm:block" data-text="F.R.I.D.A.Y.">F.R.I.D.A.Y.</span>
       </button>
 
-      <nav class="nav-links" aria-label="Principal">
-        <a href="#home" class="nav-link active">Visão Geral</a>
-        <a href="#sala" class="nav-link">Sala (2D)</a>
-        <a href="#rede" class="nav-link">Rede (3D)</a>
-        <a href="#metrics" class="nav-link">Métricas</a>
-        <a href="#playground" class="nav-link">Playground</a>
-      </nav>
+      <div class="nav-links hidden items-center gap-6 lg:flex" aria-label="Principal">
+        <a href="#home" class="nav-link text-sm font-medium text-brand-cyan transition-colors">Visão Geral</a>
+        <a href="#sala" class="nav-link text-sm font-medium text-slate-400 transition-colors hover:text-brand-cyan">Sala (2D)</a>
+        <a href="#rede" class="nav-link text-sm font-medium text-slate-400 transition-colors hover:text-brand-cyan">Rede (3D)</a>
+        <a href="#metrics" class="nav-link text-sm font-medium text-slate-400 transition-colors hover:text-brand-cyan">Métricas</a>
+        <a href="#playground" class="nav-link text-sm font-medium text-slate-400 transition-colors hover:text-brand-cyan">Playground</a>
+      </div>
 
-      <div class="nav-actions">
-        <div class="api-status" id="api-status-badge" title="Estado da API">
-          <span style="position:relative;width:8px;height:8px">
-            <span class="api-ping on" id="api-ping"></span>
-            <span class="api-dot on" id="api-dot"></span>
+      <div class="nav-actions flex items-center gap-2 sm:gap-4">
+        <div class="api-status hidden items-center gap-2 rounded-full border border-slate-700 bg-slate-900/80 px-4 py-1.5 sm:flex" id="api-status-badge" title="Estado da API">
+          <span class="relative flex h-2 w-2">
+            <span class="api-ping on absolute inline-flex h-full w-full rounded-full opacity-75" id="api-ping"></span>
+            <span class="api-dot on relative inline-flex h-2 w-2 rounded-full" id="api-dot"></span>
           </span>
-          <span id="sys-status">A conectar…</span>
+          <span class="font-mono text-xs text-slate-300" id="sys-status">A conectar…</span>
         </div>
-        <button type="button" class="icon-btn" id="btn-sync" title="Sincronizar"><i data-lucide="refresh-cw"></i></button>
-        <button type="button" class="icon-btn" id="btn-open-token" title="Token API"><i data-lucide="key"></i></button>
-        <button type="button" class="icon-btn menu-toggle" id="menu-toggle" aria-label="Menu"><i data-lucide="menu"></i></button>
+        <button type="button" class="icon-btn cursor-pointer rounded-lg bg-slate-800 p-2 text-slate-300 transition-colors hover:bg-brand-blue/20 hover:text-brand-blue" id="btn-sync" title="Sincronizar">
+          <i data-lucide="refresh-cw" class="sync-icon h-4 w-4"></i>
+        </button>
+        <button type="button" class="icon-btn hidden cursor-pointer rounded-lg bg-slate-800 p-2 sm:inline-flex" id="btn-open-token" title="Token API"><i data-lucide="key" class="h-4 w-4"></i></button>
+        <button type="button" class="icon-btn menu-toggle cursor-pointer rounded-lg bg-slate-800 p-2 lg:hidden" id="menu-toggle" aria-label="Menu"><i data-lucide="menu" class="h-4 w-4"></i></button>
       </div>
     </div>
-    <div id="mobile-menu">
-      <a href="#home">Visão Geral</a>
-      <a href="#sala">Sala de Trabalho</a>
-      <a href="#rede">Rede Neural 3D</a>
-      <a href="#metrics">Métricas</a>
-      <a href="#playground">Playground Jarvis</a>
+    <div id="mobile-menu" class="glass-panel hidden border-t border-slate-800 lg:hidden">
+      <a href="#home" class="block px-4 py-3 text-sm text-white hover:bg-slate-800">Visão Geral</a>
+      <a href="#sala" class="block px-4 py-3 text-sm text-slate-300 hover:bg-slate-800">Sala (2D)</a>
+      <a href="#rede" class="block px-4 py-3 text-sm text-slate-300 hover:bg-slate-800">Rede (3D)</a>
+      <a href="#metrics" class="block px-4 py-3 text-sm text-slate-300 hover:bg-slate-800">Métricas</a>
+      <a href="#playground" class="block px-4 py-3 text-sm text-slate-300 hover:bg-slate-800">Playground</a>
     </div>
-  </header>
+  </nav>
 
-  <main id="app">
-    <section id="view-home" class="view-container active">
-      <div class="hero">
-        <p class="badge badge-nexus"><i data-lucide="terminal"></i> AGENTIC OS ONLINE</p>
-        <h1>
-          Sistema Multi-Agente<br />
-          <span class="gradient-text glitch-text" data-text="OpenClaw">OpenClaw</span>
-        </h1>
-        <p>A nova evolução de arquitetura autónoma. Agentes descentralizados com dados em tempo real via gateway Vercel (Jarvis, Macofel, Heimdall, VP-Peças).</p>
-        <div class="hero-actions">
-          <a href="#sala" class="btn-primary clickable">Entrar no Laboratório <i data-lucide="monitor-play"></i></a>
-          <a href="#rede" class="btn-ghost clickable">Explorar Matriz 3D <i data-lucide="box"></i></a>
-          <a href="#playground" class="btn-ghost clickable">Playground <i data-lucide="message-square"></i></a>
-        </div>
-      </div>
-
-      <div class="badges">
-        <span class="badge glass-panel">AWS EC2</span>
-        <span class="badge glass-panel">Vercel Gateway</span>
-        <span class="badge glass-panel">HF Spaces</span>
-        <span class="badge glass-panel">OpenRouter Free</span>
-      </div>
-
-      <div class="dashboard-panel glass-panel">
-        <div class="section-head" style="margin:0;padding:0 0 1rem">
-          <h2 style="margin:0;font-family:'Space Grotesk',sans-serif"><i data-lucide="activity" style="width:1rem;height:1rem;vertical-align:middle;color:var(--emerald)"></i> Requisições reais (24h)</h2>
-          <span class="mono" id="last-sync-time" style="font-size:0.7rem;color:var(--muted)">—</span>
-        </div>
-        <div class="chart-wrap"><canvas id="trafficChart"></canvas></div>
-        <p class="mono chart-hint">Eventos agregados do Hub (últimas 24h) quando Supabase está activo.</p>
-      </div>
-
-      <div class="dashboard-panel glass-panel activity-panel">
-        <h2 style="margin:0 0 1rem;font-family:'Space Grotesk',sans-serif;font-size:1.1rem">
-          <i data-lucide="radio" style="width:1rem;height:1rem;vertical-align:middle"></i> Actividade recente (Hub)
-        </h2>
-        <ul id="activity-feed" class="activity-list">
-          <li class="activity-empty">A carregar…</li>
-        </ul>
-      </div>
-
-      <div class="section-head">
-        <h2 style="margin:0;font-family:'Space Grotesk',sans-serif">Cérebros Conectados</h2>
-        <span class="mono" style="font-size:0.7rem;color:var(--muted)">● ao vivo</span>
-      </div>
-      <div class="cards-grid" id="home-agents-grid"></div>
-
-      <footer class="site-footer">
-        <p class="footer-policy"><span class="footer-pulse" aria-hidden="true"></span> Requer intervenção humana para mutações de DB / produção</p>
-        <div class="footer-links">
-          <a href="https://github.com/Aldebaran-LW/Agente_OpenClaw" target="_blank" rel="noopener"><i data-lucide="github"></i> Repositório</a>
-          <a href="https://github.com/Aldebaran-LW/Agente_OpenClaw/blob/main/agents/dedalo/skills/design_schema.md" target="_blank" rel="noopener"><i data-lucide="book-open"></i> Schema</a>
-          <a href="/office">/office</a>
-          <a href="/api/health" target="_blank" rel="noopener">Health</a>
-        </div>
-      </footer>
-    </section>
-
-    <section id="view-sala" class="view-container">
-      <canvas id="sala-canvas" aria-label="Sala de trabalho animada"></canvas>
-      <div class="overlay-panel glass-panel sala-top-left">
-        <h2><i data-lucide="terminal-square"></i> Centro de Comando</h2>
-        <p class="mono" style="font-size:0.7rem;color:var(--muted);line-height:1.5">Sprites SVG + pool de partículas. Animações pausam quando o separador perde foco.</p>
-        <div class="sala-status-row">
-          <span class="sala-live"><span class="api-ping on"></span><span class="api-dot on"></span> Sync OK</span>
-          <span class="mono" style="font-size:0.65rem;color:var(--muted)">60 FPS</span>
-        </div>
-      </div>
-      <div id="sala-tooltip" class="glass-panel hidden">
-        <div id="tooltip-name" style="font-weight:700"></div>
-        <div id="tooltip-role" class="mono" style="font-size:0.7rem;margin:0.25rem 0"></div>
-        <div id="tooltip-model" style="font-size:0.75rem;color:var(--muted)"></div>
-        <div id="tooltip-action" class="mono" style="font-size:0.75rem;color:var(--cyan);margin-top:0.35rem"></div>
-      </div>
-      <div id="sala-modal" class="modal-backdrop hidden" role="dialog">
-        <div class="modal-card glass-panel">
-          <h3 id="modal-name" style="margin:0 0 0.25rem"></h3>
-          <p id="modal-role" class="mono" style="font-size:0.75rem;color:var(--muted)"></p>
-          <p class="mono" style="margin:1rem 0 0.35rem;font-size:0.7rem;color:var(--muted)">Modelo</p>
-          <p id="modal-model" class="mono" style="color:var(--cyan)"></p>
-          <p class="mono" style="margin:0.75rem 0 0.35rem;font-size:0.7rem;color:var(--muted)">Última acção (API)</p>
-          <p id="modal-detail"></p>
-          <p class="mono" style="margin:0.75rem 0 0.35rem;font-size:0.7rem;color:var(--muted)">Tarefas simuladas hoje</p>
-          <p id="modal-tasks" class="mono"></p>
-          <div id="modal-icon-bg" style="display:none"></div>
-          <button type="button" class="btn-ghost" id="sala-modal-close" style="margin-top:1rem;border:none;cursor:pointer">Fechar</button>
-        </div>
-      </div>
-    </section>
-
-    <section id="view-rede" class="view-container">
-      <div id="rede-canvas"></div>
-      <div class="overlay-panel glass-panel rede-top-right">
-        <h2>Matriz Neural <i data-lucide="share-2"></i></h2>
-        <p class="mono" style="font-size:0.7rem;color:var(--muted)">Arrasta · zoom · clique no nó · duplo-clique = logs Hub. Cabos com gradiente animado.</p>
-      </div>
-      <div class="overlay-panel glass-panel rede-controls">
-        <button type="button" class="icon-btn active" id="btn-auto-rotate" title="Auto-rotação"><i data-lucide="rotate-3d"></i></button>
-        <button type="button" class="icon-btn" id="btn-reset-cam" title="Reset câmara"><i data-lucide="crosshair"></i></button>
-        <button type="button" class="icon-btn" id="btn-focus-rede" title="Modo foco"><i data-lucide="maximize-2"></i></button>
-        <button type="button" class="icon-btn" id="btn-exit-focus" title="Sair foco"><i data-lucide="minimize-2"></i></button>
-        <button type="button" class="icon-btn" id="btn-cursor-pref" title="Cursor neon"><i data-lucide="mouse-pointer-2"></i></button>
-      </div>
-      <div id="rede-panel" class="overlay-panel glass-panel hidden">
-        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem">
-          <span id="panel-color" style="width:10px;height:10px;border-radius:50%"></span>
-          <h3 id="panel-name" style="margin:0;font-family:'Space Grotesk',sans-serif"></h3>
-        </div>
-        <p id="panel-model" class="mono" style="font-size:0.7rem;color:var(--muted)"></p>
-        <p id="panel-desc" style="font-size:0.85rem;line-height:1.5;margin-top:0.5rem"></p>
-        <div id="panel-logs-wrap" class="panel-logs-wrap hidden">
-          <p class="mono" style="font-size:0.65rem;color:var(--muted);margin:0.75rem 0 0.35rem">Logs Hub (duplo-clique)</p>
-          <ul id="panel-logs" class="panel-logs"></ul>
-        </div>
-      </div>
-    </section>
-
-    <section id="view-metrics" class="view-container page-scroll">
-      <div class="page-inner">
-        <div class="page-head">
-          <h1 class="page-title">Métricas & KPIs</h1>
-          <p class="page-desc">Agregação em tempo real de <code>office/status</code> e <code>hub/recent</code>.</p>
-          <div class="page-actions">
-            <button type="button" class="btn-ghost clickable" id="btn-export-csv"><i data-lucide="download"></i> CSV</button>
-            <button type="button" class="btn-ghost clickable" id="btn-export-json"><i data-lucide="file-json"></i> JSON</button>
+  <main id="app" class="relative z-[1] flex-grow pt-16">
+    <section id="view-home" class="view-container active interactive-overlay overflow-y-auto pb-20">
+      <div class="relative mx-auto max-w-7xl px-4 pt-12 sm:px-6 lg:px-8">
+        <div class="mx-auto mb-16 max-w-4xl text-center">
+          <div class="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-cyan/30 bg-brand-cyan/10 px-3 py-1 font-mono text-xs text-brand-cyan">
+            <i data-lucide="terminal" class="h-4 w-4"></i> AGENTIC OS ONLINE
+          </div>
+          <h1 class="font-display text-5xl font-bold leading-tight tracking-tight text-white md:text-7xl">
+            Sistema Multi-Agente<br />
+            <span class="bg-gradient-to-r from-brand-blue via-brand-purple to-brand-cyan bg-clip-text text-transparent glitch-text" data-text="OpenClaw">OpenClaw</span>
+          </h1>
+          <p class="mx-auto mt-6 max-w-2xl text-lg font-light text-slate-400">
+            Arquitetura autónoma com Jarvis, Macofel, Heimdall e VP-Peças — telemetria em tempo real via gateway Vercel.
+          </p>
+          <div class="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
+            <a href="#sala" class="clickable flex items-center justify-center gap-2 rounded-lg bg-white px-8 py-3.5 font-bold text-black shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-all hover:scale-105 hover:bg-slate-200">
+              Laboratório 2D <i data-lucide="monitor-play" class="h-5 w-5"></i>
+            </a>
+            <a href="#rede" class="clickable flex items-center justify-center gap-2 rounded-lg border border-slate-700 glass-panel px-8 py-3.5 text-white transition-all hover:scale-105 hover:border-brand-cyan/50 hover:shadow-neon-blue">
+              Matriz 3D <i data-lucide="network" class="h-5 w-5"></i>
+            </a>
+            <a href="#playground" class="clickable flex items-center justify-center gap-2 rounded-lg border border-slate-700 px-6 py-3.5 text-slate-300 transition-all hover:border-brand-purple/50 hover:text-white">
+              Playground <i data-lucide="message-square" class="h-5 w-5"></i>
+            </a>
           </div>
         </div>
-        <p id="metrics-sources" class="mono metrics-sources hidden"></p>
-        <div id="metrics-kpis" class="kpi-grid"></div>
-        <div class="dashboard-panel glass-panel">
-          <div class="section-head" style="margin:0 0 1rem">
-            <h2 style="margin:0;font-size:1.1rem">Agentes</h2>
-            <select id="metrics-filter-agent" class="metrics-select mono"></select>
+
+        <div class="relative mb-8 overflow-hidden rounded-2xl border border-slate-700/50 glass-panel p-6 shadow-2xl">
+          <div class="absolute right-0 top-0 h-64 w-64 rounded-full bg-brand-blue/5 blur-3xl"></div>
+          <div class="relative z-10 mb-6 flex flex-wrap items-center justify-between gap-2">
+            <h2 class="flex items-center gap-2 font-display text-xl font-bold text-white">
+              <i data-lucide="activity" class="h-5 w-5 text-brand-emerald"></i> Requisições reais (24h)
+            </h2>
+            <span class="rounded-full border border-slate-700 bg-slate-900 px-3 py-1 font-mono text-xs text-slate-400" id="last-sync-time">—</span>
           </div>
-          <div class="table-wrap">
-            <table class="metrics-table">
-              <thead>
-                <tr><th>Agente</th><th>Estado</th><th>Detalhe</th><th>Hub 24h</th></tr>
-              </thead>
+          <div class="chart-wrap relative z-10 h-48 w-full md:h-52"><canvas id="trafficChart"></canvas></div>
+          <p class="relative z-10 mt-3 font-mono text-xs text-slate-500">Hub Supabase quando configurado na Vercel.</p>
+        </div>
+
+        <div class="mb-10 rounded-2xl border border-slate-700/50 glass-panel p-6">
+          <h2 class="mb-4 flex items-center gap-2 font-display text-lg font-bold text-white">
+            <i data-lucide="radio" class="h-4 w-4 text-brand-cyan"></i> Actividade recente (Hub)
+          </h2>
+          <ul id="activity-feed" class="activity-list space-y-2">
+            <li class="activity-empty font-mono text-sm text-slate-500">A carregar…</li>
+          </ul>
+        </div>
+
+        <div class="mb-4 flex items-end justify-between">
+          <h2 class="font-display text-2xl font-bold text-white">Cérebros Conectados</h2>
+          <span class="flex items-center gap-2 font-mono text-xs text-slate-500">
+            <span class="h-2 w-2 animate-pulse rounded-full bg-brand-cyan"></span> Monitoramento ao vivo
+          </span>
+        </div>
+        <div class="mb-16 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4" id="home-agents-grid"></div>
+
+        <footer class="mt-12 border-t border-slate-800/50 bg-black/40 py-8">
+          <div class="flex flex-col items-center justify-between gap-4 md:flex-row">
+            <p class="flex items-center gap-2 font-mono text-sm text-slate-500">
+              <span class="h-2 w-2 animate-pulse rounded-full bg-brand-amber"></span>
+              Intervenção humana para mutações de DB / produção
+            </p>
+            <div class="flex flex-wrap justify-center gap-6 font-mono text-sm text-slate-400">
+              <a href="https://github.com/Aldebaran-LW/Agente_OpenClaw" target="_blank" rel="noopener" class="flex items-center gap-2 hover:text-brand-cyan"><i data-lucide="github" class="h-4 w-4"></i> Repositório</a>
+              <a href="/office" class="hover:text-brand-cyan">/office</a>
+              <a href="/api/health" target="_blank" rel="noopener" class="hover:text-brand-cyan">Health</a>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </section>
+
+    <section id="view-sala" class="view-container relative bg-bgDark">
+      <canvas id="sala-canvas" class="absolute inset-0 z-[1] h-full w-full outline-none" aria-label="Sala de trabalho animada"></canvas>
+      <div class="interactive-overlay absolute left-6 top-6 z-10 max-w-sm rounded-xl border border-slate-700 glass-panel p-5 shadow-2xl pointer-events-none">
+        <h2 class="flex items-center gap-2 font-display text-xl font-bold text-white"><i data-lucide="monitor" class="h-5 w-5 text-brand-cyan"></i> Centro de Comando</h2>
+        <p class="mt-2 font-mono text-xs leading-relaxed text-slate-400">Sprites SVG + pool de partículas. Pausa em blur do separador.</p>
+        <div class="sala-status-row mt-4 flex gap-4 border-t border-slate-800 pt-4">
+          <span class="sala-live flex items-center gap-2 font-mono text-xs text-brand-emerald"><span class="api-dot on relative h-2 w-2 rounded-full"></span> Sync OK</span>
+          <span class="font-mono text-xs text-slate-500">60 FPS</span>
+        </div>
+      </div>
+      <div id="sala-tooltip" class="glass-panel pointer-events-none absolute z-20 hidden -translate-x-1/2 -translate-y-full rounded-lg border border-slate-700 p-4 shadow-2xl backdrop-blur-xl">
+        <div id="tooltip-name" class="mb-1 flex items-center gap-2 font-display text-base font-bold"></div>
+        <div id="tooltip-role" class="mb-3 inline-block rounded bg-slate-800 px-2 py-1 font-mono text-xs"></div>
+        <div id="tooltip-model" class="flex items-center gap-2 text-xs text-slate-400"></div>
+        <div id="tooltip-action" class="mt-2 rounded border border-brand-cyan/20 bg-brand-cyan/10 p-2 font-mono text-xs text-brand-cyan"></div>
+      </div>
+      <div id="sala-modal" class="modal-backdrop fixed inset-0 z-50 hidden items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+        <div class="modal-card glass-panel w-full max-w-md rounded-xl border border-slate-700 p-6">
+          <h3 id="modal-name" class="font-display text-xl font-bold text-white"></h3>
+          <p id="modal-role" class="font-mono text-xs text-slate-400"></p>
+          <p class="mono mt-4 text-xs text-slate-500">Modelo</p>
+          <p id="modal-model" class="font-mono text-brand-cyan"></p>
+          <p class="mono mt-3 text-xs text-slate-500">Última acção (API)</p>
+          <p id="modal-detail" class="text-sm text-slate-300"></p>
+          <button type="button" class="mt-6 cursor-pointer rounded-lg border border-slate-600 px-4 py-2 text-sm hover:bg-slate-800" id="sala-modal-close">Fechar</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-rede" class="view-container relative bg-[#020204]">
+      <div id="rede-canvas" class="absolute inset-0 z-[1] h-full w-full"></div>
+      <div class="interactive-overlay absolute right-6 top-6 z-10 max-w-sm rounded-xl border border-slate-700 glass-panel p-5 text-right pointer-events-none">
+        <h2 class="flex items-center justify-end gap-2 font-display text-xl font-bold text-white">Matriz Neural <i data-lucide="share-2" class="h-5 w-5 text-brand-purple"></i></h2>
+        <p class="mt-2 font-mono text-xs text-slate-400">Duplo-clique no nó → logs Hub. Cabos com shader animado.</p>
+      </div>
+      <div class="rede-controls interactive-overlay absolute bottom-6 right-6 z-10 flex gap-2">
+        <button type="button" class="icon-btn active cursor-pointer rounded-lg bg-slate-800/90 p-2" id="btn-auto-rotate" title="Auto-rotação"><i data-lucide="rotate-3d" class="h-4 w-4"></i></button>
+        <button type="button" class="icon-btn cursor-pointer rounded-lg bg-slate-800/90 p-2" id="btn-reset-cam" title="Reset câmara"><i data-lucide="crosshair" class="h-4 w-4"></i></button>
+        <button type="button" class="icon-btn cursor-pointer rounded-lg bg-slate-800/90 p-2" id="btn-cursor-pref" title="Cursor neon"><i data-lucide="mouse-pointer-2" class="h-4 w-4"></i></button>
+      </div>
+      <div id="rede-panel" class="interactive-overlay absolute bottom-10 left-10 z-10 max-w-sm translate-y-4 rounded-xl border border-slate-600 glass-panel p-6 opacity-0 shadow-[0_0_40px_rgba(0,0,0,0.5)] transition-all duration-300 hidden">
+        <div class="mb-4 flex items-start gap-3">
+          <span id="panel-color" class="mt-1 h-3 w-3 shrink-0 rounded-full"></span>
+          <div>
+            <h3 id="panel-name" class="font-display text-xl font-bold text-white"></h3>
+            <p id="panel-model" class="font-mono text-xs text-slate-400"></p>
+          </div>
+        </div>
+        <p id="panel-desc" class="text-sm leading-relaxed text-slate-300"></p>
+        <div id="panel-logs-wrap" class="panel-logs-wrap mt-4 hidden">
+          <p class="mb-2 font-mono text-xs text-slate-500">Logs Hub (duplo-clique)</p>
+          <ul id="panel-logs" class="panel-logs max-h-32 overflow-y-auto font-mono text-xs text-brand-cyan"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-metrics" class="view-container page-scroll overflow-y-auto pb-20">
+      <div class="page-inner mx-auto max-w-7xl px-4 pt-12">
+        <div class="page-head mb-8 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 class="page-title font-display text-3xl font-bold text-white">Métricas (KPIs)</h1>
+            <p class="page-desc mt-2 text-slate-400"><code class="text-brand-cyan">office/status</code> + <code class="text-brand-cyan">hub/recent</code></p>
+          </div>
+          <div class="page-actions flex gap-2">
+            <button type="button" class="clickable flex items-center gap-2 rounded-lg bg-brand-emerald px-4 py-2 text-sm font-medium text-white hover:bg-emerald-600" id="btn-export-csv"><i data-lucide="download" class="h-4 w-4"></i> CSV</button>
+            <button type="button" class="clickable flex items-center gap-2 rounded-lg border border-slate-600 px-4 py-2 text-sm hover:bg-slate-800" id="btn-export-json"><i data-lucide="file-json" class="h-4 w-4"></i> JSON</button>
+          </div>
+        </div>
+        <p id="metrics-sources" class="metrics-sources mb-4 hidden font-mono text-xs text-slate-500"></p>
+        <div id="metrics-kpis" class="kpi-grid mb-8 grid grid-cols-1 gap-6 md:grid-cols-3"></div>
+        <div class="mb-8 rounded-xl border border-slate-700 glass-panel p-6">
+          <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
+            <h2 class="font-display text-lg font-bold">Agentes</h2>
+            <select id="metrics-filter-agent" class="metrics-select rounded-lg border border-slate-600 bg-black/50 px-3 py-2 font-mono text-sm"></select>
+          </div>
+          <div class="table-wrap overflow-x-auto">
+            <table class="metrics-table w-full text-left text-sm">
+              <thead class="border-b border-slate-700 text-slate-400"><tr><th class="p-2">Agente</th><th class="p-2">Estado</th><th class="p-2">Detalhe</th><th class="p-2">Hub 24h</th></tr></thead>
               <tbody id="metrics-agents-body"></tbody>
             </table>
           </div>
         </div>
-        <div class="dashboard-panel glass-panel">
-          <h2 style="margin:0 0 1rem;font-size:1.1rem">Eventos Hub (24h)</h2>
-          <div class="table-wrap table-wrap-tall">
-            <table class="metrics-table">
-              <thead>
-                <tr><th>Tipo</th><th>Agente</th><th>Data</th><th>Descrição</th></tr>
-              </thead>
+        <div class="rounded-xl border border-slate-700 glass-panel p-6">
+          <h2 class="mb-4 font-display text-lg font-bold">Eventos Hub (24h)</h2>
+          <div class="table-wrap table-wrap-tall overflow-x-auto">
+            <table class="metrics-table w-full text-left text-sm">
+              <thead class="border-b border-slate-700 text-slate-400"><tr><th class="p-2">Tipo</th><th class="p-2">Agente</th><th class="p-2">Data</th><th class="p-2">Descrição</th></tr></thead>
               <tbody id="metrics-events-body"></tbody>
             </table>
           </div>
@@ -226,68 +270,63 @@
       </div>
     </section>
 
-    <section id="view-playground" class="view-container page-scroll">
-      <div class="page-inner playground-wrap">
-        <div class="page-head">
-          <h1 class="page-title">Playground Jarvis</h1>
-          <p class="page-desc">Chat com <code>POST /jarvis</code> ou encaminhamento via <code>POST /openclaw/orchestrate</code>.</p>
+    <section id="view-playground" class="view-container page-scroll overflow-y-auto pb-20">
+      <div class="playground-wrap mx-auto max-w-4xl px-4 pt-12">
+        <h1 class="font-display text-3xl font-bold text-white">Playground / Orchestrate</h1>
+        <p class="mb-8 text-slate-400">Jarvis (<code class="text-brand-cyan">POST /jarvis</code>) ou orquestração com confirmação explícita.</p>
+        <div class="pg-mode mb-4 flex flex-wrap gap-4 rounded-xl border border-slate-700 glass-panel p-4">
+          <label class="pg-mode-opt flex cursor-pointer items-center gap-2 text-sm"><input type="radio" name="pg-mode" value="jarvis" checked class="accent-brand-cyan" /> Jarvis</label>
+          <label class="pg-mode-opt flex cursor-pointer items-center gap-2 text-sm"><input type="radio" name="pg-mode" value="orchestrate" class="accent-brand-cyan" /> Orquestrar</label>
         </div>
-        <div class="pg-mode glass-panel">
-          <label class="pg-mode-opt"><input type="radio" name="pg-mode" value="jarvis" checked /> Jarvis (planner)</label>
-          <label class="pg-mode-opt"><input type="radio" name="pg-mode" value="orchestrate" /> Orquestrar agente</label>
-        </div>
-        <div id="pg-jarvis-options" class="pg-options glass-panel">
-          <label class="pg-check highlight">
-            <input type="checkbox" id="pg-jarvis-approved" />
-            Marcar como aprovado (<code>approved: true</code> — acções de escrita)
+        <div id="pg-jarvis-options" class="pg-options mb-4 rounded-xl border border-slate-700 glass-panel p-4">
+          <label class="pg-check highlight flex cursor-pointer items-start gap-2 text-sm">
+            <input type="checkbox" id="pg-jarvis-approved" class="mt-1 accent-brand-amber" />
+            <span><code>approved: true</code> — acções de escrita</span>
           </label>
-          <p id="pg-approval-hint" class="mono pg-hint hidden">Esta mensagem pode exigir confirmação explícita no Telegram ou aqui.</p>
+          <p id="pg-approval-hint" class="pg-hint mt-2 hidden font-mono text-xs text-amber-400/90"></p>
         </div>
-        <div id="pg-orchestrate-options" class="pg-options glass-panel hidden">
-          <label for="pg-orchestrate-agent">Agente destino</label>
-          <select id="pg-orchestrate-agent" class="metrics-select mono"></select>
-          <label class="pg-check">
-            <input type="checkbox" id="pg-orchestrate-confirm" />
-            Confirmo que autorizo o encaminhamento desta tarefa (não é pagamento nem envio de PII)
+        <div id="pg-orchestrate-options" class="pg-options mb-4 hidden space-y-3 rounded-xl border border-slate-700 glass-panel p-4">
+          <label for="pg-orchestrate-agent" class="text-sm text-slate-400">Agente destino</label>
+          <select id="pg-orchestrate-agent" class="metrics-select w-full rounded-lg border border-slate-600 bg-black/50 px-3 py-2 font-mono text-sm"></select>
+          <label class="pg-check flex cursor-pointer items-start gap-2 text-sm text-slate-300">
+            <input type="checkbox" id="pg-orchestrate-confirm" class="mt-1 accent-red-500" />
+            Confirmo encaminhamento (não é pagamento nem PII)
           </label>
         </div>
-        <div id="playground-log" class="playground-log glass-panel" role="log"></div>
-        <div class="pg-compose glass-panel">
-          <textarea id="pg-input" rows="3" placeholder="Ex: status macofel · status github · ajuda" class="pg-input mono"></textarea>
-          <div class="pg-compose-actions">
-            <button type="button" class="btn-ghost" id="pg-clear">Limpar</button>
-            <button type="button" class="btn-primary" id="pg-send">Enviar</button>
+        <div id="playground-log" class="playground-log mb-4 h-64 overflow-y-auto rounded-xl border border-slate-700 bg-black/40 p-4 font-mono text-xs text-slate-300" role="log"></div>
+        <div class="pg-compose rounded-xl border border-slate-700 glass-panel p-4">
+          <textarea id="pg-input" rows="4" placeholder="Ex: status macofel · status github" class="pg-input w-full resize-none rounded-lg border border-slate-600 bg-black/50 p-3 font-mono text-sm text-white outline-none focus:border-brand-blue"></textarea>
+          <div class="pg-compose-actions mt-4 flex justify-end gap-2">
+            <button type="button" class="cursor-pointer rounded-lg px-4 py-2 text-sm text-slate-400 hover:bg-slate-800" id="pg-clear">Limpar</button>
+            <button type="button" class="cursor-pointer rounded-lg bg-brand-blue px-6 py-2 text-sm font-medium text-white hover:bg-blue-600" id="pg-send">Enviar</button>
           </div>
         </div>
-        <p class="mono chart-hint">Histórico só nesta sessão (sessionStorage). Nunca coloques tokens ou secrets nas mensagens.</p>
       </div>
     </section>
   </main>
 
-  <div id="token-modal" class="modal-backdrop hidden" role="dialog" aria-labelledby="token-title">
-    <div class="modal-card wide glass-panel">
-      <h2 id="token-title" style="margin:0 0 0.5rem;font-family:'Space Grotesk',sans-serif">Autenticação Gateway</h2>
-      <p style="font-size:0.85rem;color:var(--muted);line-height:1.5">
-        Usa o mesmo <code>OPENCLAW_AUTOMATION_TOKEN</code> da Vercel. Guardado só em <code>sessionStorage</code> (não envies por chat).
+  <div id="token-modal" class="modal-backdrop fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 p-4 backdrop-blur-sm" role="dialog">
+    <div class="modal-card wide glass-panel w-full max-w-lg rounded-xl border border-slate-700 p-6">
+      <h2 id="token-title" class="font-display text-xl font-bold text-white">Autenticação Gateway</h2>
+      <p class="mt-2 text-sm leading-relaxed text-slate-400">
+        <code class="text-brand-cyan">OPENCLAW_AUTOMATION_TOKEN</code> — só em <code>sessionStorage</code>.
       </p>
-      <label for="token-input" style="margin-top:1rem">Bearer token</label>
-      <input id="token-input" type="password" autocomplete="off" placeholder="cole o token aqui" />
-      <div class="modal-actions">
-        <button type="button" class="btn-primary" id="btn-save-token" style="border:none;cursor:pointer">Guardar e sincronizar</button>
-        <button type="button" class="btn-ghost" id="btn-clear-token" style="cursor:pointer">Limpar</button>
-        <button type="button" class="btn-ghost" id="btn-close-token" style="cursor:pointer">Fechar</button>
+      <label for="token-input" class="mt-4 block text-sm text-slate-300">Bearer token</label>
+      <input id="token-input" type="password" autocomplete="off" placeholder="cole o token aqui" class="mt-1 w-full rounded-lg border border-slate-600 bg-black/50 px-3 py-2 font-mono text-sm outline-none focus:border-brand-cyan" />
+      <div class="modal-actions mt-6 flex flex-wrap gap-2">
+        <button type="button" class="cursor-pointer rounded-lg bg-brand-cyan px-4 py-2 text-sm font-bold text-black" id="btn-save-token">Guardar e sincronizar</button>
+        <button type="button" class="cursor-pointer rounded-lg border border-slate-600 px-4 py-2 text-sm" id="btn-clear-token">Limpar</button>
+        <button type="button" class="cursor-pointer rounded-lg border border-slate-600 px-4 py-2 text-sm" id="btn-close-token">Fechar</button>
       </div>
-      <p class="mono" style="font-size:0.65rem;color:var(--muted);margin-top:0.75rem">
-        Endpoint: <code>GET /openclaw/office/status</code> · partilhado com <a href="/office">/office</a>
-      </p>
     </div>
   </div>
 
   <script>
     document.getElementById('menu-toggle')?.addEventListener('click', () => {
-      document.getElementById('mobile-menu')?.classList.toggle('open');
+      document.getElementById('mobile-menu')?.classList.toggle('hidden');
+      document.getElementById('mobile-menu')?.classList.toggle('block');
     });
   </script>
-  <script type="module" src="/friday/js/main.js"></script>
+  <script type="module" src="/friday/js/main.js?v=tw-20260602"></script>
 </body>
 </html>

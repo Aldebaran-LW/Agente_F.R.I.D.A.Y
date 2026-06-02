@@ -113,6 +113,7 @@ export class SalaDeTrabalho {
     document.getElementById('modal-model').textContent = agent.model;
     document.getElementById('modal-detail').textContent = agent.detail || '—';
     modal.classList.remove('hidden');
+    modal.classList.add('flex');
   }
 
   spawnParticle(from, to, color) {

@@ -34,12 +34,15 @@ function showTokenModal(required = false) {
   const modal = document.getElementById('token-modal');
   if (!modal) return;
   modal.classList.remove('hidden');
+  modal.classList.add('flex');
   modal.dataset.required = required ? '1' : '0';
   document.getElementById('token-input')?.focus();
 }
 
 function hideTokenModal() {
-  document.getElementById('token-modal')?.classList.add('hidden');
+  const modal = document.getElementById('token-modal');
+  modal?.classList.add('hidden');
+  modal?.classList.remove('flex');
 }
 
 async function syncStatus(manual = false) {
@@ -95,7 +98,10 @@ function handleRoute() {
   });
 
   document.querySelectorAll('.nav-link').forEach((link) => {
-    link.classList.toggle('active', link.getAttribute('href') === hash);
+    const on = link.getAttribute('href') === hash;
+    link.classList.toggle('text-brand-cyan', on);
+    link.classList.toggle('text-slate-400', !on);
+    link.classList.toggle('active', on);
   });
 
   document.getElementById('home-blobs').style.display = hash === '#home' ? 'block' : 'none';
@@ -192,7 +198,9 @@ function initControls() {
   document.getElementById('btn-cursor-pref')?.addEventListener('click', toggleCursorPref);
 
   document.getElementById('sala-modal-close')?.addEventListener('click', () => {
-    document.getElementById('sala-modal')?.classList.add('hidden');
+    const m = document.getElementById('sala-modal');
+    m?.classList.add('hidden');
+    m?.classList.remove('flex');
   });
 }
 

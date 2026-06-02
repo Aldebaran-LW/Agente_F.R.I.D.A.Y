@@ -10,6 +10,13 @@ function escapeHtml(s) {
     .replace(/>/g, '&gt;');
 }
 
+const NEON_SHADOW = {
+  '#3b82f6': 'hover:shadow-neon-blue',
+  '#10b981': 'hover:shadow-neon-emerald',
+  '#8b5cf6': 'hover:shadow-neon-purple',
+  '#f59e0b': 'hover:shadow-neon-amber',
+};
+
 export function renderHomeCards(agents) {
   const grid = document.getElementById('home-agents-grid');
   if (!grid) return;
@@ -17,24 +24,27 @@ export function renderHomeCards(agents) {
 
   Object.values(agents).forEach((agent) => {
     const isOnline = agent.status === 'online';
+    const neon = NEON_SHADOW[agent.color] || 'hover:shadow-neon-blue';
     const card = document.createElement('article');
-    card.className = `agent-card glass-panel clickable`;
-    card.style.setProperty('--agent-color', agent.color);
+    card.className = `agent-card glass-panel clickable relative overflow-hidden rounded-2xl border border-slate-800 p-6 transition-all duration-300 hover:-translate-y-2 hover:scale-[1.02] hover:border-white/20 ${neon}`;
     card.innerHTML = `
-      <div class="card-watermark" style="color:${agent.color}"><i data-lucide="${agent.icon}"></i></div>
-      <div class="card-body">
-        <div class="card-head">
-          <div class="card-icon" style="border-color:${agent.color}55;background:${agent.color}18;color:${agent.color}">
-            <i data-lucide="${agent.icon}"></i>
+      <div class="pointer-events-none absolute right-4 top-4 opacity-10" style="color:${agent.color}">
+        <i data-lucide="${agent.icon}" class="h-20 w-20"></i>
+      </div>
+      <div class="relative z-10">
+        <div class="mb-4 flex items-start justify-between">
+          <div class="flex h-12 w-12 items-center justify-center rounded-xl border" style="border-color:${agent.color}55;background:${agent.color}18;color:${agent.color}">
+            <i data-lucide="${agent.icon}" class="h-6 w-6"></i>
           </div>
-          <span class="status-pill ${isOnline ? 'on' : 'off'}">
-            <span class="dot"></span>${isOnline ? 'Ativo' : 'Inativo'}
+          <span class="flex items-center gap-1.5 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${isOnline ? 'border-brand-emerald/50 text-brand-emerald' : 'border-red-500/50 text-red-400'}">
+            <span class="h-2 w-2 rounded-full ${isOnline ? 'animate-pulse bg-brand-emerald' : 'bg-red-500'}"></span>
+            ${isOnline ? 'Ativo' : 'Inativo'}
           </span>
         </div>
-        <h3>${escapeHtml(agent.name)}</h3>
-        <p class="card-model mono" style="color:${agent.color}">${escapeHtml(agent.model)}</p>
-        <p class="card-desc">${escapeHtml(agent.desc || agent.detail)}</p>
-        <p class="card-state mono">${escapeHtml(agent.stateLabel || agent.detail || agent.state || '—')}</p>
+        <h3 class="font-display text-xl font-bold text-white">${escapeHtml(agent.name)}</h3>
+        <p class="mt-1 font-mono text-xs" style="color:${agent.color}">${escapeHtml(agent.model)}</p>
+        <p class="mt-4 text-sm font-light leading-relaxed text-slate-400">${escapeHtml(agent.desc || agent.detail)}</p>
+        <p class="mt-3 font-mono text-xs text-slate-500">${escapeHtml(agent.stateLabel || agent.detail || agent.state || '—')}</p>
       </div>
     `;
     grid.appendChild(card);

@@ -11,10 +11,10 @@ function escapeHtml(s) {
 }
 
 function kpiCard(label, value, sub = '') {
-  return `<article class="kpi-card glass-panel">
-    <p class="kpi-label">${escapeHtml(label)}</p>
-    <p class="kpi-value">${escapeHtml(value)}</p>
-    ${sub ? `<p class="kpi-sub mono">${escapeHtml(sub)}</p>` : ''}
+  return `<article class="kpi-card rounded-xl border border-slate-700 glass-panel p-6 text-center">
+    <p class="text-sm text-slate-400">${escapeHtml(label)}</p>
+    <p class="mt-2 font-mono text-4xl text-brand-cyan">${escapeHtml(value)}</p>
+    ${sub ? `<p class="mt-1 font-mono text-xs text-slate-500">${escapeHtml(sub)}</p>` : ''}
   </article>`;
 }
 

@@ -1,5 +1,8 @@
 /** Constantes e metadados — F.R.I.D.A.Y. OpenClaw */
 
+/** Cache-bust estáticos (alterar em cada release visual) */
+export const ASSET_VERSION = 'tw-20260602';
+
 export const TOKEN_KEY = 'openclaw_office_token';
 export const PREFS_KEY = 'friday_prefs';
 export const CACHE_KEY = 'friday_status_cache';
