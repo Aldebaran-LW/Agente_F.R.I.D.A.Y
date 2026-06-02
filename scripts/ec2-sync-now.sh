@@ -76,8 +76,11 @@ elif [[ -f scripts/sync-agent-config-to-openclaw.mjs ]]; then
   node scripts/sync-agent-config-to-openclaw.mjs --apply
 fi
 
-# --- Telegram: modelos + gateway (sem OpenRouter se script existir) ---
-if [[ -f scripts/ec2-fix-telegram-models.sh ]]; then
+# --- perfil mínimo (opcional: EC2_PROFILE=minimal no .env) ---
+if [[ "${EC2_PROFILE:-}" == "minimal" && -f scripts/ec2-slim-essential.sh ]]; then
+  echo "==> ec2-slim-essential (EC2_PROFILE=minimal)"
+  bash scripts/ec2-slim-essential.sh
+elif [[ -f scripts/ec2-fix-telegram-models.sh ]]; then
   echo "==> ec2-fix-telegram-models"
   bash scripts/ec2-fix-telegram-models.sh
 else

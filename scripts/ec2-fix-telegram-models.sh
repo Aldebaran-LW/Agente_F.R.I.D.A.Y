@@ -8,7 +8,11 @@ export PATH="/usr/local/bin:$PATH"
 export OPENCLAW_CONFIG
 
 node scripts/sync-agent-config-to-openclaw.mjs --apply 2>/dev/null || true
-node scripts/ec2-tiered-llm-patch.mjs "$OPENCLAW_CONFIG"
+TIERED_ARGS=()
+if [[ "${EC2_PROFILE:-}" == "minimal" ]]; then
+  TIERED_ARGS=(--minimal)
+fi
+node scripts/ec2-tiered-llm-patch.mjs "${TIERED_ARGS[@]}" "$OPENCLAW_CONFIG"
 
 WORKSPACE_DIR="$(dirname "$OPENCLAW_CONFIG")/workspace"
 SOUL_SRC="/opt/openclaw/agents/_shared/SOUL-TELEGRAM-JARVIS.md"

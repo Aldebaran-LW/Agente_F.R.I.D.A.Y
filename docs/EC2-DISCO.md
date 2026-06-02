@@ -39,6 +39,10 @@ df -h /
 
 ---
 
+Perfil **mínimo** (só Telegram + heartbeat, transição para servidor físico): `docs/EC2-MINIMAL.md` · `scripts/ec2-slim-essential.sh`
+
+---
+
 ## Aumentar volume EBS (recomendado produção)
 
 Volume actual: **~8 GB** — apertado para OpenClaw + logs + node global.
