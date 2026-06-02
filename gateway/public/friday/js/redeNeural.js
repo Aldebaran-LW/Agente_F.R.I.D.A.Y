@@ -142,7 +142,9 @@ export class RedeNeural3D {
       } else if (data.key === 'vppecas') {
         shape = new THREE.Mesh(new THREE.TorusKnotGeometry(1, 0.28, 48, 8), mat);
       } else if (data.key === 'heimdall') {
-        shape = new THREE.Mesh(new THREE.OctahedronGeometry(1.3, 0), mat);
+        shape = new THREE.Group();
+        shape.add(new THREE.Mesh(new THREE.SphereGeometry(1, 32, 32), mat));
+        shape.add(new THREE.Mesh(new THREE.TorusGeometry(1.5, 0.2, 16, 100), mat));
       } else {
         shape = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.1, 1.4), mat);
       }

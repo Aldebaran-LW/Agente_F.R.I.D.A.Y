@@ -21,18 +21,21 @@ export function renderHomeCards(agents) {
     card.className = `agent-card glass-panel clickable`;
     card.style.setProperty('--agent-color', agent.color);
     card.innerHTML = `
-      <div class="card-head">
-        <div class="card-icon" style="border-color:${agent.color}55;background:${agent.color}18">
-          <i data-lucide="${agent.icon}"></i>
+      <div class="card-watermark" style="color:${agent.color}"><i data-lucide="${agent.icon}"></i></div>
+      <div class="card-body">
+        <div class="card-head">
+          <div class="card-icon" style="border-color:${agent.color}55;background:${agent.color}18;color:${agent.color}">
+            <i data-lucide="${agent.icon}"></i>
+          </div>
+          <span class="status-pill ${isOnline ? 'on' : 'off'}">
+            <span class="dot"></span>${isOnline ? 'Ativo' : 'Inativo'}
+          </span>
         </div>
-        <span class="status-pill ${isOnline ? 'on' : 'off'}">
-          <span class="dot"></span>${isOnline ? 'Ativo' : 'Erro'}
-        </span>
+        <h3>${escapeHtml(agent.name)}</h3>
+        <p class="card-model mono" style="color:${agent.color}">${escapeHtml(agent.model)}</p>
+        <p class="card-desc">${escapeHtml(agent.desc || agent.detail)}</p>
+        <p class="card-state mono">${escapeHtml(agent.stateLabel || agent.detail || agent.state || '—')}</p>
       </div>
-      <h3>${escapeHtml(agent.name)}</h3>
-      <p class="card-model">${escapeHtml(agent.model)}</p>
-      <p class="card-desc">${escapeHtml(agent.detail || agent.desc)}</p>
-      <p class="card-state mono">${escapeHtml(agent.stateLabel || agent.state || '—')}</p>
     `;
     grid.appendChild(card);
   });

@@ -1,6 +1,5 @@
 import { MOCK_AGENTS } from './config.js';
 import { agentKeyFromHub } from './hub.js';
-import { loadAgentSprites, getSprites } from './sprites.js';
 import { isMobile } from './utils.js';
 
 const AGENT_ORDER = ['jarvis', 'macofel', 'heimdall', 'vppecas'];
@@ -18,11 +17,6 @@ export class SalaDeTrabalho {
     this.mouseY = 0;
     this.hovered = null;
     this.maxParticles = isMobile() ? 10 : 35;
-    this.spritesReady = false;
-
-    loadAgentSprites().then(() => {
-      this.spritesReady = true;
-    });
 
     if (this.canvas) this.setupEvents();
   }
@@ -251,12 +245,94 @@ export class SalaDeTrabalho {
     });
   }
 
+  drawCustomAgent(agent, hovered) {
+    const color = agent.status === 'offline' ? '#ef4444' : agent.color;
+    const pulse = Math.sin(this.time * 2 + agent.pos.x) * 5;
+
+    this.ctx.beginPath();
+    this.ctx.arc(0, 0, 40 + pulse, 0, Math.PI * 2);
+    this.ctx.fillStyle = color + (hovered ? '33' : '11');
+    this.ctx.fill();
+
+    this.ctx.strokeStyle = color;
+    this.ctx.lineWidth = 2;
+    this.ctx.fillStyle = '#0c0c12';
+    this.ctx.shadowColor = color;
+    this.ctx.shadowBlur = hovered ? 20 : 5;
+
+    if (agent.id === 'jarvis') {
+      this.ctx.beginPath();
+      this.ctx.arc(0, -10, 12, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.stroke();
+      this.ctx.beginPath();
+      this.ctx.moveTo(-20, 20);
+      this.ctx.quadraticCurveTo(0, 0, 20, 20);
+      this.ctx.stroke();
+      this.ctx.save();
+      this.ctx.rotate(this.time);
+      this.ctx.setLineDash([5, 10]);
+      this.ctx.beginPath();
+      this.ctx.arc(0, -10, 20, 0, Math.PI * 2);
+      this.ctx.stroke();
+      this.ctx.restore();
+    } else if (agent.id === 'macofel') {
+      this.ctx.beginPath();
+      this.ctx.arc(0, 0, 18, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.stroke();
+      this.ctx.fillStyle = color;
+      this.ctx.fillRect(-12, -5, 24, 10);
+      this.ctx.save();
+      this.ctx.rotate(-this.time);
+      this.ctx.strokeRect(-35, -35, 10, 10);
+      this.ctx.strokeRect(25, 25, 10, 10);
+      this.ctx.restore();
+    } else if (agent.id === 'heimdall') {
+      this.ctx.beginPath();
+      this.ctx.ellipse(0, 0, 20, 10, 0, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.stroke();
+      this.ctx.beginPath();
+      this.ctx.arc(0, 0, 6, 0, Math.PI * 2);
+      this.ctx.fillStyle = color;
+      this.ctx.fill();
+      this.ctx.setLineDash([]);
+      this.ctx.beginPath();
+      this.ctx.moveTo(-25, 5);
+      this.ctx.lineTo(0, 35);
+      this.ctx.lineTo(25, 5);
+      this.ctx.stroke();
+    } else if (agent.id === 'vppecas') {
+      this.ctx.beginPath();
+      this.ctx.arc(0, 5, 18, Math.PI, 0);
+      this.ctx.fill();
+      this.ctx.stroke();
+      this.ctx.beginPath();
+      this.ctx.moveTo(-22, 5);
+      this.ctx.lineTo(22, 5);
+      this.ctx.stroke();
+      this.ctx.save();
+      this.ctx.rotate(this.time * 1.5);
+      for (let i = 0; i < 6; i++) {
+        this.ctx.fillRect(25, -2, 6, 4);
+        this.ctx.rotate(Math.PI / 3);
+      }
+      this.ctx.restore();
+    } else {
+      this.ctx.beginPath();
+      this.ctx.arc(0, 0, 16, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.stroke();
+    }
+
+    this.ctx.shadowBlur = 0;
+    this.ctx.setLineDash([]);
+  }
+
   drawAgent(agent) {
     const { x, y } = agent.pos;
     const hovered = this.hovered === agent;
-    const pulse = Math.sin(this.time * 2 + x) * 4;
-    const offline = agent.status === 'offline';
-    const blink = Math.sin(this.time * 0.5) > 0.92;
 
     this.ctx.save();
     this.ctx.translate(x, y);
@@ -264,34 +340,7 @@ export class SalaDeTrabalho {
     const lookY = hovered ? (this.mouseY - y) * 0.03 : 0;
     this.ctx.translate(lookX, lookY);
 
-    this.ctx.beginPath();
-    this.ctx.arc(0, 0, 48 + pulse, 0, Math.PI * 2);
-    this.ctx.fillStyle = (offline ? '#ef4444' : agent.color) + (hovered ? '33' : '15');
-    this.ctx.fill();
-
-    const sprites = getSprites();
-    const sprite = sprites?.[agent.id];
-    const size = isMobile() ? 56 : 72;
-
-    if (sprite && this.spritesReady) {
-      this.ctx.shadowColor = agent.color;
-      this.ctx.shadowBlur = hovered ? 22 : 10;
-      this.ctx.drawImage(sprite, -size / 2, -size / 2 - 4, size, size);
-      this.ctx.shadowBlur = 0;
-    } else {
-      this.ctx.font = isMobile() ? '36px sans-serif' : '48px sans-serif';
-      this.ctx.textAlign = 'center';
-      this.ctx.textBaseline = 'middle';
-      this.ctx.fillText(agent.emoji || '◆', 0, 2);
-    }
-
-    if (!blink) {
-      this.ctx.font = "600 11px 'Space Grotesk', sans-serif";
-      this.ctx.fillStyle = offline ? '#f87171' : '#e2e8f0';
-      this.ctx.textAlign = 'center';
-      this.ctx.fillText(agent.name, 0, 42);
-    }
-
+    this.drawCustomAgent(agent, hovered);
     this.ctx.restore();
 
     const hub = this.agents()[0];

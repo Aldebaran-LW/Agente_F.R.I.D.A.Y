@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>F.R.I.D.A.Y. — OpenClaw Multi-Agent</title>
+  <title>F.R.I.D.A.Y. - OpenClaw Multi-Agent System</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;600&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -27,7 +27,15 @@
   <header class="site-nav glass-panel">
     <div class="nav-inner">
       <button type="button" class="logo" onclick="location.hash='#home'">
-        <span class="logo-mark" aria-hidden="true">◎</span>
+        <span class="logo-mark" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path>
+            <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+            <line x1="9" y1="9" x2="9.01" y2="9"></line>
+            <line x1="15" y1="9" x2="15.01" y2="9"></line>
+            <path d="M12 11v2"></path>
+          </svg>
+        </span>
         <span class="logo-text glitch-text" data-text="F.R.I.D.A.Y.">F.R.I.D.A.Y.</span>
       </button>
 
@@ -64,15 +72,15 @@
   <main id="app">
     <section id="view-home" class="view-container active">
       <div class="hero">
-        <p class="badge">OpenClaw · Multi-Agente</p>
+        <p class="badge badge-nexus"><i data-lucide="terminal"></i> STATUS: NEXUS ONLINE</p>
         <h1>
-          Ecossistema<br />
+          Sistema Operativo<br />
           <span class="gradient-text glitch-text" data-text="OpenClaw">OpenClaw</span>
         </h1>
-        <p>Infraestrutura autónoma com Jarvis, Macofel, Heimdall e VP-Peças — dados em tempo real via gateway Vercel.</p>
+        <p>A nova evolução de arquitetura autónoma. Agentes descentralizados com dados em tempo real via gateway Vercel (Jarvis, Macofel, Heimdall, VP-Peças).</p>
         <div class="hero-actions">
           <a href="#sala" class="btn-primary clickable">Entrar no Laboratório <i data-lucide="monitor-play"></i></a>
-          <a href="#rede" class="btn-ghost clickable">Matriz 3D <i data-lucide="box"></i></a>
+          <a href="#rede" class="btn-ghost clickable">Explorar Matriz 3D <i data-lucide="box"></i></a>
           <a href="#playground" class="btn-ghost clickable">Playground <i data-lucide="message-square"></i></a>
         </div>
       </div>
@@ -109,10 +117,13 @@
       <div class="cards-grid" id="home-agents-grid"></div>
 
       <footer class="site-footer">
-        <a href="https://github.com/Aldebaran-LW/Agente_OpenClaw" target="_blank" rel="noopener">GitHub</a>
-        <a href="/office">Painel /office</a>
-        <a href="/api/health" target="_blank" rel="noopener">Health</a>
-        <p style="margin-top:0.75rem">Política: intervenção humana para mutações de produção.</p>
+        <p class="footer-policy"><span class="footer-pulse" aria-hidden="true"></span> Requer intervenção humana para mutações de DB / produção</p>
+        <div class="footer-links">
+          <a href="https://github.com/Aldebaran-LW/Agente_OpenClaw" target="_blank" rel="noopener"><i data-lucide="github"></i> Repositório</a>
+          <a href="https://github.com/Aldebaran-LW/Agente_OpenClaw/blob/main/agents/dedalo/skills/design_schema.md" target="_blank" rel="noopener"><i data-lucide="book-open"></i> Schema</a>
+          <a href="/office">/office</a>
+          <a href="/api/health" target="_blank" rel="noopener">Health</a>
+        </div>
       </footer>
     </section>
 
@@ -120,7 +131,11 @@
       <canvas id="sala-canvas" aria-label="Sala de trabalho animada"></canvas>
       <div class="overlay-panel glass-panel sala-top-left">
         <h2><i data-lucide="terminal-square"></i> Centro de Comando</h2>
-        <p class="mono" style="font-size:0.7rem;color:var(--muted)">Canvas 2D · clique num agente para detalhes</p>
+        <p class="mono" style="font-size:0.7rem;color:var(--muted);line-height:1.5">Perspectiva isométrica simulada. Agentes processam inputs através da mesa holográfica central.</p>
+        <div class="sala-status-row">
+          <span class="sala-live"><span class="api-ping on"></span><span class="api-dot on"></span> Sync OK</span>
+          <span class="mono" style="font-size:0.65rem;color:var(--muted)">60 FPS</span>
+        </div>
       </div>
       <div id="sala-tooltip" class="glass-panel hidden">
         <div id="tooltip-name" style="font-weight:700"></div>
