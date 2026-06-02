@@ -59,8 +59,8 @@ gateway/public/friday/
 
 Incluído no deploy Vercel do `gateway/` — `gateway/vercel.json` inclui:
 
-- `builds`: `public/**` → `@vercel/static` (ficheiros estáticos)
 - `rewrites`: `/friday` e `/friday/` → `/friday/index.html`
+- Ficheiros em `gateway/public/` são servidos pela Vercel junto com as funções `api/` (não adicionar `public/**` em `builds` — quebra o deploy)
 
 ```bash
 cd gateway && vercel --prod
