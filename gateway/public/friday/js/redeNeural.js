@@ -4,9 +4,10 @@ import { isMobile } from './utils.js';
 const THREE = window.THREE;
 
 export class RedeNeural3D {
-  constructor(getAgents, getHubItems = () => []) {
+  constructor(getAgents, getHubItems = () => [], getApiLive = () => false) {
     this.getAgents = getAgents;
     this.getHubItems = getHubItems;
+    this.getApiLive = getApiLive;
     this.container = document.getElementById('rede-canvas');
     this.isRunning = false;
     this.nodes = [];
@@ -17,7 +18,8 @@ export class RedeNeural3D {
     this.labels = [];
     this.autoRotate = true;
     this.selectedKey = null;
-    this.lastClick = 0;
+    this.shaderLines = [];
+    this.clock = null;
 
     if (!THREE || !this.container) return;
     this.setupScene();
@@ -63,7 +65,40 @@ export class RedeNeural3D {
     grid.position.y = -5;
     this.scene.add(grid);
 
+    this.clock = new THREE.Clock();
     this.buildNetwork();
+  }
+
+  makeShaderTube(from, to, apiLive) {
+    const statusColor = apiLive ? new THREE.Color(0x10b981) : new THREE.Color(0xef4444);
+    const shaderMat = new THREE.ShaderMaterial({
+      uniforms: {
+        time: { value: 0 },
+        color1: { value: new THREE.Color(0x06b6d4) },
+        color2: { value: statusColor },
+      },
+      vertexShader: `
+        varying float vProgress;
+        void main() {
+          vProgress = position.y;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }`,
+      fragmentShader: `
+        uniform float time;
+        uniform vec3 color1;
+        uniform vec3 color2;
+        varying float vProgress;
+        void main() {
+          float glow = sin(vProgress * 5.0 - time * 3.0) * 0.5 + 0.5;
+          gl_FragColor = vec4(mix(color1, color2, glow), 0.55);
+        }`,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+    });
+    const curve = new THREE.LineCurve3(from, to);
+    const tubeGeo = new THREE.TubeGeometry(curve, 24, 0.05, 8, false);
+    const mesh = new THREE.Mesh(tubeGeo, shaderMat);
+    return { mesh, mat: shaderMat };
   }
 
   clearDynamicObjects() {
@@ -96,8 +131,10 @@ export class RedeNeural3D {
     this.shapes = [];
     this.particles = [];
     this.lines = [];
+    this.shaderLines = [];
 
     const agents = this.getAgents();
+    const apiLive = this.getApiLive();
     const layout = [
       { key: 'jarvis', pos: [0, 0, 0], scale: 1.2 },
       { key: 'macofel', pos: [-7, 2.5, -3], scale: 0.85 },
@@ -122,6 +159,7 @@ export class RedeNeural3D {
         emissiveIntensity: agent.status === 'offline' ? 0.3 : 0.85,
         roughness: 0.15,
         metalness: 0.7,
+        wireframe: data.key !== 'jarvis',
       });
 
       let shape;
@@ -140,13 +178,11 @@ export class RedeNeural3D {
         group.add(r1, r2);
         this.rings.push(r1, r2);
       } else if (data.key === 'vppecas') {
-        shape = new THREE.Mesh(new THREE.TorusKnotGeometry(1, 0.28, 48, 8), mat);
+        shape = new THREE.Mesh(new THREE.TorusKnotGeometry(0.9, 0.25, 48, 8), mat);
       } else if (data.key === 'heimdall') {
-        shape = new THREE.Group();
-        shape.add(new THREE.Mesh(new THREE.SphereGeometry(1, 32, 32), mat));
-        shape.add(new THREE.Mesh(new THREE.TorusGeometry(1.5, 0.2, 16, 100), mat));
+        shape = new THREE.Mesh(new THREE.IcosahedronGeometry(1.1, 0), mat);
       } else {
-        shape = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.1, 1.4), mat);
+        shape = new THREE.Mesh(new THREE.OctahedronGeometry(1.2, 0), mat);
       }
 
       group.add(shape);
@@ -171,13 +207,17 @@ export class RedeNeural3D {
       this.nodes.push({ group, hitbox, shape, mat, data, agent });
 
       if (data.key !== 'jarvis') {
-        const pts = [center, new THREE.Vector3(...data.pos)];
-        const geo = new THREE.BufferGeometry().setFromPoints(pts);
+        const end = new THREE.Vector3(...data.pos);
+        const { mesh, mat: shaderMat } = this.makeShaderTube(center, end, apiLive);
+        mesh.userData = { from: 'jarvis', to: data.key };
+        this.scene.add(mesh);
+        this.shaderLines.push(shaderMat);
         const lineMat = new THREE.LineBasicMaterial({
           color: 0x06b6d4,
           transparent: true,
-          opacity: 0.28,
+          opacity: 0.12,
         });
+        const geo = new THREE.BufferGeometry().setFromPoints([center, end]);
         const line = new THREE.Line(geo, lineMat);
         line.userData = { from: 'jarvis', to: data.key };
         this.scene.add(line);
@@ -226,13 +266,20 @@ export class RedeNeural3D {
         return;
       }
       const { agent, key } = hits[0].object.userData;
-      const now = Date.now();
-      if (now - this.lastClick < 400) {
-        this.showPanel(agent, true);
-      } else {
+      this.selectNode(key, agent);
+    });
+
+    this.renderer.domElement.addEventListener('dblclick', (e) => {
+      const rect = this.renderer.domElement.getBoundingClientRect();
+      this.mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      this.mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      this.raycaster.setFromCamera(this.mouse, this.camera);
+      const hits = this.raycaster.intersectObjects(this.nodes.map((n) => n.hitbox));
+      if (hits.length) {
+        const { agent, key } = hits[0].object.userData;
         this.selectNode(key, agent);
+        this.showPanel(agent, true);
       }
-      this.lastClick = now;
     });
   }
 
@@ -314,10 +361,17 @@ export class RedeNeural3D {
 
     this.controls.update();
 
+    const elapsed = this.clock?.getElapsedTime() ?? 0;
+    for (const mat of this.shaderLines) {
+      mat.uniforms.time.value = elapsed;
+    }
+
     const t = Date.now() * 0.002;
     for (const s of this.shapes) {
-      s.rotation.x += 0.004;
-      s.rotation.y += 0.008;
+      if (s.rotation) {
+        s.rotation.x += 0.004;
+        s.rotation.y += 0.008;
+      }
     }
     for (const r of this.rings) {
       r.rotation.z += 0.012;

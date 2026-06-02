@@ -41,8 +41,8 @@
 
       <nav class="nav-links" aria-label="Principal">
         <a href="#home" class="nav-link active">Visão Geral</a>
-        <a href="#sala" class="nav-link">Sala</a>
-        <a href="#rede" class="nav-link">Rede 3D</a>
+        <a href="#sala" class="nav-link">Sala (2D)</a>
+        <a href="#rede" class="nav-link">Rede (3D)</a>
         <a href="#metrics" class="nav-link">Métricas</a>
         <a href="#playground" class="nav-link">Playground</a>
       </nav>
@@ -72,9 +72,9 @@
   <main id="app">
     <section id="view-home" class="view-container active">
       <div class="hero">
-        <p class="badge badge-nexus"><i data-lucide="terminal"></i> STATUS: NEXUS ONLINE</p>
+        <p class="badge badge-nexus"><i data-lucide="terminal"></i> AGENTIC OS ONLINE</p>
         <h1>
-          Sistema Operativo<br />
+          Sistema Multi-Agente<br />
           <span class="gradient-text glitch-text" data-text="OpenClaw">OpenClaw</span>
         </h1>
         <p>A nova evolução de arquitetura autónoma. Agentes descentralizados com dados em tempo real via gateway Vercel (Jarvis, Macofel, Heimdall, VP-Peças).</p>
@@ -94,7 +94,7 @@
 
       <div class="dashboard-panel glass-panel">
         <div class="section-head" style="margin:0;padding:0 0 1rem">
-          <h2 style="margin:0;font-family:'Space Grotesk',sans-serif">Telemetria (24h)</h2>
+          <h2 style="margin:0;font-family:'Space Grotesk',sans-serif"><i data-lucide="activity" style="width:1rem;height:1rem;vertical-align:middle;color:var(--emerald)"></i> Requisições reais (24h)</h2>
           <span class="mono" id="last-sync-time" style="font-size:0.7rem;color:var(--muted)">—</span>
         </div>
         <div class="chart-wrap"><canvas id="trafficChart"></canvas></div>
@@ -131,7 +131,7 @@
       <canvas id="sala-canvas" aria-label="Sala de trabalho animada"></canvas>
       <div class="overlay-panel glass-panel sala-top-left">
         <h2><i data-lucide="terminal-square"></i> Centro de Comando</h2>
-        <p class="mono" style="font-size:0.7rem;color:var(--muted);line-height:1.5">Perspectiva isométrica simulada. Agentes processam inputs através da mesa holográfica central.</p>
+        <p class="mono" style="font-size:0.7rem;color:var(--muted);line-height:1.5">Sprites SVG + pool de partículas. Animações pausam quando o separador perde foco.</p>
         <div class="sala-status-row">
           <span class="sala-live"><span class="api-ping on"></span><span class="api-dot on"></span> Sync OK</span>
           <span class="mono" style="font-size:0.65rem;color:var(--muted)">60 FPS</span>
@@ -163,7 +163,7 @@
       <div id="rede-canvas"></div>
       <div class="overlay-panel glass-panel rede-top-right">
         <h2>Matriz Neural <i data-lucide="share-2"></i></h2>
-        <p class="mono" style="font-size:0.7rem;color:var(--muted)">Arrasta · zoom · clique · duplo-clique = logs Hub</p>
+        <p class="mono" style="font-size:0.7rem;color:var(--muted)">Arrasta · zoom · clique no nó · duplo-clique = logs Hub. Cabos com gradiente animado.</p>
       </div>
       <div class="overlay-panel glass-panel rede-controls">
         <button type="button" class="icon-btn active" id="btn-auto-rotate" title="Auto-rotação"><i data-lucide="rotate-3d"></i></button>

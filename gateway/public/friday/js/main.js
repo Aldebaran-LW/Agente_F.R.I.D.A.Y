@@ -107,8 +107,9 @@ function handleRoute() {
     canvasApp.start();
     threeApp?.pause();
   } else if (hash === '#rede') {
-    if (!threeApp) threeApp = new RedeNeural3D(getAgents, getHubItems);
-    else threeApp.refreshColors();
+    if (!threeApp) {
+      threeApp = new RedeNeural3D(getAgents, getHubItems, () => fridayApi.lastMeta?.connected === true);
+    } else threeApp.refreshColors();
     threeApp.start();
     canvasApp?.pause();
   } else if (hash === '#metrics') {

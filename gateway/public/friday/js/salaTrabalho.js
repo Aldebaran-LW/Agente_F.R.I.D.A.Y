@@ -1,5 +1,7 @@
 import { MOCK_AGENTS } from './config.js';
 import { agentKeyFromHub } from './hub.js';
+import { ParticlePool } from './particlePool.js';
+import { loadAgentSprites, getSprites } from './sprites.js';
 import { isMobile } from './utils.js';
 
 const AGENT_ORDER = ['jarvis', 'macofel', 'heimdall', 'vppecas'];
@@ -10,13 +12,17 @@ export class SalaDeTrabalho {
     this.canvas = document.getElementById('sala-canvas');
     this.ctx = this.canvas?.getContext('2d');
     this.isRunning = false;
-    this.particles = [];
+    this.particlePool = new ParticlePool(isMobile() ? 24 : 50);
     this.time = 0;
     this.sysLogs = [];
     this.mouseX = 0;
     this.mouseY = 0;
     this.hovered = null;
-    this.maxParticles = isMobile() ? 10 : 35;
+    this.spritesReady = false;
+
+    loadAgentSprites().then(() => {
+      this.spritesReady = true;
+    });
 
     if (this.canvas) this.setupEvents();
   }
@@ -109,19 +115,8 @@ export class SalaDeTrabalho {
     modal.classList.remove('hidden');
   }
 
-  createParticle(from, to, color) {
-    if (this.particles.length >= this.maxParticles) {
-      this.particles.shift();
-    }
-    this.particles.push({
-      x: from.x,
-      y: from.y,
-      tx: to.x,
-      ty: to.y,
-      progress: 0,
-      speed: 0.012 + Math.random() * 0.012,
-      color,
-    });
+  spawnParticle(from, to, color) {
+    this.particlePool.spawn(from, to, color);
   }
 
   addLog(msg) {
@@ -152,21 +147,11 @@ export class SalaDeTrabalho {
     const list = this.agents();
     const hub = list[0];
 
-    if (hub?.pos && Math.random() < 0.045) {
+    if (hub?.pos && Math.random() < 0.05) {
       const other = list[Math.floor(Math.random() * 3) + 1];
       if (other?.pos) {
-        if (Math.random() > 0.5) this.createParticle(hub.pos, other.pos, hub.color);
-        else this.createParticle(other.pos, hub.pos, other.color);
-      }
-    }
-
-    for (let i = this.particles.length - 1; i >= 0; i--) {
-      const p = this.particles[i];
-      p.progress += p.speed;
-      p.x += (p.tx - p.x) * 0.09;
-      p.y += (p.ty - p.y) * 0.09;
-      if (p.progress >= 1 || Math.hypot(p.tx - p.x, p.ty - p.y) < 6) {
-        this.particles.splice(i, 1);
+        if (Math.random() > 0.5) this.spawnParticle(hub.pos, other.pos, hub.color);
+        else this.spawnParticle(other.pos, hub.pos, other.color);
       }
     }
 
@@ -340,7 +325,26 @@ export class SalaDeTrabalho {
     const lookY = hovered ? (this.mouseY - y) * 0.03 : 0;
     this.ctx.translate(lookX, lookY);
 
-    this.drawCustomAgent(agent, hovered);
+    const sprites = getSprites();
+    const sprite = sprites?.[agent.id];
+    const size = isMobile() ? 44 : 56;
+    const color = agent.status === 'offline' ? '#ef4444' : agent.color;
+    const pulse = Math.sin(this.time * 2 + x) * 4;
+
+    this.ctx.beginPath();
+    this.ctx.arc(0, 0, 44 + pulse, 0, Math.PI * 2);
+    this.ctx.fillStyle = color + (hovered ? '33' : '11');
+    this.ctx.fill();
+
+    if (sprite?.complete && this.spritesReady) {
+      this.ctx.shadowColor = color;
+      this.ctx.shadowBlur = hovered ? 18 : 8;
+      this.ctx.drawImage(sprite, -size / 2, -size / 2, size, size);
+      this.ctx.shadowBlur = 0;
+    } else {
+      this.drawCustomAgent(agent, hovered);
+    }
+
     this.ctx.restore();
 
     const hub = this.agents()[0];
@@ -378,15 +382,7 @@ export class SalaDeTrabalho {
     if (!this.isRunning || !this.ctx) return;
     this.drawBackground();
 
-    for (const p of this.particles) {
-      this.ctx.beginPath();
-      this.ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
-      this.ctx.fillStyle = p.color;
-      this.ctx.shadowBlur = 8;
-      this.ctx.shadowColor = p.color;
-      this.ctx.fill();
-      this.ctx.shadowBlur = 0;
-    }
+    this.particlePool.updateAndDraw(this.ctx);
 
     for (const a of this.agents()) {
       if (a.pos) this.drawAgent(a);
