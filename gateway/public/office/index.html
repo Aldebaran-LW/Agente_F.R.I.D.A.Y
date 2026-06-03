@@ -1,71 +1,151 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>OpenClaw — Escritório Pixel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel · F.R.I.D.A.Y. OpenClaw</title>
+  <meta name="description" content="Painel de controlo do ecossistema multiagente OpenClaw." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared.css" />
   <link rel="stylesheet" href="/office/office.css" />
 </head>
-<body>
-  <header class="top">
-    <h1>OpenClaw · Escritório</h1>
-    <p class="sub">Painel pixel-art (fase 4) — estados dos cérebros via gateway Vercel</p>
-    <div class="toolbar">
-      <label class="token-wrap">
-        <span>Token</span>
-        <input id="token" type="password" autocomplete="off" placeholder="OPENCLAW_AUTOMATION_TOKEN" />
-      </label>
-      <button id="save-token" type="button">Guardar sessão</button>
-      <button id="refresh" type="button">Atualizar</button>
-      <span id="clock" class="clock"></span>
-    </div>
-    <p id="status-line" class="status-line">A ligar…</p>
-  </header>
+<body class="office-app">
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar" aria-label="Navegação">
+      <div class="sidebar-brand">
+        <span class="logo-mark" aria-hidden="true"></span>
+        <div>
+          <strong>F.R.I.D.A.Y.</strong>
+          <span class="sidebar-sub">OpenClaw Office</span>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <button type="button" class="nav-item active" data-panel="overview">
+          <span class="nav-icon" aria-hidden="true">◉</span>
+          Visão Geral
+        </button>
+        <button type="button" class="nav-item" data-panel="agents">
+          <span class="nav-icon" aria-hidden="true">◎</span>
+          Agentes
+        </button>
+        <button type="button" class="nav-item" data-panel="innovation">
+          <span class="nav-icon" aria-hidden="true">✦</span>
+          Inovação
+        </button>
+        <button type="button" class="nav-item" data-panel="settings">
+          <span class="nav-icon" aria-hidden="true">⚙</span>
+          Configurações
+        </button>
+      </nav>
+      <div class="sidebar-foot">
+        <a href="/" class="sidebar-link">← Landing</a>
+        <a href="/forge" class="sidebar-link">Forge 3D</a>
+        <div class="sidebar-status" id="sidebar-gateway" aria-live="polite">
+          <span class="status-dot" id="sidebar-status-dot"></span>
+          <span id="sidebar-status-text">Gateway…</span>
+        </div>
+      </div>
+    </aside>
 
-  <main class="room" aria-label="Escritório dos agentes">
-    <div class="floor"></div>
-    <div class="desk desk-jarvis" data-agent="orchestrator">
-      <div class="sprite" id="sprite-orchestrator"></div>
-      <div class="bubble" id="bubble-orchestrator"></div>
-      <p class="name">Jarvis</p>
-      <p class="role">Cérebro</p>
-    </div>
-    <div class="desk desk-macofel" data-agent="macofel">
-      <div class="sprite" id="sprite-macofel"></div>
-      <div class="bubble" id="bubble-macofel"></div>
-      <p class="name">Macofel</p>
-      <p class="role">Catálogo</p>
-    </div>
-    <div class="desk desk-vp" data-agent="vp-pecas">
-      <div class="sprite" id="sprite-vp-pecas"></div>
-      <div class="bubble" id="bubble-vp-pecas"></div>
-      <p class="name">VP-Peças</p>
-      <p class="role">Usinagem</p>
-    </div>
-    <div class="desk desk-heimdall" data-agent="heimdall">
-      <div class="sprite" id="sprite-heimdall"></div>
-      <div class="bubble" id="bubble-heimdall"></div>
-      <p class="name">Heimdall</p>
-      <p class="role">Observador</p>
-    </div>
-    <div class="plant plant-a"></div>
-    <div class="plant plant-b"></div>
-  </main>
+    <div class="sidebar-backdrop" id="sidebar-backdrop" hidden></div>
 
-  <section class="innovation-panel" aria-label="Inovação">
-    <h2>Inovação</h2>
-    <p class="sub">Sophia · Yato · Senku · Gideon — <code>GET /openclaw/innovation/status</code></p>
-    <button id="refresh-innovation" type="button">Atualizar inovação</button>
-    <div id="innovation-body" class="innovation-body">—</div>
-  </section>
+    <div class="main-wrap">
+      <header class="topbar">
+        <button type="button" class="menu-toggle hide-desktop" id="menu-toggle" aria-label="Abrir menu">☰</button>
+        <div class="topbar-title">
+          <h1 id="panel-title">Visão Geral</h1>
+          <p class="topbar-sub" id="status-line">A ligar…</p>
+        </div>
+        <div class="topbar-actions">
+          <span class="clock mono" id="clock"></span>
+          <button type="button" class="btn btn-ghost btn-sm" id="refresh">Actualizar</button>
+        </div>
+      </header>
 
-  <footer class="foot">
-    <a href="/api/health" target="_blank" rel="noopener">health</a>
-    ·
-    <a href="https://github.com/Aldebaran-LW/Agente_OpenClaw" target="_blank" rel="noopener">repo</a>
-    ·
-    Claw3D na EC2: <code>docs/VISUALIZACAO-AGENTES.md</code>
-  </footer>
+      <main class="main-content">
+        <!-- Visão Geral -->
+        <section class="panel active" id="panel-overview" data-panel="overview">
+          <div class="overview-grid" id="overview-cards">
+            <!-- preenchido por JS -->
+          </div>
+          <p class="panel-meta mono" id="overview-meta"></p>
+        </section>
+
+        <!-- Agentes -->
+        <section class="panel" id="panel-agents" data-panel="agents" hidden>
+          <div class="table-wrap">
+            <table class="agents-table">
+              <thead>
+                <tr>
+                  <th>Agente</th>
+                  <th>Papel</th>
+                  <th>Estado</th>
+                  <th>Detalhe</th>
+                </tr>
+              </thead>
+              <tbody id="agents-table-body">
+                <tr><td colspan="4">A carregar…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Inovação -->
+        <section class="panel" id="panel-innovation" data-panel="innovation" hidden>
+          <div class="innovation-grid">
+            <div class="card innovation-feed">
+              <header class="card-header">
+                <h2>Últimas atividades</h2>
+                <span class="mono card-hint">GET /openclaw/hub/recent</span>
+              </header>
+              <ul class="activity-list" id="activity-feed">
+                <li class="activity-empty">Token necessário para carregar o Hub.</li>
+              </ul>
+            </div>
+            <div class="card innovation-side">
+              <header class="card-header">
+                <h2>Pipeline de inovação</h2>
+                <span class="mono card-hint">GET /openclaw/innovation/status</span>
+              </header>
+              <pre class="innovation-pre mono" id="innovation-body">—</pre>
+              <header class="card-header mt">
+                <h2>Dataset Hugging Face</h2>
+              </header>
+              <p class="hf-note">
+                Backup e descobertas em
+                <a href="https://huggingface.co/datasets/Aldebaran-LW/openclaw-backup" target="_blank" rel="noopener">Aldebaran-LW/openclaw-backup</a>.
+                Sincronizado via scripts <code>hf-backup-upload</code> e cron de inovação.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Configurações -->
+        <section class="panel" id="panel-settings" data-panel="settings" hidden>
+          <div class="card settings-card">
+            <h2>Autenticação</h2>
+            <p class="settings-desc">
+              Cola o mesmo valor de <code>OPENCLAW_AUTOMATION_TOKEN</code> da Vercel.
+              Guardado apenas em <code>sessionStorage</code> nesta sessão do browser.
+            </p>
+            <label class="field">
+              <span>Token Bearer</span>
+              <input id="token" type="password" autocomplete="off" placeholder="OPENCLAW_AUTOMATION_TOKEN" />
+            </label>
+            <div class="settings-actions">
+              <button type="button" class="btn btn-primary" id="save-token">Guardar sessão</button>
+              <button type="button" class="btn btn-ghost" id="clear-token">Limpar</button>
+            </div>
+            <p class="settings-hint mono">
+              URL com token: <code>/office#token=SEU_TOKEN</code> (removido da barra após guardar).
+            </p>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
 
   <script src="/office/office.js" type="module"></script>
 </body>

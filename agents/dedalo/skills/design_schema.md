@@ -9,6 +9,15 @@ Propor estrutura de dados para Dataset HF `openclaw-backup` e futuro hub Supabas
 - Sophia identifica nova fonte de dados persistente
 - Senku aprova feature que exige novo tipo de registo
 - Crescimento de `learnings/` sem schema claro
+- Sync de documentação estável para `corpus/` (ver `docs/DATASET-APRENDIZADO-AGENTES.md`)
+
+## Ramo `corpus/` (documentação versionada)
+
+- Path no Dataset: `corpus/{dominio}/…` + `corpus/manifest.json`
+- Um markdown pode gerar vários JSONL (chunks ≤ 4000 chars, overlap opcional 200).
+- Campos extra vs `learnings/`: `path`, `git_sha`, `tags[]`, `chunk_index`.
+- Allowlist no repo: `config/corpus-allowlist.txt`
+- Script planeado: `scripts/hf-ingest-corpus.mjs`
 
 ## Regras
 

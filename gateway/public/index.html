@@ -3,263 +3,229 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>F.R.I.D.A.Y. · Agente Multiagente para Portfólio Aldebaran-LW</title>
-  <meta name="description" content="Ecossistema multiagente 24/7 com Jarvis, Macofel, Heimdall e VP-Pecas. Automação inteligente com custo controlado de IA e aprovação no Telegram." />
-  <meta name="keywords" content="OpenClaw, multiagente, Jarvis, Macofel, automação, IA, Telegram, AWS, Vercel" />
+  <title>F.R.I.D.A.Y. · Ecossistema Multiagente OpenClaw</title>
+  <meta name="description" content="Ecossistema multiagente 24/7 com Jarvis, Macofel, Heimdall e VP-Pecas. Automação inteligente com custo zero de IA e aprovação no Telegram." />
+  <meta name="keywords" content="OpenClaw, F.R.I.D.A.Y., multiagente, Jarvis, Macofel, automação, IA, Telegram, AWS, Vercel" />
   <meta name="author" content="Aldebaran-LW" />
   <meta name="robots" content="index, follow" />
-  <meta property="og:title" content="F.R.I.D.A.Y. · Agente Multiagente" />
-  <meta property="og:description" content="Automação inteligente para o portfólio. Agentes especializados, infraestrutura híbrida, IA com custo zero." />
+  <meta property="og:title" content="F.R.I.D.A.Y. · Ecossistema Multiagente" />
+  <meta property="og:description" content="Automação inteligente para o portfólio Aldebaran-LW. Agentes especializados, infraestrutura híbrida, IA com custo zero." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://openclaw.lwdigitalforge.com/" />
-  <meta property="og:image" content="https://openclaw.lwdigitalforge.com/assets/og-friday.png" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="F.R.I.D.A.Y. · Agente Multiagente" />
-  <meta name="twitter:description" content="Automação inteligente com agentes especializados e custo zero de IA." />
+  <meta name="twitter:title" content="F.R.I.D.A.Y. · Agente_OpenClaw" />
+  <meta name="twitter:description" content="Assistente multiagente com custo zero de IA e aprovação no Telegram." />
   <link rel="canonical" href="https://openclaw.lwdigitalforge.com/" />
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared.css" />
   <link rel="stylesheet" href="/landing.css" />
 </head>
 <body>
-  <nav class="navbar">
+  <nav class="navbar" aria-label="Principal">
     <div class="container nav-inner">
-      <a class="logo" href="#">
-        <span class="logo-icon" aria-hidden="true">⚡</span>
-        F.R.I.D.A.Y. <span>· OpenClaw</span>
+      <a class="logo" href="/">
+        <span class="logo-mark" aria-hidden="true"></span>
+        F.R.I.D.A.Y.
       </a>
       <div class="nav-links">
         <a class="hide-mobile" href="#arquitetura">Arquitetura</a>
         <a class="hide-mobile" href="#agentes">Agentes</a>
-        <a class="hide-mobile" href="#inovacao">Inovação</a>
-        <a class="hide-mobile" href="#economia">Custos</a>
+        <a class="hide-mobile" href="#economia">Economia</a>
         <a class="hide-mobile" href="#forge">Forge</a>
-        <div class="nav-status-badge" id="nav-gateway-status" aria-live="polite">
-          <span class="status-dot" id="nav-status-dot" aria-hidden="true"></span>
-          <span id="nav-gateway-status-text">A verificar…</span>
+        <div class="nav-status" id="nav-gateway-status" aria-live="polite">
+          <span class="status-dot" id="nav-status-dot"></span>
+          <span id="nav-gateway-status-text">Gateway…</span>
         </div>
-        <a class="btn btn-primary cta-office" href="/office">Painel</a>
+        <a class="btn btn-primary btn-sm" href="/office">Painel</a>
       </div>
     </div>
   </nav>
 
   <main>
     <header class="hero container reveal">
-      <div class="hero-ops-badge" id="hero-ops-badge" aria-live="polite">
-        <span class="hero-status-dot" id="hero-status-dot" aria-hidden="true"></span>
+      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="hero-badge" id="hero-ops-badge" aria-live="polite">
+        <span class="status-dot" id="hero-status-dot"></span>
         <span id="hero-ops-text">A verificar sistema…</span>
       </div>
-      <span class="tag">Aldebaran-LW · Agente_OpenClaw</span>
-      <h1>F.R.I.D.A.Y.<br class="hero-br" /> Seu Ecossistema Multiagente</h1>
-      <p class="subtitle">Automação inteligente 24/7 para o portfólio Aldebaran-LW — Jarvis, Macofel, Heimdall e VP-Pecas em harmonia.</p>
-      <div class="badges">
-        <span class="badge">🤖 4 Agentes Especialistas</span>
-        <span class="badge">☁️ AWS + Vercel</span>
-        <span class="badge">🔒 Ações sob aprovação</span>
-        <span class="badge">🆓 IA com custo zero</span>
+      <p class="hero-tag">Aldebaran-LW · Agente_OpenClaw</p>
+      <h1>F.R.I.D.A.Y.<br /><span class="hero-gradient">Seu Ecossistema Multiagente</span></h1>
+      <p class="hero-sub">Automação inteligente 24/7 para o portfólio — Jarvis, Macofel, Heimdall e VP-Pecas em harmonia, com aprovação no Telegram.</p>
+      <div class="hero-badges">
+        <span class="hero-chip">4 agentes especialistas</span>
+        <span class="hero-chip">AWS + Vercel</span>
+        <span class="hero-chip">Ações sob aprovação</span>
+        <span class="hero-chip">IA custo zero</span>
       </div>
       <div class="hero-cta">
-        <a class="btn btn-primary cta-office" href="/office">🚀 Painel de Controle</a>
-        <a class="btn btn-ghost" href="/forge">🎮 Explorar Forge 3D</a>
+        <a class="btn btn-primary" href="/office">Painel de Controle</a>
+        <a class="btn btn-ghost" href="/forge">Explorar Forge 3D</a>
+      </div>
+      <div class="hero-token" id="hero-token-wrap">
+        <label class="sr-only" for="landing-token">Token de automação</label>
+        <input id="landing-token" type="password" class="token-input" placeholder="OPENCLAW_AUTOMATION_TOKEN (opcional — status ao vivo)" autocomplete="off" />
+        <button type="button" class="btn btn-ghost btn-sm" id="landing-token-save">Activar</button>
+        <p class="hero-token-hint" id="landing-token-hint">Sem token: métricas estáticas. O mesmo valor funciona no <a href="/office">/office</a>.</p>
       </div>
     </header>
 
-    <section id="arquitetura" class="section-alt reveal">
+    <section id="arquitetura" class="section reveal">
       <div class="container">
-        <h2>Arquitetura Híbrida</h2>
-        <p class="section-lead">Três camadas complementares — operação, controlo e inovação.</p>
-        <div class="arch-grid">
-          <article class="arch-card">
-            <div class="arch-icon" aria-hidden="true">🧠</div>
-            <h3>Jarvis · Cérebro · AWS EC2</h3>
-            <p>Orquestração operacional. Telegram, aprovações, tarefas 24/7 e crons agendados.</p>
-            <p class="tagline">Onde a mágica acontece.</p>
+        <header class="section-head">
+          <h2>Arquitetura Híbrida</h2>
+          <p>Três camadas — operação, controlo e inovação.</p>
+        </header>
+        <div class="grid-3">
+          <article class="card arch-card">
+            <div class="card-icon">🧠</div>
+            <h3>Jarvis · AWS EC2</h3>
+            <p>Orquestração operacional. Telegram, aprovações, crons e tarefas 24/7.</p>
+            <span class="card-foot mono">Cérebro · OpenClaw daemon</span>
           </article>
-          <article class="arch-card">
-            <div class="arch-icon" aria-hidden="true">🌐</div>
+          <article class="card arch-card">
+            <div class="card-icon">🌐</div>
             <h3>Gateway · Vercel</h3>
-            <p>Centro de controlo e observação. API segura, secrets, status dos agentes e dashboards <code>/office</code> e <code>/forge</code>.</p>
+            <p>API segura, secrets, status dos agentes e dashboards <code>/office</code> e <code>/forge</code>.</p>
+            <span class="card-foot mono">agente-openclaw.vercel.app</span>
           </article>
-          <article class="arch-card">
-            <div class="arch-icon" aria-hidden="true">🧪</div>
+          <article class="card arch-card">
+            <div class="card-icon">🧪</div>
             <h3>Laboratório · Hugging Face</h3>
-            <p>Inovação contínua — Yato (mercado), Rebeca (design), Gideon (previsão), Hefestos (construção); Veldora (segurança) e Rimuru (tokens/dados).</p>
+            <p>Yato, Rebeca, Gideon, Hefestos — inovação, design e previsão no portfólio.</p>
+            <span class="card-foot mono">Spaces · Dataset backup</span>
           </article>
         </div>
       </div>
     </section>
 
-    <section id="agentes" class="container reveal">
-      <h2>Os Cérebros do Ecossistema</h2>
-      <p class="section-lead">Operação no portfólio — coordenados pelo Jarvis (Cérebro).</p>
-      <div class="agents-grid">
-        <article class="agent-card">
-          <div class="agent-header">
-            <span class="agent-emoji" aria-hidden="true">🧠</span>
-            <div>
-              <h3 class="agent-name">Jarvis</h3>
-              <span class="agent-role">Cérebro</span>
-            </div>
-          </div>
-          <p class="agent-desc">Coordena tudo, aplica a política de segurança e pede aprovações.</p>
-          <p class="agent-metric live" id="metric-orchestrator">Coordenação e aprovações no Telegram</p>
-        </article>
-        <article class="agent-card">
-          <div class="agent-header">
-            <span class="agent-emoji" aria-hidden="true">📦</span>
-            <div>
-              <h3 class="agent-name">Macofel</h3>
-              <span class="agent-role">Catálogo</span>
-            </div>
-          </div>
-          <p class="agent-desc">E-commerce Macofel 2.0 — catálogo e sync de imagens (com confirmação).</p>
-          <p class="agent-metric live" id="metric-macofel">Catálogo e sync de imagens</p>
-        </article>
-        <article class="agent-card">
-          <div class="agent-header">
-            <span class="agent-emoji" aria-hidden="true">🛡️</span>
-            <div>
-              <h3 class="agent-name">Heimdall</h3>
-              <span class="agent-role">Observador</span>
-            </div>
-          </div>
-          <p class="agent-desc">Monitorização de deploys e saúde do portfólio.</p>
-          <p class="agent-metric live" id="metric-heimdall">Ciclo de vida dos ambientes</p>
-        </article>
-        <article class="agent-card">
-          <div class="agent-header">
-            <span class="agent-emoji" aria-hidden="true">⚡</span>
-            <div>
-              <h3 class="agent-name">VP-Peças</h3>
-              <span class="agent-role">Usinagem</span>
-            </div>
-          </div>
-          <p class="agent-desc">Saúde dos sites industriais do portfólio.</p>
-          <p class="agent-metric live" id="metric-vp">Sites de usinagem</p>
-        </article>
-      </div>
-    </section>
-
-    <section id="inovacao" class="section-alt reveal">
+    <section id="agentes" class="section section-alt reveal">
       <div class="container">
-        <h2>Laboratório de Inovação</h2>
-        <p class="section-lead">Cérebros Hugging Face e suporte — mercado, design, previsão, construção, segurança e consumo de tokens.</p>
-        <div class="agents-grid agents-grid-lab">
-          <article class="agent-card">
-            <div class="agent-header">
-              <span class="agent-emoji" aria-hidden="true">⚔️</span>
+        <header class="section-head">
+          <h2>Os Cérebros do Ecossistema</h2>
+          <p>Estado ao vivo quando o token está activo — fallback estático se a API falhar.</p>
+        </header>
+        <div class="grid-4" id="agents-grid">
+          <article class="card agent-card" data-agent="orchestrator">
+            <div class="agent-top">
+              <span class="agent-icon" aria-hidden="true">🧠</span>
               <div>
-                <h3 class="agent-name">Yato</h3>
-                <span class="agent-role">Pesquisa de Mercado / Marketing Digital</span>
+                <h3>Jarvis</h3>
+                <span class="agent-role">Cérebro</span>
               </div>
+              <span class="badge-pill" id="pill-orchestrator">—</span>
             </div>
-            <p class="agent-desc">Tendências, concorrência e oportunidades digitais para o portfólio.</p>
+            <p class="agent-desc">Coordena o portfólio, política de segurança e aprovações no Telegram.</p>
+            <p class="agent-metric mono" id="metric-orchestrator">A carregar…</p>
           </article>
-          <article class="agent-card">
-            <div class="agent-header">
-              <span class="agent-emoji" aria-hidden="true">🎨</span>
+          <article class="card agent-card" data-agent="macofel">
+            <div class="agent-top">
+              <span class="agent-icon" aria-hidden="true">📦</span>
               <div>
-                <h3 class="agent-name">Rebeca</h3>
-                <span class="agent-role">Designer</span>
+                <h3>Macofel</h3>
+                <span class="agent-role">Catálogo</span>
               </div>
+              <span class="badge-pill" id="pill-macofel">—</span>
             </div>
-            <p class="agent-desc">Layout, protótipos visuais e briefs para office, forge e HF.</p>
+            <p class="agent-desc">E-commerce Macofel 2.0 — catálogo e sync de imagens (com confirmação).</p>
+            <p class="agent-metric mono" id="metric-macofel">A carregar…</p>
           </article>
-          <article class="agent-card">
-            <div class="agent-header">
-              <span class="agent-emoji" aria-hidden="true">🔮</span>
+          <article class="card agent-card" data-agent="heimdall">
+            <div class="agent-top">
+              <span class="agent-icon" aria-hidden="true">🛡️</span>
               <div>
-                <h3 class="agent-name">Gideon</h3>
-                <span class="agent-role">Prevê o Futuro</span>
+                <h3>Heimdall</h3>
+                <span class="agent-role">Observador</span>
               </div>
+              <span class="badge-pill" id="pill-heimdall">—</span>
             </div>
-            <p class="agent-desc">Analisa dados e antecipa soluções antes que o problema aconteça.</p>
+            <p class="agent-desc">Monitorização de deploys, GitHub e saúde do portfólio.</p>
+            <p class="agent-metric mono" id="metric-heimdall">A carregar…</p>
           </article>
-          <article class="agent-card">
-            <div class="agent-header">
-              <span class="agent-emoji" aria-hidden="true">🔨</span>
+          <article class="card agent-card" data-agent="vp-pecas">
+            <div class="agent-top">
+              <span class="agent-icon" aria-hidden="true">⚡</span>
               <div>
-                <h3 class="agent-name">Hefestos</h3>
-                <span class="agent-role">Construtor (Em Geral)</span>
+                <h3>VP-Peças</h3>
+                <span class="agent-role">Usinagem</span>
               </div>
+              <span class="badge-pill" id="pill-vp-pecas">—</span>
             </div>
-            <p class="agent-desc">Skills, scripts e documentação após aprovação.</p>
-          </article>
-          <article class="agent-card">
-            <div class="agent-header">
-              <span class="agent-emoji" aria-hidden="true">🐉</span>
-              <div>
-                <h3 class="agent-name">Veldora Tempest</h3>
-                <span class="agent-role">Segurança</span>
-              </div>
-            </div>
-            <p class="agent-desc">Auditoria de política, permissões e conformidade do ecossistema.</p>
-          </article>
-          <article class="agent-card">
-            <div class="agent-header">
-              <span class="agent-emoji" aria-hidden="true">💧</span>
-              <div>
-                <h3 class="agent-name">Rimuru Tempest</h3>
-                <span class="agent-role">Dados / Consumo de Tokens</span>
-              </div>
-            </div>
-            <p class="agent-desc">Analista de dados e administrador do consumo OpenRouter e APIs.</p>
+            <p class="agent-desc">Saúde dos sites industriais do portfólio.</p>
+            <p class="agent-metric mono" id="metric-vp-pecas">A carregar…</p>
           </article>
         </div>
       </div>
     </section>
 
-    <section id="economia" class="container reveal">
-      <h2>Economia de IA</h2>
-      <p class="section-lead">Custo zero no dia a dia — LLM só quando necessário.</p>
-      <div class="economy-grid">
-        <div class="economy-item">
-          <div class="economy-number">0</div>
-          <p><strong>Tokens</strong> em comandos operacionais<br /><small><code>status</code>, <code>repos</code> — scripts sem LLM</small></p>
-        </div>
-        <div class="economy-item">
-          <div class="economy-number">0</div>
-          <p><strong>Custo</strong> em conversas simples<br /><small>Ollama local na EC2</small></p>
-        </div>
-        <div class="economy-item">
-          <div class="economy-number economy-label">Free</div>
-          <p><strong>Sob demanda</strong> para raciocínio complexo<br /><small>OpenRouter · Gemini · Groq</small></p>
-        </div>
-        <div class="economy-item">
-          <div class="economy-number economy-lock" aria-hidden="true">🔒</div>
-          <p><strong>Aprovação</strong> para impacto<br /><small>Deploy e sync só com <em>sim</em> no Telegram</small></p>
+    <section id="economia" class="section reveal">
+      <div class="container">
+        <header class="section-head">
+          <h2>Economia de IA</h2>
+          <p>Custo zero no dia a dia — LLM só quando necessário.</p>
+        </header>
+        <div class="grid-4 economy-grid">
+          <article class="card economy-card">
+            <div class="economy-num mono">0</div>
+            <h3>Tokens</h3>
+            <p>Comandos operacionais via scripts — <code>status</code>, <code>repos</code> sem LLM.</p>
+          </article>
+          <article class="card economy-card">
+            <div class="economy-num mono">0</div>
+            <h3>Ollama</h3>
+            <p>Conversas simples na EC2 — modelo local, sem custo por mensagem.</p>
+          </article>
+          <article class="card economy-card">
+            <div class="economy-num mono accent">Free</div>
+            <h3>Fallbacks</h3>
+            <p>OpenRouter, Gemini e Groq em tier gratuito para raciocínio complexo.</p>
+          </article>
+          <article class="card economy-card">
+            <div class="economy-num">🔒</div>
+            <h3>Aprovação</h3>
+            <p>Deploy e sync só com <em>sim</em> explícito no Telegram.</p>
+          </article>
         </div>
       </div>
     </section>
 
-    <section id="forge" class="container reveal">
-      <div class="forge-banner">
-        <h3>⚡ Digital Forge — Quartel General 3D</h3>
-        <p>Ambiente imersivo high-tech — F.R.I.D.A.Y., Heimdall, Macofel e VP-Peças em tempo real. Liga o middleware na EC2 (túnel <code>:8787</code>).</p>
-        <a class="btn btn-primary btn-invert" href="/forge">Entrar no Forge 3D →</a>
+    <section id="forge" class="section reveal">
+      <div class="container">
+        <article class="card forge-card">
+          <div class="forge-content">
+            <span class="forge-label">Digital Forge</span>
+            <h2>Quartel General 3D</h2>
+            <p>Ambiente imersivo — F.R.I.D.A.Y., Heimdall, Macofel e VP-Peças em tempo real. Middleware na EC2 (túnel <code>:8787</code>).</p>
+            <a class="btn btn-primary" href="/forge">Entrar no Forge 3D →</a>
+          </div>
+          <div class="forge-visual" aria-hidden="true">
+            <div class="forge-grid-3d"></div>
+          </div>
+        </article>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
-    <div class="container footer-inner">
+    <div class="container footer-grid">
       <div class="footer-brand">
-        <span class="logo-icon" aria-hidden="true">🤖</span>
-        <span>Agente_OpenClaw</span>
+        <span class="logo-mark sm" aria-hidden="true"></span>
+        <span>Agente_OpenClaw · Aldebaran-LW</span>
       </div>
-      <div class="footer-links">
+      <nav class="footer-nav" aria-label="Links">
+        <a href="https://github.com/Aldebaran-LW/Agente_OpenClaw" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/Aldebaran-LW/Agente_OpenClaw/blob/main/README.md" target="_blank" rel="noopener">Documentação</a>
         <a href="/office">Painel</a>
         <a href="/forge">Forge 3D</a>
-        <a href="https://lwdigitalforge.com" target="_blank" rel="noopener">Digital Forge</a>
-      </div>
-      <div class="status-bar" id="gateway-status" aria-live="polite">
-        <span class="dot" aria-hidden="true"></span>
+      </nav>
+      <div class="footer-status" id="gateway-status" aria-live="polite">
+        <span class="status-dot" id="footer-status-dot"></span>
         <span id="gateway-status-text">Gateway Vercel: a verificar…</span>
       </div>
     </div>
-    <p class="copy container">© Aldebaran-LW · F.R.I.D.A.Y. / OpenClaw · Política de segurança activa em todos os cérebros.</p>
+    <p class="footer-copy container">© Aldebaran-LW · Política de segurança activa em todos os cérebros.</p>
   </footer>
 
   <script src="/landing.js"></script>

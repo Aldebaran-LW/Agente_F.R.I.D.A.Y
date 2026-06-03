@@ -43,14 +43,28 @@ Se `telegram_html` falhar (caracteres inválidos), usar `reply` em texto simples
 - Emojis só como ícones de estado (✅ ❌ ⚠️ 📋) — não encher a mensagem.
 - Aprovações: bloco claro com **sim** / **confirmar** / **ok**.
 
+## Conflito OpenClaw vs Jarvis (slash)
+
+O OpenClaw na EC2 regista **comandos nativos** (`/status`, `/model`, `/compact`, …). Esses são tratados **pelo daemon** antes do hook Jarvis.
+
+| O que vês | O que aconteceu |
+|-----------|-----------------|
+| `/status` → versão OpenClaw, HF, Groq | Comando **nativo** OpenClaw (não é Macofel) |
+| `/quotas`, `/office`, `Ajuda` → *Something went wrong* | Slash desconhecido ou hook **desactualizado** na EC2 |
+| `status macofel`, `ajuda`, `rimuru status` | Hook → gateway Vercel ✅ (se EC2 com `git pull`) |
+
+**Regra prática:** operação = **texto** (`status macofel`, `ajuda`) ou **`/jarvis …`** (`/jarvis quotas`).
+
+Depois de `git pull` na EC2, testa: `node scripts/openclaw-jarvis-hook.mjs "/quotas"` → deve sair `handled: true`.
+
 ## Comandos sugeridos no BotFather
 
 | Comando | Ação |
 |---------|------|
 | `/start` | Menu de ajuda (chamar Jarvis com `ajuda`) |
-| `/status` | `status macofel` (catálogo — **não** quotas LLM) |
-| `/quotas` | `rimuru status` — consumo HF/Groq/OpenRouter (Rimuru) |
-| `/office` | `situação dos agentes` — fluxo Heimdall + deploy + GitHub |
+| `/status` | ⚠️ **Conflito:** OpenClaw nativo mostra versão/modelos. Para **Macofel** use `status macofel` ou `/jarvis status macofel` |
+| `/quotas` | ⚠️ Só funciona se o **hook EC2** estiver actualizado. Alternativa: `rimuru status` ou `/jarvis quotas` |
+| `/office` | ⚠️ Idem. Alternativa: `situação dos agentes` ou `/jarvis office` |
 | `/github` | `repos github` |
 | `/sites` | `sites no ar` |
 | `/resumo` | `resumo portfolio` |

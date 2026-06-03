@@ -1,5 +1,5 @@
 # Gerado automaticamente — nao editar a mao; use generate-hf-agents-config.mjs
-# 2026-06-01T13:19:07.694Z
+# 2026-06-01T13:27:52.883Z
 
 defaults:
   max_tokens: 4096

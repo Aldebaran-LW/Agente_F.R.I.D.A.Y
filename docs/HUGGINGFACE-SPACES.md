@@ -38,6 +38,7 @@ node scripts/generate-hf-agents-config.mjs
 
 | Space | Pasta repo | URL app |
 |-------|------------|---------|
+| **Openai-GBT-oss-20b** | `hf-space/openai-gpt-oss-20b/` | FastAPI Docker — ver [`HF-SPACE-GPT-OSS-20B.md`](./HF-SPACE-GPT-OSS-20B.md) |
 | `openclaw-demo` | `hf-space/demo/` | https://aldebaran-lw-openclaw-demo.hf.space |
 | `friday-prod` (criar) | `hf-space/friday-prod/` | protótipo smolagents |
 
