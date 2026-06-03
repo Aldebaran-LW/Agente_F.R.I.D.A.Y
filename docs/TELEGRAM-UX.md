@@ -50,12 +50,16 @@ O OpenClaw na EC2 regista **comandos nativos** (`/status`, `/model`, `/compact`,
 | O que vês | O que aconteceu |
 |-----------|-----------------|
 | `/status` → versão OpenClaw, HF, Groq | Comando **nativo** OpenClaw (não é Macofel) |
-| `/quotas`, `/office`, `Ajuda` → *Something went wrong* | Slash desconhecido ou hook **desactualizado** na EC2 |
+| `/quotas`, `/office`, `Ajuda` → *Something went wrong* | Hook desactualizado **ou** `tools.profile=messaging` sem `exec` (ver abaixo) |
 | `status macofel`, `ajuda`, `rimuru status` | Hook → gateway Vercel ✅ (se EC2 com `git pull`) |
 
 **Regra prática:** operação = **texto** (`status macofel`, `ajuda`) ou **`/jarvis …`** (`/jarvis quotas`).
 
 Depois de `git pull` na EC2, testa: `node scripts/openclaw-jarvis-hook.mjs "/quotas"` → deve sair `handled: true`.
+
+### Erro «No callable tools remain … tools.allow: exec»
+
+O perfil `messaging` **remove** `exec`; o Jarvis precisa de `exec` para o hook. O patch EC2 (`ec2-tiered-llm-patch.mjs`) usa allowlist explícita (`exec` + `message` + sessões) **sem** `tools.profile`. Corrigir: `sudo bash scripts/ec2-fix-telegram-models.sh` e `/new`.
 
 ## Comandos sugeridos no BotFather
 

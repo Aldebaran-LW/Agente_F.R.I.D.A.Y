@@ -19,7 +19,7 @@ SOUL_SRC="/opt/openclaw/agents/_shared/SOUL-TELEGRAM-JARVIS.md"
 [[ -f "$SOUL_SRC" ]] && mkdir -p "$WORKSPACE_DIR" && cp "$SOUL_SRC" "$WORKSPACE_DIR/SOUL.md"
 
 openclaw config set agents.defaults.compaction.reserveTokensFloor 20000 2>/dev/null || true
-openclaw config set tools.profile messaging 2>/dev/null || true
+openclaw config unset tools.profile 2>/dev/null || true
 
 openclaw config validate
 

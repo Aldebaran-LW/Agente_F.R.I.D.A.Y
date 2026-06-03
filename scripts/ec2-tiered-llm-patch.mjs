@@ -101,10 +101,16 @@ if (minimal) {
 }
 
 doc.tools = doc.tools || {};
-doc.tools.profile = 'messaging';
-// O perfil "messaging" remove `exec`, mas o Telegram-Jarvis precisa executar
-// o hook `scripts/openclaw-jarvis-hook.mjs` localmente.
-doc.tools.allow = Array.from(new Set([...(doc.tools.allow || []), 'exec']));
+// Perfil "messaging" remove exec — Jarvis precisa correr openclaw-jarvis-hook.mjs.
+delete doc.tools.profile;
+doc.tools.allow = [
+  'exec',
+  'message',
+  'session_status',
+  'sessions_history',
+  'sessions_list',
+  'sessions_send',
+];
 
 doc.models = doc.models || {};
 doc.models.providers = doc.models.providers || {};
