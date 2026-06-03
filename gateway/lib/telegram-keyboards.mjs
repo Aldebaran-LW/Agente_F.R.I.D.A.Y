@@ -60,6 +60,23 @@ export function whatsappDoneKeyboard() {
   ]);
 }
 
+/** Lista de propostas pendentes (máx. 5). */
+export function proposalsListKeyboard(proposals = []) {
+  const rows = [];
+  for (const p of proposals.slice(0, 5)) {
+    const short = p.id.length > 18 ? p.id.slice(0, 18) : p.id;
+    rows.push([
+      btn(`✅ ${short}`, `j:prop:ok:${p.id}`),
+      btn('❌ Não', `j:prop:no:${p.id}`),
+    ]);
+  }
+  rows.push([
+    btn('➕ Gerar manutenção', 'j:prop:gen:maint'),
+    btn('🔄 Lista', 'j:prop:list'),
+  ]);
+  return inlineKeyboard(rows);
+}
+
 /** Aprovação genérica (sync, hefestos…). */
 export function approvalKeyboard() {
   return inlineKeyboard([
@@ -111,7 +128,28 @@ export function resolveCallbackToJarvisRequest(callbackData) {
     'j:ok:sim': { message: 'sim', approved: true, answerText: 'sim' },
     'j:ok:confirmar': { message: 'confirmar', approved: true, answerText: 'confirmar' },
     'j:ok:ok': { message: 'ok', approved: true, answerText: 'ok' },
+    'j:prop:list': { message: 'propostas', answerText: 'Propostas…' },
+    'j:prop:gen:maint': {
+      message: 'gerar proposta manutenção',
+      answerText: 'Gerar proposta…',
+    },
   };
+
+  const propOk = d.match(/^j:prop:ok:(.+)$/);
+  if (propOk) {
+    return {
+      message: `aprovar proposta ${propOk[1]}`,
+      approved: true,
+      answerText: 'A aprovar…',
+    };
+  }
+  const propNo = d.match(/^j:prop:no:(.+)$/);
+  if (propNo) {
+    return {
+      message: `rejeitar proposta ${propNo[1]} rejeitado no Telegram`,
+      answerText: 'A rejeitar…',
+    };
+  }
 
   return map[d] ?? null;
 }
@@ -128,7 +166,7 @@ export function pickReplyMarkup({
   const skill = route?.skill;
   if (skill === 'help') return mainMenuKeyboard();
 
-  if (skill === 'schedule-whatsapp') {
+  if (skill === 'schedule-whatsapp' || skill === 'whatsapp-send-contact') {
     if (payload?.needsApproval) return whatsappConfirmKeyboard();
     if (payload?.ok && payload?.item) return whatsappDoneKeyboard();
     if (payload?.reply?.includes('Agendados')) return whatsappMenuKeyboard();
@@ -137,6 +175,10 @@ export function pickReplyMarkup({
 
   if (plainReply && /Lembrete WhatsApp para/i.test(plainReply)) {
     return whatsappConfirmKeyboard();
+  }
+
+  if (skill === 'proposals-pipeline' && payload?.proposals?.length) {
+    return proposalsListKeyboard(payload.proposals);
   }
 
   return null;

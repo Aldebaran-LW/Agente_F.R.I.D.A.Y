@@ -11,24 +11,42 @@ export function escapeHtml(text) {
     .replace(/>/g, '&gt;');
 }
 
+function extractOrchestrateText(payload) {
+  if (!payload) return '';
+  const inner = payload.data ?? payload;
+  const text =
+    payload.reply ??
+    inner?.reply ??
+    inner?.result ??
+    inner?.message ??
+    (typeof inner === 'string' ? inner : '');
+  return String(text).slice(0, 1200);
+}
+
 export function formatHelpMenu() {
   return [
     '<b>Jarvis</b> — Aldebaran-LW',
     '',
     '<b>Operação</b>',
-    '• <code>status macofel</code> · <code>repos github</code>',
-    '• <code>sites no ar</code> · <code>resumo portfolio</code>',
+    '• <code>/status</code> Macofel · <code>/office</code> agentes',
+    '• <code>repos github</code> · <code>sites no ar</code> · <code>resumo portfolio</code>',
+    '• <code>/quotas</code> consumo LLM (Rimuru)',
     '',
     '<b>Inovação</b> (HF)',
+    '• <code>previsão de vendas</code> (Yato→Gideon)',
     '• <code>pesquisa mercado</code> (Yato)',
     '• <code>viabilidade</code> (Gideon) · <code>design rebeca</code>',
+    '• <code>propostas</code> · <code>gerar proposta manutenção</code>',
     '',
     '<b>Suporte</b>',
     '• <code>tokens openrouter</code> (Rimuru)',
     '• <code>auditoria seguranca</code> (Veldora)',
     '',
     '<b>WhatsApp</b> (lembretes Twilio)',
-    '• <code>agendar whatsapp: DD/MM/AAAA HH:MM — texto</code>',
+    '• <code>agendar whatsapp: DD/MM/AAAA HH:MM — texto</code> (para ti)',
+    '• <code>enviar joao "mensagem" amanhã 19h</code> (contacto)',
+    '• <code>contato adicionar joao +5511… amigo</code>',
+    '• <code>preferencia listar</code> · quiet hours',
     '• Atalhos: botão <b>📱 WhatsApp</b> abaixo',
     '',
     'Escrita (sync, build) pede <b>sim</b> · <b>confirmar</b> · <b>ok</b>.',
@@ -52,14 +70,31 @@ export function formatScheduleWhatsAppHtml(payload = {}, { approvalBlocked = fal
       .join('\n');
   }
   if (payload?.item?.id) {
+    const who = payload.item.contactName || payload.item.contactId;
     return [
       '<b>✅ Agendado</b>',
+      who ? `👤 ${escapeHtml(who)}` : '',
       `🕐 ${escapeHtml(formatSpShort(payload.item.sendAt))}`,
       `📝 ${escapeHtml(payload.item.body.slice(0, 200))}`,
       `<code>${escapeHtml(payload.item.id)}</code>`,
       '',
       '<i>Envio automático no WhatsApp no horário marcado.</i>',
-    ].join('\n');
+    ]
+      .filter(Boolean)
+      .join('\n');
+  }
+  if (payload?.preview?.contact) {
+    return [
+      '<b>📱 WhatsApp → contacto</b>',
+      `👤 ${escapeHtml(payload.preview.contact)}`,
+      payload.preview.formatted ? `🕐 ${escapeHtml(payload.preview.formatted)}` : '',
+      '',
+      escapeHtml(String(payload.preview.body || '').slice(0, 400)),
+      '',
+      '⚠️ Confirma com <b>sim</b> (30 min).',
+    ]
+      .filter(Boolean)
+      .join('\n');
   }
   if (payload?.reply) {
     return escapeHtml(payload.reply).replace(/\n/g, '\n');
@@ -176,13 +211,39 @@ export function formatSingleReply(route, payload, { approvalBlocked = false } = 
   if (route?.skill === 'deploy-monitor' && payload?.sites) {
     return lineDeploy(payload);
   }
-  if (route?.skill === 'schedule-whatsapp') {
+  if (route?.skill === 'schedule-whatsapp' || route?.skill === 'whatsapp-send-contact') {
     const html = formatScheduleWhatsAppHtml(payload, { approvalBlocked });
     if (html) return html;
   }
-  return escapeHtml(
-    'Não entendi. Tente: status macofel · repos github · resumo portfolio'
-  );
+  if (route?.skill === 'whatsapp-contacts' && payload?.reply) {
+    return escapeHtml(payload.reply).replace(/\n/g, '\n');
+  }
+  if (route?.skill === 'proposals-pipeline' && payload?.reply) {
+    const raw = String(payload.reply);
+    if (raw.includes('<b>')) {
+      return raw.replace(/\n/g, '\n');
+    }
+    return escapeHtml(raw).replace(/\n/g, '\n');
+  }
+  if (route?.skill === 'user-preferences' && payload?.reply) {
+    return escapeHtml(String(payload.reply)).replace(/\n/g, '\n');
+  }
+  if (
+    (route?.skill === 'innovation-monitor' ||
+      route?.skill === 'ecosystem-watch' ||
+      route?.skill === 'innovation-design' ||
+      route?.skill === 'security-audit') &&
+    payload?.reply
+  ) {
+    return escapeHtml(String(payload.reply)).replace(/\n/g, '\n');
+  }
+  if (route?.skill === 'clarify') {
+    return null;
+  }
+  if (payload?.reply) {
+    return escapeHtml(String(payload.reply)).replace(/\n/g, '\n');
+  }
+  return null;
 }
 
 export function formatWorkflowHtml({
@@ -195,6 +256,20 @@ export function formatWorkflowHtml({
   }
   if (workflowId === 'agents-status') {
     return formatAgentsStatusHtml(results);
+  }
+  if (workflowId === 'vendas-previsao') {
+    const yato = results['innovation-market'];
+    const gideon = results['innovation-forecast'];
+    const lines = [];
+    if (yato?.reply || yato?.data?.reply || yato?.data?.result) {
+      lines.push('<b>Yato · mercado</b>', escapeHtml(extractOrchestrateText(yato)));
+    }
+    if (gideon?.reply || gideon?.data?.reply || gideon?.data?.result) {
+      lines.push('', '<b>Gideon · previsão</b>', escapeHtml(extractOrchestrateText(gideon)));
+    }
+    return lines.length
+      ? lines.join('\n')
+      : '<i>Previsão de vendas: HF/EC2 sem resposta.</i>';
   }
   if (approvalBlocked && workflowId === 'macofel-sync') {
     const pre = formatSingleReply(

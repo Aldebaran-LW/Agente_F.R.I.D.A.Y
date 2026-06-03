@@ -34,7 +34,7 @@ export default async function handler(req, res) {
         'macofel', 'vp-pecas', 'heimdall',
         'yato', 'gideon', 'rebeca', 'hefestos', 'rimuru', 'veldora', 'icaro',
       ],
-      workflows: ['portfolio-status', 'macofel-sync'],
+      workflows: ['portfolio-status', 'macofel-sync', 'agents-status', 'vendas-previsao'],
       skills: listSkills(),
     });
   }

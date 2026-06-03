@@ -5,7 +5,8 @@ import { routeMessage } from '../../gateway/lib/jarvis-router.mjs';
 import { loadPending } from './scheduled-whatsapp-core.mjs';
 
 const SLASH_JARVIS = /^\/jarvis(?:@\w+)?\s*/i;
-const SLASH_OPS = /^\/(start|help|ajuda|menu|status|github|sites|resumo|lembrete)(?:@\w+)?\b/i;
+const SLASH_OPS =
+  /^\/(start|help|ajuda|menu|status|github|sites|resumo|lembrete|quotas|office|rimuru)(?:@\w+)?\b/i;
 
 const SLASH_TO_MESSAGE = {
   start: 'ajuda',
@@ -17,6 +18,9 @@ const SLASH_TO_MESSAGE = {
   sites: 'sites no ar',
   resumo: 'resumo portfolio',
   lembrete: 'menu whatsapp', // tratado no hook → submenu botões
+  quotas: 'rimuru status',
+  rimuru: 'rimuru status',
+  office: 'situação dos agentes',
 };
 
 /** Normaliza texto para POST /jarvis. */

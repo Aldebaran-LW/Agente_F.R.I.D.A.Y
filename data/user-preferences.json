@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "timezone": "America/Sao_Paulo",
+  "quietHours": {
+    "start": "22:00",
+    "end": "09:00"
+  },
+  "preferredTone": "informal",
+  "autoApproveCategories": [],
+  "outcomes": [
+    {
+      "type": "proposal",
+      "outcome": "accepted",
+      "meta": {
+        "id": "prop_mpy5vpfd_83d9",
+        "type": "manutencao"
+      },
+      "at": "2026-06-03T14:28:15.991Z"
+    },
+    {
+      "type": "proposal",
+      "outcome": "accepted",
+      "meta": {
+        "id": "prop_mpy5xixi_4f5a",
+        "type": "manutencao"
+      },
+      "at": "2026-06-03T14:29:40.857Z"
+    }
+  ]
+}

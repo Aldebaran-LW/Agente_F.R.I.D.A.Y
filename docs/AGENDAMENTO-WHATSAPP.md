@@ -65,6 +65,32 @@ Outros:
 - `lista agendamentos whatsapp`
 - `cancelar whatsapp wa_20260601_abc123`
 
+## Contactos (mensagem para terceiros)
+
+Rubrica: `data/whatsapp-contacts.json`
+
+1. `contato adicionar joao +5511999999999 amigo` (opcional: janela `18:00-21:00`)
+2. `contato listar`
+3. `enviar joao "sua mensagem aqui" amanhã 19:00` → pré-visualização → `sim`
+4. No horário, o **heartbeat** envia para o número do contacto (`to` no item da fila)
+
+Sem `to` no job, usa `TWILIO_WHATSAPP_TO` (lembrete só para ti — comportamento anterior).
+
+**Sandbox Twilio:** cada destinatário precisa enviar `join <código>` ao +14155238886 antes de receber.
+
+Ficheiro extra: `scripts/lib/whatsapp-contacts.mjs` · skills `whatsapp-contacts`, `whatsapp-send-contact`
+
+## Preferências (quiet hours)
+
+Ficheiro: `data/user-preferences.json`
+
+- `preferencia listar`
+- `preferencia set quietHours 22:00-09:00`
+- `preferencia set timezone America/Sao_Paulo`
+- `preferencia set preferredTone informal`
+
+Ao agendar/enviar, se o horário cair em quiet hours, o Jarvis avisa; **`sim`** confirma mesmo assim.
+
 ## Dispatcher manual
 
 ```powershell

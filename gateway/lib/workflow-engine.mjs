@@ -14,6 +14,10 @@ import {
   runScheduledWhatsApp,
   tryConfirmPendingOnly,
 } from './scheduled-whatsapp.mjs';
+import { runWhatsAppContacts } from './whatsapp-contacts.mjs';
+import { runWhatsAppSendContact } from './whatsapp-send-contact.mjs';
+import { runUserPreferences } from './user-preferences.mjs';
+import { runProposals } from './proposals.mjs';
 
 /** Skills sem executor local — delegam via orchestrate (HF / EC2). */
 const ORCHESTRATE_SKILLS = new Set([
@@ -54,6 +58,13 @@ function buildExecutors(params = {}) {
     'ecosystem-watch': () => runEcosystemWatch(),
     'schedule-whatsapp': () =>
       runScheduledWhatsApp({ message: params.message }),
+    'whatsapp-contacts': () =>
+      runWhatsAppContacts({ message: params.message }),
+    'whatsapp-send-contact': () =>
+      runWhatsAppSendContact({ message: params.message }),
+    'user-preferences': () =>
+      runUserPreferences({ message: params.message }),
+    'proposals-pipeline': () => runProposals({ message: params.message }),
   };
 }
 
@@ -248,8 +259,11 @@ async function executeWorkflow(plan, { message, approved, params }) {
     }
 
     const executors = buildExecutors(params);
-    const executor = executors[task.skill];
-    if (!executor) {
+    const run =
+      ORCHESTRATE_SKILLS.has(task.skill)
+        ? () => forwardTask(task.agent, message)
+        : executors[task.skill];
+    if (!run) {
       taskRuns.push({
         id: task.id,
         skill: task.skill,
@@ -262,10 +276,7 @@ async function executeWorkflow(plan, { message, approved, params }) {
 
     const t0 = Date.now();
     try {
-      const data = await runWithTimeout(
-        executeSkill(task.skill, params),
-        skillTimeoutMs(task.skill)
-      );
+      const data = await runWithTimeout(run(), skillTimeoutMs(task.skill));
       results[task.skill] = data;
       taskRuns.push({
         id: task.id,

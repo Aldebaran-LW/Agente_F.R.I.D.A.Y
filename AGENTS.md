@@ -86,6 +86,8 @@ Skill: `politica-seguranca` (sempre activa).
 - `docs/INSTALACAO.md` — setup
 - `docs/CRON-EXEMPLOS.md` — rotinas agendadas
 - `docs/OPENROUTER-MODELOS-FREE.md` — modelos free OpenRouter + stacks Jarvis
+- `docs/CREAO-REFERENCIA-COMPLETA.md` — catálogo CREAO (arquivo; `skills/_creao-reference/`)
+- `docs/DATASET-APRENDIZADO-AGENTES.md` — docs → Dataset HF → RAG / fine-tune futuro
 
 ## Comandos
 

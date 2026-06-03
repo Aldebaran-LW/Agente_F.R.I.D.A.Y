@@ -22,7 +22,7 @@ flowchart LR
 | **Cerebros** | `agents/*` | Especialistas (Macofel, Ops, VP-Pecas) |
 | **HF (opcional)** | Hugging Face | Demo + backup JSON |
 
-Detalhe: `docs/PAPEIS-AWS-VERCEL.md` · `docs/ARQUITETURA-AGENTES.md`
+Detalhe: `docs/VISAO-PRODUTO.md` · `docs/PAPEIS-AWS-VERCEL.md` · `docs/ARQUITETURA-AGENTES.md`
 
 ## Cerebros e modelos (free)
 

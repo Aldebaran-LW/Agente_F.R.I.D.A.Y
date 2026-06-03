@@ -20,6 +20,8 @@ const FILES = [
   'rebeca-design-core.mjs',
   'veldora-audit-core.mjs',
   'scheduled-whatsapp-core.mjs',
+  'whatsapp-contacts.mjs',
+  'preferences-memory.mjs',
 ];
 
 mkdirSync(dest, { recursive: true });
@@ -75,6 +77,23 @@ for (const name of FILES) {
     text = text.replace(DATA_PATH_RE, DATA_PATH_TO);
   }
   writeFileSync(resolve(dest, name), text, 'utf8');
+}
+
+const HF_BUNDLE = [
+  ['scripts/hf/proposal-generator.mjs', 'proposal-generator.mjs'],
+  ['scripts/hf/proposal-approval.mjs', 'proposal-approval.mjs'],
+  ['scripts/github/executor.mjs', 'github-executor.mjs'],
+];
+
+for (const [rel, destName] of HF_BUNDLE) {
+  let text = readFileSync(resolve(repoRoot, rel), 'utf8');
+  text = text.replaceAll('../github/executor.mjs', './github-executor.mjs');
+  text = text.replaceAll('../lib/preferences-memory.mjs', './preferences-memory.mjs');
+  text = text.replace(
+    /const __dirname = dirname\(fileURLToPath\(import\.meta\.url\)\);\r?\nconst WORKSPACE_ROOT = join\(__dirname, '\.\.', '\.\.'\);/,
+    `${ROOT_PATCH}${DATA_ROOT_FN}`,
+  );
+  writeFileSync(resolve(dest, destName), text, 'utf8');
 }
 
 console.log('[prepare-vercel] lib/repo-scripts + agents/heimdall/watch-agents.json');

@@ -1,4 +1,14 @@
 export const RULES = [
+  {
+    agent: "rimuru",
+    skill: "innovation-monitor",
+    patterns: [/^\/quotas(?:@\w+)?$/i, /^quotas$/i, /^rimuru\s+status$/i],
+  },
+  {
+    agent: "heimdall",
+    skill: "ecosystem-watch",
+    patterns: [/^\/office(?:@\w+)?$/i],
+  },
   { agent: "macofel", skill: "macofel-status", patterns: [/macofel|catalogo|pendente|produto/i] },
   { agent: "macofel", skill: "macofel-images-sync", patterns: [/sync imagem|sync imagens|sincronizar imagem/i] },
   { agent: "heimdall", skill: "vercel-status", patterns: [/texte|portal.*deploy|deploy.*portal|deploy.*texte|ultimo deploy.*texte/i] },
@@ -42,12 +52,51 @@ export const RULES = [
     agent: "rimuru",
     skill: "innovation-monitor",
     patterns: [
-      /token|consumo|rimuru|athena|openrouter|quota|uso api/i,
+      /token|consumo|rimuru|athena|openrouter|quotas?|uso api/i,
       /rimuru\s+(status|alertar)/i,
     ],
   },
   { agent: "hefestos", skill: "innovation-build", patterns: [/hefestos|construir skill|implementar melhoria/i] },
   { agent: "icaro", skill: "innovation-test", patterns: [/icaro|testar agente|validar config|teste?\s+(os\s+)?agentes?|testar\s+(os\s+)?agentes?/i] },
+  {
+    agent: "jarvis",
+    skill: "proposals-pipeline",
+    patterns: [
+      /^propostas$/i,
+      /^\/propostas$/i,
+      /^lista\s+propostas$/i,
+      /^gerar\s+proposta\s+/i,
+      /^aprovar\s+proposta\s+/i,
+      /^rejeitar\s+proposta\s+/i,
+    ],
+  },
+  {
+    agent: "jarvis",
+    skill: "user-preferences",
+    patterns: [
+      /^preferencia\s+listar$/i,
+      /^\/preferencia$/i,
+      /^preferencia\s+set\s+/i,
+    ],
+  },
+  {
+    agent: "jarvis",
+    skill: "whatsapp-contacts",
+    patterns: [
+      /^contato\s+adicionar\s+/i,
+      /^contato\s+listar$/i,
+      /^contato\s+remover\s+/i,
+      /^lista\s+contactos?$/i,
+    ],
+  },
+  {
+    agent: "jarvis",
+    skill: "whatsapp-send-contact",
+    patterns: [
+      /^\/enviar\s+\w+\s+"/i,
+      /^enviar\s+(?:para\s+)?\w+\s+"/i,
+    ],
+  },
   {
     agent: "jarvis",
     skill: "schedule-whatsapp",

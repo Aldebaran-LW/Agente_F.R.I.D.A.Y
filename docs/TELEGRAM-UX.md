@@ -48,13 +48,16 @@ Se `telegram_html` falhar (caracteres inválidos), usar `reply` em texto simples
 | Comando | Ação |
 |---------|------|
 | `/start` | Menu de ajuda (chamar Jarvis com `ajuda`) |
-| `/status` | `status macofel` |
+| `/status` | `status macofel` (catálogo — **não** quotas LLM) |
+| `/quotas` | `rimuru status` — consumo HF/Groq/OpenRouter (Rimuru) |
+| `/office` | `situação dos agentes` — fluxo Heimdall + deploy + GitHub |
 | `/github` | `repos github` |
 | `/sites` | `sites no ar` |
 | `/resumo` | `resumo portfolio` |
 | `/lembrete` | Menu WhatsApp (botão 📱) |
 | `pesquisa mercado` | Yato (inovação HF) |
-| `tokens openrouter` | Rimuru (consumo APIs) |
+| `tokens openrouter` / `/quotas` | Rimuru (consumo APIs) |
+| `previsão de vendas` | Workflow Yato → Gideon (HF) |
 | `auditoria seguranca` | Veldora |
 | `menu` / `ajuda` | Lista de todos os cérebros |
 

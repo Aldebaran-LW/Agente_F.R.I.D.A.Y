@@ -2,6 +2,7 @@ import {
   handleScheduleCommand,
   loadPending,
 } from './repo-scripts/scheduled-whatsapp-core.mjs';
+import { tryConfirmContactPending } from './whatsapp-send-contact.mjs';
 
 /** Confirma lembrete pendente quando o utilizador responde só "sim". */
 export async function tryConfirmPendingOnly(message = '') {
@@ -10,6 +11,8 @@ export async function tryConfirmPendingOnly(message = '') {
     return { handled: false };
   }
   if (!loadPending()) return { handled: false };
+  const contactConfirm = await tryConfirmContactPending(message);
+  if (contactConfirm.handled) return contactConfirm;
   const result = await handleScheduleCommand(message);
   return { handled: true, ...result };
 }

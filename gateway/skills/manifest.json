@@ -100,6 +100,42 @@
       "telemetry": true,
       "description": "Lembrete WhatsApp agendado (Twilio, so admin)"
     },
+    "proposals-pipeline": {
+      "agent": "jarvis",
+      "mode": "write",
+      "permissions": ["write:github"],
+      "requiresApproval": false,
+      "timeoutMs": 15000,
+      "telemetry": true,
+      "description": "Propostas HF → aprovacao → GitHub (simulado v1)"
+    },
+    "user-preferences": {
+      "agent": "jarvis",
+      "mode": "read",
+      "permissions": [],
+      "requiresApproval": false,
+      "timeoutMs": 5000,
+      "telemetry": false,
+      "description": "Preferencias do utilizador (timezone, quiet hours, tom)"
+    },
+    "whatsapp-contacts": {
+      "agent": "jarvis",
+      "mode": "write",
+      "permissions": ["write:notify"],
+      "requiresApproval": false,
+      "timeoutMs": 10000,
+      "telemetry": true,
+      "description": "Rubrica de contactos WhatsApp (adicionar, listar, remover)"
+    },
+    "whatsapp-send-contact": {
+      "agent": "jarvis",
+      "mode": "write",
+      "permissions": ["write:notify"],
+      "requiresApproval": false,
+      "timeoutMs": 20000,
+      "telemetry": true,
+      "description": "Enviar WhatsApp a contacto (Twilio, confirma com sim)"
+    },
     "innovation-knowledge": {
       "agent": "sophia",
       "mode": "read",

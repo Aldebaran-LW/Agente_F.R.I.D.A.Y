@@ -1,0 +1,31 @@
+{
+  "id": "vendas-previsao",
+  "version": "1.0.0",
+  "description": "Previsão de vendas — Yato (mercado) → Gideon (cenários), via HF",
+  "triggers": {
+    "patterns": [
+      "previsão de vendas",
+      "previsao de vendas",
+      "prever vendas",
+      "vendas amanhã",
+      "vendas amanha",
+      "qual a previsão de vendas",
+      "qual a previsao de vendas"
+    ]
+  },
+  "requiresApproval": false,
+  "tasks": [
+    {
+      "id": "mercado",
+      "skill": "innovation-market",
+      "agent": "yato",
+      "deps": []
+    },
+    {
+      "id": "forecast",
+      "skill": "innovation-forecast",
+      "agent": "gideon",
+      "deps": ["mercado"]
+    }
+  ]
+}

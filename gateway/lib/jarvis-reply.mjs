@@ -56,6 +56,24 @@ export function buildReply(route, payload, { approvalBlocked = false } = {}) {
   if (route.skill === 'schedule-whatsapp' && payload?.error) {
     return `WhatsApp: ${payload.error}`;
   }
+  if (route.skill === 'user-preferences' && payload?.reply) {
+    return payload.reply;
+  }
+  if (route.skill === 'proposals-pipeline' && payload?.reply) {
+    return payload.reply;
+  }
+  if (
+    (route.skill === 'whatsapp-send-contact' || route.skill === 'whatsapp-contacts') &&
+    payload?.reply
+  ) {
+    return payload.reply;
+  }
+  if (
+    (route.skill === 'whatsapp-send-contact' || route.skill === 'whatsapp-contacts') &&
+    payload?.error
+  ) {
+    return `WhatsApp: ${payload.error}`;
+  }
   if (route.skill === 'macofel-images-sync') {
     if (payload?.ok) {
       return `Sync OK: EAN ${payload.ean}, ${payload.urlCount} imagem(ns).`;
@@ -69,10 +87,14 @@ export function buildReply(route, payload, { approvalBlocked = false } = {}) {
     return [
       'Jarvis online — tens acesso a todo o ecossistema via Telegram.',
       '',
-      'Operacao: status macofel · repos github · sites no ar · resumo portfolio · vp-pecas',
-      'Inovacao: pesquisa mercado (Yato) · viabilidade (Gideon) · design (Rebeca) · construir (Hefestos, pede sim)',
-      'Suporte: tokens/consumo (Rimuru) · seguranca (Veldora)',
-      'Lembretes: agendar whatsapp: DD/MM/AAAA HH:MM — texto · lista agendamentos whatsapp',
+      'Operacao: /status (Macofel) · /office (agentes) · repos github · sites no ar · resumo portfolio',
+      'Quotas LLM: /quotas ou rimuru status',
+      'Inovacao: previsao de vendas (Yato→Gideon) · pesquisa mercado · viabilidade · design (Rebeca)',
+      'Suporte: seguranca (Veldora)',
+      'WhatsApp: agendar whatsapp: data hora — texto · enviar joao "msg" amanhã 19h · contato adicionar nome +55… tipo',
+      'Contactos: contato listar · lista agendamentos whatsapp',
+      'Preferencias: preferencia listar · preferencia set quietHours 22:00-09:00',
+      'Propostas: propostas · gerar proposta manutenção · aprovar proposta <id>',
     ].join('\n');
   }
   return 'Reformule o pedido. Ex.: status macofel, pesquisa mercado, tokens openrouter, resumo portfolio.';
@@ -81,6 +103,10 @@ export function buildReply(route, payload, { approvalBlocked = false } = {}) {
 const ORCHESTRATE_REPLY_AGENTS = new Set([
   'yato', 'gideon', 'hefestos', 'veldora', 'icaro',
 ]);
+
+function formatOrchestrateSection(agentId, payload) {
+  return formatOrchestrateReply(agentId, payload);
+}
 
 function formatOrchestrateReply(agentId, payload) {
   if (payload.ok === false) {
@@ -180,6 +206,17 @@ export function buildWorkflowReply({ workflowId, results = {}, approvalBlocked =
     parts.push(sectionDeploy(results['deploy-monitor']));
     parts.push(sectionGithub(results['github-aldebaran']));
     return parts.filter(Boolean).join('\n\n');
+  }
+
+  if (workflowId === 'vendas-previsao') {
+    const parts = [];
+    const yato = results['innovation-market'];
+    const gideon = results['innovation-forecast'];
+    if (yato) parts.push(`🧠 Yato · mercado\n${formatOrchestrateSection('yato', yato)}`);
+    if (gideon) parts.push(`🧠 Gideon · previsão\n${formatOrchestrateSection('gideon', gideon)}`);
+    return parts.length
+      ? parts.join('\n\n')
+      : 'Previsão de vendas: agentes sem resposta (HF/EC2 indisponível?).';
   }
 
   const chunks = Object.entries(results).map(([skill, data]) => {
