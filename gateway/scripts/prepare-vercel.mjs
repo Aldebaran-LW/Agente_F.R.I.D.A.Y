@@ -90,9 +90,24 @@ for (const [rel, destName] of HF_BUNDLE) {
   text = text.replaceAll('../github/executor.mjs', './github-executor.mjs');
   text = text.replaceAll('../lib/preferences-memory.mjs', './preferences-memory.mjs');
   text = text.replace(
-    /const __dirname = dirname\(fileURLToPath\(import\.meta\.url\)\);\r?\nconst WORKSPACE_ROOT = join\(__dirname, '\.\.', '\.\.'\);/,
-    `${ROOT_PATCH}${DATA_ROOT_FN}`,
+    /import \{ dirname, join \} from 'node:path';/,
+    "import { dirname, join, resolve } from 'node:path';",
   );
+  text = text.replace(
+    /const __dirname = dirname\(fileURLToPath\(import\.meta\.url\)\);\r?\nconst WORKSPACE_ROOT = join\(__dirname, '\.\.', '\.\.'\);/,
+    ROOT_PATCH,
+  );
+  text = text.replace(
+    /function openclawDataRoot\(\) \{[^}]+\}/s,
+    DATA_ROOT_FN.trim(),
+  );
+  text = text.replace(
+    /function proposalsDataRoot\(\) \{\s*return openclawDataRoot\(\);\s*\}/,
+    'function proposalsDataRoot() { return openclawDataRoot(); }',
+  );
+  if (!text.includes('function openclawDataRoot')) {
+    text = text.replace(ROOT_PATCH, ROOT_PATCH + DATA_ROOT_FN);
+  }
   writeFileSync(resolve(dest, destName), text, 'utf8');
 }
 

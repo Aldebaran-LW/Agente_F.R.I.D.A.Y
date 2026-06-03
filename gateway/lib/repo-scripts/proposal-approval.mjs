@@ -2,20 +2,18 @@
  * Fila de propostas: pending → approved / rejected.
  */
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { executeProposedAction } from './github-executor.mjs';
 import { recordOutcome } from './preferences-memory.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
+
+function proposalsDataRoot() { return openclawDataRoot(); }
+
 function openclawDataRoot() {
   if (process.env.VERCEL || process.env.VERCEL_ENV) return '/tmp/openclaw';
   return resolve(root, 'data');
-}
-
-function proposalsDataRoot() {
-  if (process.env.VERCEL || process.env.VERCEL_ENV) return '/tmp/openclaw';
-  return join(WORKSPACE_ROOT, 'data');
 }
 
 function filePending() {

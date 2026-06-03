@@ -11,6 +11,10 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const WORKSPACE_ROOT = join(__dirname, '..', '..');
 
 function proposalsDataRoot() {
+  return openclawDataRoot();
+}
+
+function openclawDataRoot() {
   if (process.env.VERCEL || process.env.VERCEL_ENV) return '/tmp/openclaw';
   return join(WORKSPACE_ROOT, 'data');
 }
