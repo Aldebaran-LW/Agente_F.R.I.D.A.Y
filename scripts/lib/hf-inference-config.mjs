@@ -60,8 +60,19 @@ export function groqModelRef(env = process.env) {
   return model.startsWith('groq/') ? model : `groq/${model}`;
 }
 
+/** Override temporário (ex. HF 402): OPENCLAW_LLM_PRIMARY=groq|hf|infron|deepseek */
+export function llmPrimaryOverride(env = process.env) {
+  return env.OPENCLAW_LLM_PRIMARY?.trim().toLowerCase() || '';
+}
+
 /** Telegram/Jarvis: HF Router (32k+, grátis) — Ollama smollm2 não cabe o prompt (~4k+). */
 export function orchestratorPrimaryModel(env = process.env) {
+  const forced = llmPrimaryOverride(env);
+  if (forced === 'groq' && groqTokenFromEnv(env)) return groqModelRef(env);
+  if (forced === 'hf' && hfTokenFromEnv(env)) return hfModelRef(hfInferenceModelFromEnv(env));
+  if (forced === 'infron' && infronTokenFromEnv(env)) return infronModelRef(env);
+  if (forced === 'deepseek' && env.DEEPSEEK_API_KEY?.trim()) return DEEPSEEK_PRIMARY_MODEL;
+
   if (hfTokenFromEnv(env)) return hfModelRef(hfInferenceModelFromEnv(env));
   if (groqTokenFromEnv(env)) return groqModelRef(env);
   if (infronTokenFromEnv(env)) return infronModelRef(env);
