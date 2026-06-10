@@ -1,8 +1,0 @@
-# Evitar upload duplicado/legado e ficheiros Drive
-gateway/
-desktop.ini
-**/desktop.ini
-data/
-.env
-.env.*
-!.env.example

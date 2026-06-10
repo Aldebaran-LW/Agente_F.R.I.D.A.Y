@@ -21,7 +21,7 @@ if (Test-Path $envFile) {
     }
 }
 
-$vercelArgs = @("deploy", "--prod", "--yes")
+$vercelArgs = @("deploy", "--prod", "--yes", "--force")
 if ($env:VERCEL_TOKEN) { $vercelArgs += @("--token", $env:VERCEL_TOKEN) }
 $scope = if ($teamId -and $teamId.StartsWith("team_")) { $teamId } else { $teamSlug }
 if ($scope) { $vercelArgs += @("--scope", $scope) }
