@@ -1,34 +1,66 @@
 /**
- * Roteamento Friday (Vercel) -> AWS EC2 | HF Spaces
- * Nao executa tarefas longas; apenas encaminha com timeout curto.
+ * Roteamento Friday (Vercel) -> EC2 minima (Jarvis) | HF Spaces por perfil
+ * core | innovation | macofel — ver config/hf-space-profiles.yaml
  */
 
 import { guardOrchestrateForward, logSecurityEvent } from './veldora-guard.mjs';
 
 const VERCEL_TIMEOUT_MS = Number(process.env.ORCHESTRATE_TIMEOUT_MS || 8000);
-const INNOVATION_AGENT_IDS = new Set(['sophia', 'yato', 'senku', 'gideon', 'pipeline']);
-const INNOVATION_TIMEOUT_MS = Number(process.env.ORCHESTRATE_INNOVATION_TIMEOUT_MS || 120000);
+const HF_SPACE_TIMEOUT_MS = Number(process.env.ORCHESTRATE_INNOVATION_TIMEOUT_MS || 120000);
 
-/** @type {Record<string, { residence: string, label: string }>} */
+const HF_PROFILE_ENV = {
+  core: 'HF_OPENCLAW_CORE_URL',
+  innovation: 'HF_OPENCLAW_INNOVATION_URL',
+  macofel: 'HF_MACOFEL_SPACE_URL',
+};
+
+const AGENT_HF_PROFILE = {
+  macofel: 'macofel',
+  lala: 'macofel',
+  heimdall: 'core',
+  ops: 'core',
+  byte: 'core',
+  'vp-pecas': 'core',
+  pixel: 'core',
+  veldora: 'core',
+  odin: 'core',
+  rimuru: 'core',
+  athena: 'core',
+  dedalo: 'core',
+  icaro: 'core',
+  sophia: 'innovation',
+  yato: 'innovation',
+  senku: 'innovation',
+  gideon: 'innovation',
+  hefestos: 'innovation',
+  rebeca: 'innovation',
+  pipeline: 'innovation',
+};
+
+/** @type {Record<string, { residence: string, label: string, hfProfile?: string }>} */
 export const AGENT_RESIDENCE = {
-  orchestrator: { residence: 'aws', label: 'Jarvis (EC2)' },
-  jarvis: { residence: 'aws', label: 'Jarvis (EC2)' },
-  macofel: { residence: 'aws', label: 'Macofel (EC2/API)' },
-  heimdall: { residence: 'aws', label: 'Heimdall (EC2 cron)' },
-  'vp-pecas': { residence: 'aws', label: 'VP-Pecas (EC2)' },
-  sophia: { residence: 'hf', label: 'Sophia — conhecimento (HF)' },
-  yato: { residence: 'hf', label: 'Yato — mercado (HF)' },
-  rebeca: { residence: 'hf', label: 'Rebeca (HF Space)' },
-  senku: { residence: 'hf', label: 'Senku — análise (HF)' },
-  gideon: { residence: 'hf', label: 'Gideon — predição (HF)' },
-  pipeline: { residence: 'hf', label: 'Pipeline inovação (HF)' },
-  hefestos: { residence: 'hf', label: 'Hefestos (HF Space)' },
-  icaro: { residence: 'aws', label: 'Ícaro (EC2 scripts)' },
-  rimuru: { residence: 'aws', label: 'Rimuru (EC2 + gateway)' },
-  athena: { residence: 'aws', label: 'Rimuru (EC2 + gateway)' },
-  veldora: { residence: 'hf', label: 'Veldora (HF Space)' },
-  odin: { residence: 'hf', label: 'Veldora (HF Space)' },
-  dedalo: { residence: 'hf', label: 'Dédalo (HF Dataset)' },
+  orchestrator: { residence: 'aws', label: 'Jarvis (EC2 — Telegram)' },
+  jarvis: { residence: 'aws', label: 'Jarvis (EC2 — Telegram)' },
+  macofel: { residence: 'hf', hfProfile: 'macofel', label: 'Macofel (HF macofel-agent)' },
+  lala: { residence: 'hf', hfProfile: 'macofel', label: 'Macofel (HF macofel-agent)' },
+  heimdall: { residence: 'hf', hfProfile: 'core', label: 'Heimdall (HF openclaw-core)' },
+  ops: { residence: 'hf', hfProfile: 'core', label: 'Ops (HF openclaw-core)' },
+  byte: { residence: 'hf', hfProfile: 'core', label: 'Ops (HF openclaw-core)' },
+  'vp-pecas': { residence: 'hf', hfProfile: 'core', label: 'VP-Pecas (HF openclaw-core)' },
+  pixel: { residence: 'hf', hfProfile: 'core', label: 'VP-Pecas (HF openclaw-core)' },
+  sophia: { residence: 'hf', hfProfile: 'innovation', label: 'Sophia (HF openclaw-innovation)' },
+  yato: { residence: 'hf', hfProfile: 'innovation', label: 'Yato (HF openclaw-innovation)' },
+  rebeca: { residence: 'hf', hfProfile: 'innovation', label: 'Rebeca (HF openclaw-innovation)' },
+  senku: { residence: 'hf', hfProfile: 'innovation', label: 'Senku (HF openclaw-innovation)' },
+  gideon: { residence: 'hf', hfProfile: 'innovation', label: 'Gideon (HF openclaw-innovation)' },
+  pipeline: { residence: 'hf', hfProfile: 'innovation', label: 'Pipeline (HF openclaw-innovation)' },
+  hefestos: { residence: 'hf', hfProfile: 'innovation', label: 'Hefestos (HF openclaw-innovation)' },
+  icaro: { residence: 'hf', hfProfile: 'core', label: 'Icaro (HF openclaw-core)' },
+  rimuru: { residence: 'hf', hfProfile: 'core', label: 'Rimuru (HF openclaw-core)' },
+  athena: { residence: 'hf', hfProfile: 'core', label: 'Athena (HF openclaw-core)' },
+  veldora: { residence: 'hf', hfProfile: 'core', label: 'Veldora (HF openclaw-core)' },
+  odin: { residence: 'hf', hfProfile: 'core', label: 'Veldora (HF openclaw-core)' },
+  dedalo: { residence: 'hf', hfProfile: 'core', label: 'Dedalo (HF openclaw-core)' },
 };
 
 function envUrl(key) {
@@ -36,13 +68,25 @@ function envUrl(key) {
   return v || null;
 }
 
+/** Aliases Forge → agent_id no friday-prod. */
+const FORGE_AGENT_ALIAS = {
+  jarvis: 'orchestrator',
+  friday: 'orchestrator',
+  byte: 'heimdall',
+  pixel: 'vp-pecas',
+  lala: 'macofel',
+  odin: 'veldora',
+  athena: 'rimuru',
+};
+
 /**
  * @param {string} agentId
  * @returns {{ target: 'aws'|'hf'|'vercel', endpoint: string|null, mode: string } | null}
  */
 export function resolveRoute(agentId) {
-  const id = String(agentId || '').toLowerCase();
-  const meta = AGENT_RESIDENCE[id];
+  const raw = String(agentId || '').toLowerCase();
+  const id = FORGE_AGENT_ALIAS[raw] || raw;
+  const meta = AGENT_RESIDENCE[raw] || AGENT_RESIDENCE[id];
   if (!meta) return null;
 
   if (meta.residence === 'aws' || id === 'jarvis' || id === 'orchestrator') {
@@ -55,14 +99,19 @@ export function resolveRoute(agentId) {
   }
 
   if (meta.residence === 'hf') {
-    const base = envUrl('HF_FRIDAY_PROD_URL') || envUrl('HF_INNOVATION_SPACE_URL');
+    const profile = meta.hfProfile || AGENT_HF_PROFILE[id] || 'core';
+    const profileEnv = HF_PROFILE_ENV[profile];
+    const base = (profileEnv && envUrl(profileEnv))
+      || envUrl('HF_FRIDAY_PROD_URL')
+      || envUrl('HF_INNOVATION_SPACE_URL');
     const perAgent = envUrl(`HF_${id.toUpperCase().replace(/-/g, '_')}_SPACE_URL`);
     const path = id === 'pipeline' ? '/run/pipeline' : `/run/${id}`;
     const endpoint = perAgent || (base ? `${base.replace(/\/$/, '')}${path}` : null);
     return {
       target: 'hf',
       endpoint,
-      mode: perAgent ? 'hf_dedicated_space' : 'hf_shared_space',
+      mode: `hf_${profile}`,
+      hfProfile: profile,
       agent: id,
     };
   }
@@ -106,7 +155,7 @@ export async function forwardTask(agentId, task, opts = {}) {
       route,
       hint: route.target === 'aws'
         ? 'Set JARVIS_EC2_WEBHOOK_URL or OPENCLAW_EC2_ORCHESTRATE_URL on Vercel'
-        : 'Set HF_FRIDAY_PROD_URL or HF_<AGENT>_SPACE_URL on Vercel',
+        : 'Set HF_OPENCLAW_CORE_URL, HF_OPENCLAW_INNOVATION_URL, HF_MACOFEL_SPACE_URL on Vercel',
     };
   }
 
@@ -132,8 +181,8 @@ export async function forwardTask(agentId, task, opts = {}) {
     context: opts.context && typeof opts.context === 'object' ? opts.context : undefined,
   });
 
-  const timeoutMs = INNOVATION_AGENT_IDS.has(String(agentId).toLowerCase())
-    ? INNOVATION_TIMEOUT_MS
+  const timeoutMs = route.target === 'hf'
+    ? HF_SPACE_TIMEOUT_MS
     : VERCEL_TIMEOUT_MS;
 
   try {

@@ -1,7 +1,10 @@
 {
   "version": 2,
   "env": {
-    "HF_FRIDAY_PROD_URL": "https://aldebaran-lw-friday-prod.hf.space"
+    "HF_OPENCLAW_CORE_URL": "https://aldebaran-lw-openclaw-core.hf.space",
+    "HF_OPENCLAW_INNOVATION_URL": "https://aldebaran-lw-openclaw-innovation.hf.space",
+    "HF_MACOFEL_SPACE_URL": "https://aldebaran-lw-macofel-agent.hf.space",
+    "HF_CORPUS_DATASET": "Aldebaran-LW/openclaw-backup"
   },
   "rewrites": [
     {
