@@ -68,6 +68,14 @@ function envUrl(key) {
   return v || null;
 }
 
+/** Base Space URL → endpoint POST /run/{agent} (per-agent env é só base). */
+function hfRunEndpoint(baseUrl, path) {
+  if (!baseUrl) return null;
+  const url = baseUrl.replace(/\/$/, '');
+  if (/\/run(\/|$)/.test(url)) return url;
+  return `${url}${path}`;
+}
+
 /** Aliases Forge → agent_id no friday-prod. */
 const FORGE_AGENT_ALIAS = {
   jarvis: 'orchestrator',
@@ -106,7 +114,7 @@ export function resolveRoute(agentId) {
       || envUrl('HF_INNOVATION_SPACE_URL');
     const perAgent = envUrl(`HF_${id.toUpperCase().replace(/-/g, '_')}_SPACE_URL`);
     const path = id === 'pipeline' ? '/run/pipeline' : `/run/${id}`;
-    const endpoint = perAgent || (base ? `${base.replace(/\/$/, '')}${path}` : null);
+    const endpoint = hfRunEndpoint(perAgent || base, path);
     return {
       target: 'hf',
       endpoint,

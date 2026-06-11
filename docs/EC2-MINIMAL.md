@@ -24,9 +24,10 @@ flowchart TB
   EC2 -->|LLM fallback| HF[HF Router API]
   HB[heartbeat.timer] --> TG
   HB --> VER
-  INOV[Inovação Yato/Gideon/...] --> FRI[HF friday-prod]
-  FRI --> VER
-  MAC[Catálogo Macofel] --> REN[Render Python]
+  VER -->|orchestrate| HFC[HF openclaw-core]
+  VER -->|orchestrate| HFI[HF openclaw-innovation]
+  VER -->|orchestrate| HFM[HF macofel-agent]
+  MAC[Catálogo Python] --> REN[Render Macofel]
 ```
 
 ---

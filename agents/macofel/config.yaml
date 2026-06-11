@@ -3,8 +3,8 @@ name: Macofel
 role: Catalogo e-commerce (unico cerebro com Mongo/API Macofel)
 
 llm:
-  provider: ollama
-  model: smollm2:360m
+  provider: openrouter
+  model: google/gemma-4-26b-a4b-it:free
   fallbacks: []
 
 skills:
@@ -13,9 +13,11 @@ skills:
   - macofel-images-sync
 
 deploy:
-  mode: aws_ec2
+  mode: hf_space
+  hf_space: Aldebaran-LW/macofel-agent
   gateway: vercel
   api: macofel-aws
+  note: "Instancia separada do OpenClaw core — nao partilha Space com inovacao"
 
 secrets:
   local_or_gateway:

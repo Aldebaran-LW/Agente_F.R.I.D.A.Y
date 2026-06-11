@@ -15,8 +15,15 @@ import yaml
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
+
 from tools import TOOL_REGISTRY
 from lib.innovation_runner import INNOVATION_HANDLERS, extract_topic
+from lib.monitor import build_status, start_keepalive
+from lib.corpus_client import search_corpus
+
+_PUBLIC = Path(__file__).parent / "public"
+SPACE_PROFILE = (os.environ.get("SPACE_PROFILE") or "unified").strip().lower()
 
 app = FastAPI(title="OpenClaw F.R.I.D.A.Y. (HF prototype)", version="0.2.0")
 
@@ -57,7 +64,17 @@ def load_config() -> dict[str, Any]:
         return _agents_cache
     with CONFIG_PATH.open(encoding="utf-8") as f:
         raw = yaml.safe_load(f)
-    _agents_cache = {k: v for k, v in raw.items() if not str(k).startswith("_") and k != "defaults"}
+    profile_agents = {
+        "core": {"heimdall", "vp-pecas", "veldora", "rimuru", "dedalo", "icaro"},
+        "innovation": {"sophia", "yato", "senku", "gideon", "hefestos", "rebeca"},
+        "macofel": {"macofel"},
+    }
+    allowed = profile_agents.get(SPACE_PROFILE)
+    _agents_cache = {
+        k: v
+        for k, v in raw.items()
+        if not str(k).startswith("_") and k != "defaults" and (not allowed or k in allowed)
+    }
     return _agents_cache
 
 
@@ -70,12 +87,17 @@ def _resolve_tools(names: list[str]) -> list:
     return out
 
 
+HF_OPENROUTER_FALLBACK = "google/gemma-4-26b-a4b-it:free"
+
+
 def _normalize_openrouter_model_id(model_id: str) -> str:
     """OpenRouter API espera id cru (ex. google/gemma-…:free), sem prefixo openrouter/."""
     mid = (model_id or "").strip()
     if mid.startswith("openrouter/"):
         mid = mid[len("openrouter/") :]
-    return mid
+    if mid.startswith("ollama/") or (":" in mid and "/" not in mid):
+        return HF_OPENROUTER_FALLBACK
+    return mid or HF_OPENROUTER_FALLBACK
 
 
 def _agent_code_name(agent_id: str, cfg: dict[str, Any]) -> str:
@@ -592,22 +614,34 @@ class Orquestrador:
 orch = Orquestrador()
 
 
-@app.get("/")
-def root():
-    """Painel raiz do Space — evita 404 ao abrir a URL no Hugging Face."""
+@app.get("/", response_class=HTMLResponse)
+def root_dashboard():
+    """Painel F.R.I.D.A.Y. — substitui openclaw-demo (Space único)."""
+    dash = _PUBLIC / "dashboard.html"
+    if dash.is_file():
+        return FileResponse(dash, media_type="text/html; charset=utf-8")
+    return HTMLResponse("<h1>friday-prod</h1><p>dashboard.html em falta</p>")
+
+
+@app.get("/api/info")
+def api_info():
+    """Metadados da API — antigo GET /."""
     configs = load_config()
     return {
         "ok": True,
         "service": "friday-prod",
-        "prototype": True,
-        "note": "Jarvis producao: EC2 + gateway Vercel. Este Space e laboratorio smolagents.",
+        "space_profile": SPACE_PROFILE,
+        "note": "OpenClaw HF por perfil; Jarvis/Telegram na EC2; Macofel em instancia propria.",
         "endpoints": {
+            "dashboard": "GET /",
             "health": "GET /health",
+            "status": "GET /api/status",
             "agents": "GET /agents",
             "run": "POST /run",
             "run_agent": "POST /run/{agent_id}",
             "pipeline": "POST /run/pipeline",
             "innovation_agents": sorted(INNOVATION_AGENT_IDS),
+            "corpus_search": "GET /corpus/search?q=...&agent=",
             "openapi": "GET /docs",
         },
         "agent_count": len(configs),
@@ -617,7 +651,33 @@ def root():
         "ollama": bool(_ollama_api_base()),
         "gateway": bool(os.environ.get("OPENCLAW_GATEWAY_BASE_URL")),
         "learning_auto": _learning_auto_enabled(),
+        "keepalive_ms": int(os.environ.get("KEEPALIVE_MS", "240000")),
     }
+
+
+@app.get("/api/status")
+def api_status():
+    """Monitor portfólio — migrado do Space openclaw-demo."""
+    try:
+        data = build_status()
+        code = 200 if data.get("ok") else 502
+        return JSONResponse(content=data, status_code=code)
+    except Exception as e:
+        raise HTTPException(502, str(e)) from e
+
+
+@app.get("/gateway")
+def gateway_legacy():
+    """Compatível com openclaw-demo /gateway."""
+    data = build_status()
+    health_ok = (data.get("gateway") or {}).get("health", {}).get("ok")
+    code = 200 if health_ok else 502
+    return JSONResponse(content=data, status_code=code)
+
+
+@app.get("/corpus/search")
+def corpus_search(q: str, agent: str | None = None, limit: int = 5):
+    return search_corpus(q, agent=agent, limit=min(limit, 10))
 
 
 @app.get("/health")
@@ -625,6 +685,7 @@ def health():
     return {
         "ok": True,
         "service": "friday-prod",
+        "space_profile": SPACE_PROFILE,
         "openrouter": bool(os.environ.get("OPENROUTER_API_KEY")),
         "kilo": bool(os.environ.get("KILO_API_KEY")),
         "hf_token": bool(os.environ.get("HF_TOKEN")),
@@ -632,6 +693,7 @@ def health():
         "gateway": bool(os.environ.get("OPENCLAW_GATEWAY_BASE_URL")),
         "learning_auto": _learning_auto_enabled(),
         "backup_dataset": os.environ.get("HF_BACKUP_DATASET", "Aldebaran-LW/openclaw-backup"),
+        "keepalive_ms": int(os.environ.get("KEEPALIVE_MS", "240000")),
     }
 
 
@@ -656,7 +718,8 @@ def run_agent(agent_id: str, req: RunRequest):
 
 
 @app.on_event("startup")
-def _default_agent_hint():
+def _on_startup():
+    start_keepalive()
     default = os.environ.get("DEFAULT_AGENT", "").strip()
     if default:
         print(f"friday-prod: DEFAULT_AGENT={default} — POST /run/{default}")

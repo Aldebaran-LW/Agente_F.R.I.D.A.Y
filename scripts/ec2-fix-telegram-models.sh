@@ -29,7 +29,7 @@ CLEAR_SESSIONS_NO_RESTART=1 bash scripts/ec2-clear-sessions.sh 2>/dev/null || tr
 if systemctl is-active ollama &>/dev/null; then
   systemctl stop ollama 2>/dev/null || true
   systemctl disable ollama 2>/dev/null || true
-  echo "Ollama parado (inferencia local -> HF Router / Space friday-prod)"
+  echo "Ollama parado (inferencia local -> HF Router / Spaces openclaw-*)"
 fi
 
 systemctl restart openclaw-gateway

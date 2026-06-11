@@ -1,0 +1,30 @@
+# Gerado automaticamente — nao editar a mao; use generate-hf-agents-config.mjs
+# 2026-06-11T10:46:56.408Z
+
+defaults:
+  max_tokens: 4096
+  temperature: 0.7
+  provider: openrouter
+  env_key: OPENROUTER_API_KEY
+
+macofel:
+  id: macofel
+  name: "Macofel"
+  forge_alias: macofel
+  role: "Catalogo e-commerce (unico cerebro com Mongo/API Macofel)"
+  description: "Macofel — Catalogo e-commerce (unico cerebro com Mongo/API Macofel)"
+  model: "google/gemma-4-26b-a4b-it:free"
+  model_ref: "google/gemma-4-26b-a4b-it:free"
+  max_tokens: 4096
+  temperature: 0.7
+  fallbacks:
+    []
+  skills:
+    - "politica-seguranca"
+    - "macofel-status"
+    - "macofel-images-sync"
+  tools:
+    - "buscar_peca"
+    - "listar_categorias"
+    - "search_openclaw_docs"
+  hub_tools: []

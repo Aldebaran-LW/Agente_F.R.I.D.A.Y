@@ -13,25 +13,25 @@ Telegram
    │
    ▼
 ┌──────────────────────────────────────┐
-│ AWS EC2 — executor real              │
-│  Jarvis (OpenClaw) · Macofel worker  │
-│  Ops/VP cron · Ícaro · Athena        │
-│  ec2-orchestrate-hook :8790          │
+│ AWS EC2 mínima                       │
+│  Jarvis (orchestrator) + heartbeat   │
 └──────────────┬───────────────────────┘
-               │ HTTPS (webhook)
+               │ HTTPS /jarvis
                ▼
 ┌──────────────────────────────────────┐
-│ Vercel — Friday (gateway)            │
+│ Vercel — gateway OpenClaw            │
 │  /jarvis · /office · /forge          │
 │  /openclaw/orchestrate (broker)      │
 └──────────────┬───────────────────────┘
-               │ POST /run/{agent} (≤8s)
+               │ POST /run/{agent}
                ▼
-┌──────────────────────────────────────┐
-│ HF — laboratório (provisório)        │
-│  friday-prod: Sophia Rebeca Senku    │
-│  Hefestos · Dataset openclaw-backup  │
-└──────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│ HF Spaces (3 perfis)                                    │
+│  openclaw-core      — Heimdall, VP, Veldora, Rimuru…   │
+│  openclaw-innovation — Sophia, Yato, Senku, Gideon…     │
+│  macofel-agent      — Macofel (instância separada)      │
+│  Dataset openclaw-backup/corpus — RAG docs              │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -41,15 +41,12 @@ Telegram
 | Agente / papel | Residência | Runtime | Repo / config |
 |----------------|------------|---------|----------------|
 | **Jarvis** | AWS EC2 | OpenClaw daemon, Telegram | `agents/orchestrator/` |
-| **Macofel** | AWS (+ API) | Catálogo, Mongo, sync | `agents/macofel/` |
-| **Ops** (Aldebaran) | AWS EC2 | Cron, scripts GitHub | `agents/ops/` |
-| **VP-Pecas** | AWS EC2 | Health, GitHub | `agents/vp-pecas/` |
+| **Macofel** | HF Space | `macofel-agent` | `agents/macofel/` |
+| **Heimdall, VP-Pecas, Veldora, Rimuru, Dédalo, Ícaro** | HF Space | `openclaw-core` | `agents/<id>/` |
+| **Sophia, Yato, Senku, Gideon, Hefestos, Rebeca** | HF Space | `openclaw-innovation` | `agents/<id>/` |
 | **Friday (UI/API)** | Vercel | Serverless gateway | `gateway/` |
-| **Friday (memória)** | HF Dataset | `openclaw-backup` | `hf-ingest-learning.mjs` |
-| **Sophia, Rebeca, Senku, Hefestos** | HF Space | `friday-prod` (partilhado) | `agents/<id>/` |
-| **Dédalo** | HF + scripts | Dataset schema | `agents/dedalo/` |
-| **Ícaro, Athena** | AWS EC2 | Testes / monitor | `agents/icaro/`, `athena/` |
-| **openclaw-demo** | HF | Monitor apenas | `hf-space/demo/` |
+| **Memória / corpus** | HF Dataset | `openclaw-backup/corpus/` | `scripts/hf-ingest-corpus.mjs` |
+| **Catálogo Python Macofel** | Render | API Mongo (legado) | repo Macofel_2.0 |
 
 ---
 
@@ -57,15 +54,15 @@ Telegram
 
 | Local | Pode | Não pode |
 |-------|------|----------|
-| **AWS EC2** | Tarefas longas, cron, shell, filas, Telegram | Expor secrets publicamente |
+| **AWS EC2** | Telegram, aprovações, heartbeat | Executar 12 agentes / Ollama pesado |
 | **Vercel** | Rotear, auth, dashboards, health &lt;10s | Executar jobs longos |
-| **HF Space** | Pesquisa, protótipo LLM, ingest Dataset | Mongo Macofel, deploy produção sem ok |
+| **HF Space** | LLM, tools, RAG corpus, protótipos | Mongo Macofel, deploy prod sem ok |
 
-**Regra:** um único **executor com impacto** por tarefa — Friday (Vercel) **encaminha**, não duplica execução.
+**Regra:** Vercel **encaminha**; um executor por tarefa.
 
 ---
 
-## Roteamento (Friday → EC2 / HF)
+## Roteamento (gateway → HF)
 
 ### Gateway
 
@@ -77,80 +74,78 @@ Content-Type: application/json
 { "agent": "sophia", "task": "pesquisar tools HF gratuitas para RAG" }
 ```
 
-`GET /openclaw/orchestrate` — tabela de rotas e endpoints configurados.
+`GET /openclaw/orchestrate` — tabela de rotas e endpoints.
 
-### Variáveis Vercel (`gateway/.env`)
+### Variáveis Vercel (`gateway/vercel.json` + painel)
 
 ```env
-# EC2 — webhook Jarvis/Macofel
-JARVIS_EC2_WEBHOOK_URL=https://seu-ec2:8790/task
-OPENCLAW_EC2_ORCHESTRATE_URL=
-OPENCLAW_INTERNAL_TOKEN=
+HF_OPENCLAW_CORE_URL=https://aldebaran-lw-openclaw-core.hf.space
+HF_OPENCLAW_INNOVATION_URL=https://aldebaran-lw-openclaw-innovation.hf.space
+HF_MACOFEL_SPACE_URL=https://aldebaran-lw-macofel-agent.hf.space
+HF_CORPUS_DATASET=Aldebaran-LW/openclaw-backup
+HF_TOKEN=...
+OPENCLAW_AUTOMATION_TOKEN=...
 
-# HF — um Space partilhado (recomendado) ou um URL por agente
-HF_FRIDAY_PROD_URL=https://aldebaran-lw-friday-prod.hf.space
-HF_SOPHIA_SPACE_URL=
-HF_REBECA_SPACE_URL=
-
-ORCHESTRATE_TIMEOUT_MS=8000
+# Só Jarvis (Telegram na EC2)
+JARVIS_EC2_WEBHOOK_URL=
+ORCHESTRATE_INNOVATION_TIMEOUT_MS=120000
 ```
 
-### EC2
+URLs de perfil são **base** do Space; o gateway acrescenta `/run/{agent}`.
 
-```bash
-bash scripts/setup-ec2-hooks.sh          # Forge :8787 + Orchestrate :8790 + ClawMetry :8900
-systemctl --user enable --now openclaw-orchestrate
-systemctl --user enable --now openclaw-clawmetry   # opcional
-sudo bash scripts/install-nginx-ec2-hooks.sh   # HTTPS publico
+### EC2 mínima
+
+```powershell
+.\scripts\ec2-sync-from-pc.ps1
 ```
 
-Guia completo: **[EC2-ORCHESTRATE-WEBHOOK.md](./EC2-ORCHESTRATE-WEBHOOK.md)**
-
-URL pública: `https://ec2-hooks.lwdigitalforge.com/orchestrate/task` → `JARVIS_EC2_WEBHOOK_URL` na Vercel.
+Por defeito aplica `EC2_PROFILE=minimal` (só orchestrator). Ver `docs/EC2-MINIMAL.md`.
 
 ---
 
-## HF: um Space vs vários
+## HF: perfis de Space
 
-| Modelo | Quando |
-|--------|--------|
-| **Um Space `friday-prod`** | Recomendado agora — `/run/sophia`, `/run/senku`, etc. |
-| **Space por agente** | Só se precisares isolamento GPU/versão |
+| Perfil | Repo HF | Agentes |
+|--------|---------|---------|
+| `core` | `Aldebaran-LW/openclaw-core` | heimdall, vp-pecas, veldora, rimuru, dedalo, icaro |
+| `innovation` | `Aldebaran-LW/openclaw-innovation` | sophia, yato, senku, gideon, hefestos, rebeca |
+| `macofel` | `Aldebaran-LW/macofel-agent` | macofel |
 
-Dataset: `Aldebaran-LW/openclaw-backup` (nome legado; = “friday-memory” do diagrama).
+Mapa fonte: `config/hf-space-profiles.yaml`
+
+Deploy: `node scripts/hf-deploy-space.mjs --profile <id> --secrets`
 
 ---
 
 ## Promoção HF → produção
 
-1. Sophia/Rebeca no HF geram YAML em `data/innovation/`.
+1. Agentes innovation geram YAML em `data/innovation/`.
 2. Senku `viabilidade_score >= 70`.
 3. Lucas aprova no Telegram.
-4. Hefestos implementa no **repo**; runtime migra para **EC2** se precisar cron/contínuo.
+4. Hefestos implementa no **repo**; runtime permanece no HF até decisão explícita.
 
 ```yaml
-# agents/sophia/config.yaml
+# agents/macofel/config.yaml
 deploy:
-  mode: hf_space          # provisório
-  hf_space: Aldebaran-LW/friday-prod
-  promote_to: aws_ec2   # quando estável
+  mode: hf_space
+  hf_space: Aldebaran-LW/macofel-agent
 ```
 
 ---
 
 ## Checklist
 
-- [ ] EC2: OpenClaw + `ec2-orchestrate-hook.mjs` (:8790)
-- [ ] Vercel: secrets + `JARVIS_EC2_WEBHOOK_URL`, `HF_FRIDAY_PROD_URL`
-- [ ] HF: `openclaw-demo` com keepalive; `friday-prod` deployed (monitor externo opcional)
-- [ ] Dataset `openclaw-backup` privado
-- [ ] Teste: `curl -H "Authorization: Bearer …" https://openclaw…/openclaw/orchestrate -d '{"agent":"sophia","task":"teste"}'`
+- [x] Vercel: `HF_OPENCLAW_*_URL` + roteamento por perfil
+- [x] HF: 3 Spaces deployed
+- [x] EC2: só orchestrator (`ec2-slim-essential`)
+- [ ] Disco EC2 &lt;90% (EBS 8→16 GB se necessário — `docs/EC2-DISCO.md`)
+- [ ] Teste: `node scripts/test-hf-spaces-routing.mjs`
 
 ---
 
 ## Ver também
 
-- [EC2-ORCHESTRATE-WEBHOOK.md](./EC2-ORCHESTRATE-WEBHOOK.md) — systemd + nginx
+- [EC2-MINIMAL.md](./EC2-MINIMAL.md)
 - [HF-DEPLOY-FRIDAY.md](./HF-DEPLOY-FRIDAY.md)
-- [ARQUITETURA-INOVACAO.md](./ARQUITETURA-INOVACAO.md)
-- [ARQUITETURA-AGENTES.md](./ARQUITETURA-AGENTES.md)
+- [GATEWAY-VERCEL.md](./GATEWAY-VERCEL.md)
+- [DATASET-APRENDIZADO-AGENTES.md](./DATASET-APRENDIZADO-AGENTES.md)
