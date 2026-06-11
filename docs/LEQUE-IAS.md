@@ -11,10 +11,11 @@ Relacionado: [DEEPSEEK-API.md](./DEEPSEEK-API.md) · [OPENROUTER-MODELOS-FREE.md
 | Regra | Detalhe |
 |-------|---------|
 | **Scripts primeiro** | Status Macofel, GitHub, deploy → gateway Vercel / cron — **zero LLM** |
-| **Ollama na EC2** | Telegram e agentes locais → `ollama/smollm2:360m` (sem quota externa) |
+| **Groq / HF na EC2** | Só **Jarvis** (orchestrator) na EC2 mínima — ver [EC2-MINIMAL.md](./EC2-MINIMAL.md) |
 | **Infron** | Fallback EC2 (`INFRON_API_KEY`) após HF Router |
-| **Groq** | Fallback final EC2 (`GROQ_API_KEY`) — ver [GROQ-API.md](./GROQ-API.md) |
-| **Kilo Gateway** | HF `friday-prod` — agente **Hefestos** (`kilo-auto/free`) |
+| **Groq** | Fallback EC2 (`GROQ_API_KEY`) — ver [GROQ-API.md](./GROQ-API.md) |
+| **Kilo Gateway** | HF `openclaw-innovation` — **Hefestos** (`kilo-auto/free`) |
+| **Mistral** | **Senku, Gideon** no Space innovation (`MISTRAL_API_KEY`) |
 | **API directa opcional** | DeepSeek → `DEEPSEEK_API_KEY` (402 se sem saldo) |
 | **HF Inference Router** | `HF_TOKEN` + providers HF → fallback complexo Telegram |
 | **Mesma linha de raciocínio** | `agents/_shared/VOZ-JARVIS.md` + `POLITICA-SEGURANCA.md` em todos |
@@ -26,9 +27,9 @@ Relacionado: [DEEPSEEK-API.md](./DEEPSEEK-API.md) · [OPENROUTER-MODELOS-FREE.md
 
 ```
 1. scripts + POST /jarvis     → 0 tokens
-2. Ollama (EC2)               → smollm2:360m (Telegram)
-3. APIs directas (opcional)   → DEEPSEEK_API_KEY; HF Router se DeepSeek falhar
-4. HF Spaces (inovação)       → HF_TOKEN + stub/scripts
+2. Groq/HF/DeepSeek (EC2)     → só Jarvis (Telegram)
+3. OpenRouter free (HF)       → agentes nos 3 Spaces
+4. Mistral directa            → Senku, Gideon (innovation)
 5. Pago                       → só pedido explícito do Lucas
 ```
 
@@ -41,9 +42,14 @@ Definição em `agents/<id>/config.yaml`. Aplicar na EC2: `scripts/ec2-apply-age
 | Cérebro | Assunto | Provedor | Modelo (primary) |
 |---------|---------|----------|------------------|
 | **orchestrator** (Jarvis / Telegram) | Simples / complexo | ollama → deepseek → hf | `smollm2:360m` → `deepseek-v4-flash` → `Qwen2.5-7B:fastest` |
-| **macofel, ops, vp-pecas…** | Operações | ollama | `smollm2:360m` |
+| **heimdall, vp-pecas, veldora…** | Ops / monitor | openrouter (HF core) | `google/gemma-4-26b-a4b-it:free` ou leque free |
+| **sophia, yato, rebeca, hefestos** | Inovação | openrouter / kilo | leque free; Hefestos `kilo-auto/free` |
+| **senku, gideon** | Análise / predição | **mistral** | `mistral-small-latest` (`MISTRAL_API_KEY`) |
+| **macofel** | Catálogo | openrouter (HF macofel-agent) | `google/gemma-4-26b-a4b-it:free` + tools gateway |
 
-**Telegram:** operacional → gateway (zero LLM). Conversa **simples** → Ollama. **Complexo** → DeepSeek; se 402, **HF Inference Router** (`docs/HF-INFERENCE-ROUTER.md`).
+**Jarvis (EC2):** Groq → Infron → DeepSeek → HF Router. **Agentes HF:** não usam Ollama EC2.
+
+**Telegram:** operacional → gateway (zero LLM). Conversa → stack Jarvis na EC2; agentes especializados via `POST /openclaw/orchestrate` → HF.
 
 > **DeepSeek** (`DEEPSEEK_API_KEY`): [api-docs.deepseek.com](https://api-docs.deepseek.com/) — requer saldo (402 se esgotado). **HF Router** cobre fallback complexo com `HF_TOKEN` + [Inference Providers](https://huggingface.co/settings/inference-providers).
 
@@ -83,17 +89,21 @@ O LLM muda; a **persona Jarvis** e as **aprovações** não mudam.
 
 ---
 
-## Hugging Face (copiar, não depender)
+## Hugging Face (3 perfis)
 
-| O que está no HF | Uso |
-|------------------|-----|
-| `hf-space/friday-prod` | Pipeline Sophia→Hefestos (smolagents) |
-| `hf-space/demo` | Monitor 4 cérebros |
-| Spaces públicos (RAG, tools) | Sophia **pesquisa** → Senku decide → portar tool stub para `scripts/` ou EC2 |
+| Space | Agentes | LLM típico |
+|-------|---------|------------|
+| `openclaw-core` | Heimdall, VP, Veldora, Rimuru… | OpenRouter free |
+| `openclaw-innovation` | Sophia, Yato, Senku, Gideon, Hefestos… | OpenRouter / Mistral / Kilo |
+| `macofel-agent` | Macofel | OpenRouter + tools catálogo |
 
-**Não** ligar Telegram directo ao HF (latência, cold start). Friday Vercel **orquestra** via `POST /openclaw/orchestrate`.
+Template: `hf-space/friday-prod/` → `node scripts/hf-assemble-space.mjs --profile <id>`.
 
-Padrões a copiar: tools em `hf-space/friday-prod/tools/` → equivalente gateway/skills.
+Corpus RAG: `node scripts/hf-ingest-corpus.mjs` → Dataset `corpus/`.
+
+**Não** ligar Telegram directo ao HF. Vercel **orquestra** via `POST /openclaw/orchestrate`.
+
+Legado: `friday-prod`, `openclaw-demo` — substituídos pelos perfis acima.
 
 ---
 
@@ -106,33 +116,33 @@ flowchart TB
   GW[gateway /jarvis]
   DS[(DeepSeek API)]
   OR[(OpenRouter leque)]
-  OL[Ollama EC2]
-  HF[HF friday-prod]
+  GQ[Groq HF EC2]
+  HFC[HF core]
+  HFI[HF innovation]
+  HFM[HF macofel]
+  MIST[Mistral API]
 
   TG --> J
-  J -->|status github resumo| GW
-  J -->|chat raciocinio| DS
+  J -->|status resumo| GW
+  J -->|chat| GQ
+  J -->|fallback| DS
   J -->|fallback| OR
-  J -->|trivial| OL
 
-  M[macofel] --> OR
-  O[ops] --> OR
-  S[senku] --> DS
-  SP[sophia hefestos] --> HF
-  SP -.copiar tools.-> GW
+  GW -->|orchestrate| HFC
+  GW --> HFI
+  GW --> HFM
+  HFI -->|senku gideon| MIST
 ```
 
 ---
 
-## Aplicar na EC2
+## Aplicar na EC2 (mínima)
 
 ```bash
 cd /opt/openclaw
 git pull
-# .env com DEEPSEEK_API_KEY + OPENROUTER_API_KEY
-sudo bash scripts/ec2-apply-agent-config.sh
-sudo bash scripts/ec2-fix-telegram-models.sh   # emergência quota Gemini
-sudo systemctl restart openclaw-gateway
+# .env: OPENCLAW_GATEWAY_BASE_URL + GROQ/HF/DEEPSEEK para Jarvis
+sudo bash scripts/ec2-sync-now.sh   # EC2_PROFILE=minimal por defeito
 ```
 
 Telegram: `/new` → `ajuda`

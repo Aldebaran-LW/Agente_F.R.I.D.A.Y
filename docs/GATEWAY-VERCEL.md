@@ -1,7 +1,7 @@
 # Gateway Vercel — API de automacao (nao e o Telegram)
 
-**Papel:** cofre de secrets + rotas HTTP para Macofel, GitHub e health-checks.  
-**Jarvis (Telegram, aprovacoes, OpenClaw)** vive na **AWS EC2** — ver [PAPEIS-AWS-VERCEL.md](./PAPEIS-AWS-VERCEL.md).
+**Papel:** cofre de secrets + broker HTTP (`/openclaw/orchestrate` → HF Spaces) + health Macofel/GitHub.  
+**Jarvis (Telegram, aprovacoes)** vive na **EC2 minima** — ver [PAPEIS-AWS-VERCEL.md](./PAPEIS-AWS-VERCEL.md) · [MAPAS-RESIDENCIAS.md](./MAPAS-RESIDENCIAS.md).
 
 **Projeto unico:** pasta `gateway/` em [Agente_OpenClaw](https://github.com/Aldebaran-LW/Agente_OpenClaw).  
 **Nao** usar a raiz do repo como Root Directory na Vercel.
@@ -24,6 +24,17 @@
 | `MACOFEL_CATALOG_SECRET` | Se existir rota status no Macofel |
 | `MACOFEL_URL` / `VP_PECAS_URL` | Health-check |
 | `VP_PRECISION_URL` | Health-check (opcional) |
+| `HF_OPENCLAW_CORE_URL` | Space Heimdall, VP, Veldora… |
+| `HF_OPENCLAW_INNOVATION_URL` | Space Sophia, Senku, Gideon… |
+| `HF_MACOFEL_SPACE_URL` | Space macofel-agent (base; gateway acrescenta `/run/macofel`) |
+| `HF_TOKEN` | Auth Spaces privados no orchestrate |
+| `HF_CORPUS_DATASET` | Dataset RAG (`Aldebaran-LW/openclaw-backup`) |
+
+Valores por defeito em `gateway/vercel.json`. Sincronizar painel:
+
+```powershell
+node scripts/vercel-sync-hf-env.mjs
+```
 
 5. Deploy → anexar dominio (ex. `openclaw.lwdigitalforge.com`) **neste** projeto
 6. Na EC2 ou PC: `.env` com `OPENCLAW_GATEWAY_BASE_URL` = URL **deste** deploy + mesmo token
@@ -37,6 +48,7 @@
 - `GET /openclaw/github/status` — repos
 - `GET /openclaw/deploy/health` — sites
 - `GET /openclaw/office/status` — snapshot dos 4 cérebros (painel)
+- `GET|POST /openclaw/orchestrate` — broker → HF Spaces (Bearer); ver [HF-DEPLOY-FRIDAY.md](./HF-DEPLOY-FRIDAY.md)
 - `GET /office` — painel pixel-art (introduzir token na página)
 - `GET /forge` — Digital Forge 3D (WebSocket na EC2)
 
@@ -53,6 +65,9 @@ Visualização: [VISUALIZACAO-AGENTES.md](./VISUALIZACAO-AGENTES.md) · [DIGITAL
 | 404 `DEPLOYMENT_NOT_FOUND` no dominio custom | Dominio aponta para projeto/deploy inexistente |
 | Macofel 503 | `MACOFEL_API_BASE` errado (path duplicado) |
 | Mongo ECONNREFUSED | Atlas IP / rede; corrigir na Vercel |
+| 504 em `/openclaw/orchestrate` (Macofel) | Tarefa HF >10s (limite Hobby); chamar Space directo ou `async` |
+| Deploy CLI 404/500 | Preferir **git push `main`**; evitar `vercel deploy` do Google Drive |
+| Rotas HF antigas (`friday-prod`) | Confirmar commit com `orchestrate.mjs` + env `HF_OPENCLAW_*` |
 
 ## URLs: nao misturar projetos
 
@@ -93,7 +108,13 @@ Depois:
 .\scripts\deploy-gateway-vercel.ps1
 ```
 
-Alternativa sem CLI: **push para `main`** no GitHub → deploy automatico (integracao Git).
+Alternativa sem CLI: **push para `main`** no GitHub → deploy automatico (integracao Git). **Recomendado.**
+
+Smoke test pos-deploy:
+
+```powershell
+node scripts/test-hf-spaces-routing.mjs
+```
 
 ### Erros CLI
 
