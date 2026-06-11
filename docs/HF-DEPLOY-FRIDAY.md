@@ -1,8 +1,10 @@
-# Deploy F.R.I.D.A.Y. no Hugging Face
+# Deploy OpenClaw no Hugging Face (3 perfis)
 
-Guia único para os dois Spaces OpenClaw no HF: **demo** (monitor) e **friday-prod** (protótipo smolagents).
+Guia dos **Spaces HF por domínio lógico** — substitui o modelo antigo de Space único `friday-prod`.
 
-Não substitui **EC2** (Jarvis/Telegram) nem **Vercel** (gateway). Ver `POLITICA-SEGURANCA.md` e `docs/ROADMAP-RENDER-PARA-HF.md`.
+Não substitui **EC2 mínima** (Jarvis/Telegram) nem **Vercel** (gateway). Ver `POLITICA-SEGURANCA.md` e `docs/EC2-MINIMAL.md`.
+
+Mapa completo: `docs/MAPAS-RESIDENCIAS.md` · perfis em `config/hf-space-profiles.yaml`.
 
 ---
 
@@ -11,193 +13,142 @@ Não substitui **EC2** (Jarvis/Telegram) nem **Vercel** (gateway). Ver `POLITICA
 ```mermaid
 flowchart LR
   subgraph hf [Hugging Face]
-    DEMO[openclaw-demo]
-    FRI[friday-prod]
-    DS[(openclaw-backup)]
+    CORE[openclaw-core]
+    INN[openclaw-innovation]
+    MAC[macofel-agent]
+    DS[(openclaw-backup / corpus)]
   end
-  subgraph prod [Produção]
-    EC2[EC2 OpenClaw]
+  subgraph prod [Producao]
+    EC2[EC2 minima Jarvis]
     VER[Vercel gateway]
   end
   TG[Telegram] --> EC2
   EC2 --> VER
-  DEMO -->|health + office| VER
-  FRI -->|tools opcionais| VER
-  EC2 --> DS
-  FRI --> DS
-  DEMO -.->|KEEPALIVE_MS 4min| DEMO
+  VER -->|POST /run/agent| CORE
+  VER --> INN
+  VER --> MAC
+  CORE --> DS
+  INN --> DS
+  MAC --> DS
 ```
 
-| Componente | Space HF | Função |
-|------------|----------|--------|
-| Monitor portfólio | `Aldebaran-LW/openclaw-demo` | Dashboard 4 cérebros, proxy `/openclaw/office/status` |
-| Protótipo agentes | `Aldebaran-LW/friday-prod` (criar) | smolagents + `agents-config.yaml` |
-| Memória / backup | Dataset `Aldebaran-LW/openclaw-backup` | `hf-ingest-learning.mjs`, `sync.py` |
+| Perfil | Repo HF | Agentes |
+|--------|---------|---------|
+| **core** | `Aldebaran-LW/openclaw-core` | heimdall, vp-pecas, veldora, rimuru, dedalo, icaro |
+| **innovation** | `Aldebaran-LW/openclaw-innovation` | sophia, yato, senku, gideon, hefestos, rebeca |
+| **macofel** | `Aldebaran-LW/macofel-agent` | macofel (instância separada) |
 
-Aliases Forge (visual): `orchestrator→friday`, `ops→byte`, `vp-pecas→pixel`, `macofel→lala`.
+| Legado | Repo | Notas |
+|--------|------|--------|
+| ~~friday-prod~~ | `Aldebaran-LW/friday-prod` | Substituído pelos 3 perfis; pode ficar em sleep |
+| ~~openclaw-demo~~ | `Aldebaran-LW/openclaw-demo` | Monitor legado |
+
+Template de código: `hf-space/friday-prod/` → montado por perfil com `hf-assemble-space.mjs`.
 
 ---
 
-**Deploy rápido:** [DEPLOY-HF-AGORA.md](./DEPLOY-HF-AGORA.md) · script `scripts/hf-deploy-space.ps1`
+**Deploy rápido:** [DEPLOY-HF-AGORA.md](./DEPLOY-HF-AGORA.md)
 
 ## Pré-requisitos
 
-1. Conta/org [Aldebaran-LW](https://huggingface.co/Aldebaran-LW) no HF.
-2. `.env` na raiz do repo (ver `docs/HUGGINGFACE-SPACES.md`):
+1. Org [Aldebaran-LW](https://huggingface.co/Aldebaran-LW) no HF.
+2. `.env` na raiz (ver `docs/HUGGINGFACE-SPACES.md`):
 
 ```env
 HF_TOKEN=
-HF_SPACE_REPO=Aldebaran-LW/openclaw-demo
-HF_FRIDAY_SPACE_REPO=Aldebaran-LW/friday-prod
+HF_USERNAME=Aldebaran-LW
 HF_BACKUP_DATASET=Aldebaran-LW/openclaw-backup
-OPENCLAW_GATEWAY_BASE_URL=https://seu-gateway.vercel.app
+HF_CORPUS_DATASET=Aldebaran-LW/openclaw-backup
+HF_OPENCLAW_CORE_URL=https://aldebaran-lw-openclaw-core.hf.space
+HF_OPENCLAW_INNOVATION_URL=https://aldebaran-lw-openclaw-innovation.hf.space
+HF_MACOFEL_SPACE_URL=https://aldebaran-lw-macofel-agent.hf.space
+OPENCLAW_GATEWAY_BASE_URL=https://openclaw.lwdigitalforge.com
 OPENCLAW_AUTOMATION_TOKEN=
 OPENROUTER_API_KEY=
 ```
 
-3. Gateway Vercel em produção com rotas `/api/health` e `/openclaw/office/status`.
+3. Gateway Vercel com `HF_OPENCLAW_*_URL` em `gateway/vercel.json` + painel.
 
 ---
 
-## Parte A — Space demo (`openclaw-demo`)
+## Fluxo de deploy
 
-### 1. Criar ou usar o Space
-
-- SDK: **Docker**, privado recomendado.
-- Repo: `hf-space/demo/` neste projeto.
-
-### 2. Secrets no Space
-
-| Nome | Tipo | Obrigatório |
-|------|------|-------------|
-| `OPENCLAW_GATEWAY_BASE_URL` | Secret | Sim (para `/gateway` e painel) |
-| `OPENCLAW_AUTOMATION_TOKEN` | Secret | Sim |
-
-Automático no PC:
+### 1. Regenerar config dos agentes
 
 ```powershell
-cd "H:\Meu Drive\Projetos\OpenClaw"
-node scripts/hf-configure-space.mjs
+node scripts/generate-hf-agents-config.mjs --profile core
+node scripts/generate-hf-agents-config.mjs --profile innovation
+node scripts/generate-hf-agents-config.mjs --profile macofel
 ```
 
-### 3. Deploy do código
+### 2. Montar pasta do Space (a partir do template)
 
 ```powershell
-git clone https://huggingface.co/spaces/Aldebaran-LW/openclaw-demo
-Copy-Item -Recurse "H:\Meu Drive\Projetos\OpenClaw\hf-space\demo\*" .\openclaw-demo\
-cd openclaw-demo
-git add .
-git commit -m "Atualizar demo OpenClaw com painel 4 cerebros"
-git push
+node scripts/hf-assemble-space.mjs --profile core
+node scripts/hf-assemble-space.mjs --profile innovation
+node scripts/hf-assemble-space.mjs --profile macofel
 ```
 
-### 4. Rotas
+### 3. Push + secrets
 
-| Rota | Descrição |
-|------|-----------|
-| `/` | Painel HTML — 4 cérebros, refresh 60s |
-| `/health` | Health local (monitor externo opcional) |
-| `/api/status` | JSON agregado (demo + gateway + office) |
-| `/gateway` | JSON legado (compatível) |
+```powershell
+node scripts/hf-deploy-space.mjs --profile core --secrets
+node scripts/hf-deploy-space.mjs --profile innovation --secrets
+node scripts/hf-deploy-space.mjs --profile macofel --secrets
+```
 
-**Keepalive interno (padrão):** `KEEPALIVE_MS=240000` (4 min) — o servidor chama `buildStatus()` em loop e mantém o processo activo. Definido no `Dockerfile`; `0` desliga.
+### 4. Corpus (RAG)
 
-### 5. Monitorização externa (opcional)
+```powershell
+node scripts/hf-ingest-corpus.mjs
+```
 
-Não é obrigatório para o painel `/`. Usa só se quiseres **alerta** quando o Space cair.
-
-| Método | Custo | URL / comando |
-|--------|-------|----------------|
-| **Keepalive interno** | 0 | Já activo (`KEEPALIVE_MS`) |
-| **[cron-job.org](https://cron-job.org)** | 0 | GET `https://aldebaran-lw-openclaw-demo.hf.space/health` a cada 5 min |
-| **Cron na EC2** | 0 | `*/5 * * * * curl -sf -m 15 "https://aldebaran-lw-openclaw-demo.hf.space/health"` |
-| **GitHub Actions** | 0 (repo público) | `schedule: '*/5 * * * *'` + `curl` |
-
-Evita ping agressivo só para “acordar” Space free — pode ser frágil face às políticas do HF. O keepalive interno costuma chegar para o demo.
+Lista de ficheiros: `config/corpus-allowlist.txt`. Doc: `docs/DATASET-APRENDIZADO-AGENTES.md`.
 
 ---
 
-## Parte B — Space friday-prod (protótipo)
-
-### 1. Criar Space
-
-- [new-space](https://huggingface.co/new-space?sdk=docker) → nome `friday-prod`, **Private**.
-- Código fonte: `hf-space/friday-prod/`.
-
-### 2. Regenerar config dos agentes
-
-Sempre que alterar `agents/*/config.yaml`:
-
-```powershell
-node scripts/generate-hf-agents-config.mjs
-```
-
-Gera `hf-space/friday-prod/agents-config.yaml` (4 cérebros + skills + tools stub).
-
-### 3. Secrets no Space friday-prod
+## Secrets por Space (todos os perfis)
 
 | Nome | Uso |
 |------|-----|
-| `OPENROUTER_API_KEY` | LLM via OpenRouter (Sophia, Senku, etc.) |
-| `KILO_API_KEY` | **Hefestos** no friday-prod (`kilo-auto/free`) |
-| `KILO_GATEWAY_BASE_URL` | Default `https://api.kilo.ai/api/gateway` |
-| `HF_TOKEN` | Fallback Inference API HF |
-| `OPENCLAW_GATEWAY_BASE_URL` | Tools Ops/VP reais |
-| `OPENCLAW_AUTOMATION_TOKEN` | Bearer gateway |
-| `HF_BACKUP_DATASET` | Variable: `Aldebaran-LW/openclaw-backup` |
+| `OPENROUTER_API_KEY` | LLM smolagents / chat |
+| `HF_TOKEN` | Dataset, inference fallback |
+| `OPENCLAW_GATEWAY_BASE_URL` | Tools que chamam Vercel |
+| `OPENCLAW_AUTOMATION_TOKEN` | Auth gateway |
+| `KILO_API_KEY` | Hefestos (innovation) |
+| `HF_CORPUS_DATASET` | RAG corpus (variable) |
+| `HF_LEARNING_AUTO` | `true` — episódios no Dataset |
 
-### 4. Deploy
-
-```powershell
-git clone https://huggingface.co/spaces/Aldebaran-LW/friday-prod
-Copy-Item -Recurse "H:\Meu Drive\Projetos\OpenClaw\hf-space\friday-prod\*" .\friday-prod\
-cd friday-prod
-git add .
-git commit -m "Deploy prototipo F.R.I.D.A.Y. smolagents"
-git push
-```
-
-### 5. API do protótipo
-
-| Método | Rota | Corpo |
-|--------|------|-------|
-| GET | `/health` | — |
-| GET | `/agents` | Lista agentes do YAML |
-| POST | `/run` | `{"task":"...", "agent_id":"macofel"}` |
-| POST | `/run/{agent_id}` | `{"task":"..."}` |
-
-Sem `OPENROUTER_API_KEY` nem `HF_TOKEN`, responde em modo **stub** (útil para validar deploy).
-
-### 6. Estrutura
-
-```
-hf-space/friday-prod/
-├── Dockerfile
-├── app.py              # FastAPI + Orquestrador
-├── agents-config.yaml  # gerado
-├── sync.py             # backup Dataset
-├── requirements.txt
-└── tools/
-    ├── macofel_tools.py
-    ├── ops_tools.py
-    └── vp_pecas_tools.py
-```
-
-Tools no Hub (`load_tool("Aldebaran-LW/...")`): fase futura — hoje tools locais + gateway.
+**Não** colocar `MONGODB_URI` nos Spaces — catálogo via gateway.
 
 ---
 
-## Parte C — Dataset e aprendizagem
+## Endpoints (cada Space)
 
-1. Dataset privado: [openclaw-backup](https://huggingface.co/datasets/Aldebaran-LW/openclaw-backup).
-2. Do PC:
+| Rota | Função |
+|------|--------|
+| `GET /health` | `space_profile`: core \| innovation \| macofel |
+| `GET /` | Painel dashboard |
+| `POST /run/{agent_id}` | Executar agente |
+| `GET /corpus/search` | RAG keyword |
+
+Gateway Vercel encaminha: `POST /openclaw/orchestrate` → `{HF_*_URL}/run/{agent}`.
+
+---
+
+## Vercel
 
 ```powershell
-node scripts/hf-ingest-learning.mjs --agent macofel --text "nota relevante"
-node scripts/hf-backup-upload.mjs
+node scripts/vercel-sync-hf-env.mjs
 ```
 
-3. Space `friday-prod`: após cada `POST /run/{agent}` com sucesso, `sync.append_learning` grava no Dataset (background, `HF_LEARNING_AUTO=true` por defeito se `HF_TOKEN` existir). Desactivar: `HF_LEARNING_AUTO=false`.
+Deploy gateway: **push para `main`** (Root Directory `gateway/`). Ver `docs/GATEWAY-VERCEL.md`.
+
+Smoke test:
+
+```powershell
+node scripts/test-hf-spaces-routing.mjs
+```
 
 ---
 
@@ -205,37 +156,27 @@ node scripts/hf-backup-upload.mjs
 
 | Script | Função |
 |--------|--------|
-| `scripts/test-hf-token.mjs` | Valida `HF_TOKEN` |
-| `scripts/hf-configure-space.mjs` | Secrets no openclaw-demo |
-| `scripts/generate-hf-agents-config.mjs` | YAML → friday-prod |
-| `scripts/hf-ingest-learning.mjs` | Aprendizagem → Dataset |
-| `scripts/hf-backup-upload.mjs` | Snapshot gateway → Dataset |
+| `scripts/hf-assemble-space.mjs` | Template → `hf-space/{profile}/` |
+| `scripts/hf-deploy-space.mjs` | Git push Hub + secrets |
+| `scripts/generate-hf-agents-config.mjs` | `agents/*/config.yaml` → YAML |
+| `scripts/hf-ingest-corpus.mjs` | Docs → Dataset `corpus/` |
+| `scripts/vercel-sync-hf-env.mjs` | Env HF → projeto Vercel |
 
 ---
 
-## O que NÃO fazer no HF
+## Checklist
 
-- Não colocar `MONGODB_URI` no Space friday-prod (catálogo só via gateway/EC2).
-- Não expor `.env` no Git do Space.
-- Não tratar o Space como produção Telegram — aprovações continuam na EC2.
-- Pagamentos e PII: `POLITICA-SEGURANCA.md`.
-
----
-
-## Checklist rápido
-
-- [ ] Space `openclaw-demo` com secrets gateway
-- [ ] Push `hf-space/demo/` (keepalive interno activo; monitor externo opcional)
-- [ ] Painel `/` mostra 4 cérebros
-- [ ] Space `friday-prod` criado (opcional)
-- [ ] `generate-hf-agents-config.mjs` + push friday-prod
-- [ ] `OPENROUTER_API_KEY` no friday-prod para LLM real
-- [ ] Dataset `openclaw-backup` + teste `hf-ingest-learning.mjs`
+- [x] 3 Spaces privados (Docker) no Hub
+- [x] Vercel: `HF_OPENCLAW_CORE_URL`, `HF_OPENCLAW_INNOVATION_URL`, `HF_MACOFEL_SPACE_URL`
+- [x] EC2 mínima: só orchestrator
+- [ ] Corpus actualizado após mudanças em docs/skills
+- [ ] `friday-prod` em sleep (opcional)
 
 ---
 
 ## Ver também
 
-- `docs/HUGGINGFACE-SPACES.md` — URLs e variáveis resumidas
-- `docs/ARQUITETURA-AGENTES.md` — cérebros EC2
-- `docs/GATEWAY-VERCEL.md` — API produção
+- [MAPAS-RESIDENCIAS.md](./MAPAS-RESIDENCIAS.md)
+- [DATASET-APRENDIZADO-AGENTES.md](./DATASET-APRENDIZADO-AGENTES.md)
+- [EC2-MINIMAL.md](./EC2-MINIMAL.md)
+- [GATEWAY-VERCEL.md](./GATEWAY-VERCEL.md)

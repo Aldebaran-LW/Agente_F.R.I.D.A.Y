@@ -60,12 +60,24 @@ Mesmo com “sim” no chat, **pagamentos continuam proibidos** at뿯½ existir 
 
 Skill: `politica-seguranca` (sempre activa).
 
-## C뿯½rebros (multi-agente)
+## Residencias (runtime)
 
-| C뿯½rebro | Pasta | Fun뿯½뿯½o |
+| Camada | Onde | Papel |
+|--------|------|--------|
+| **Jarvis** | AWS EC2 minima | Telegram, aprovacoes |
+| **Gateway** | Vercel `gateway/` | Secrets + `/openclaw/orchestrate` |
+| **Core** | HF `openclaw-core` | Heimdall, VP-Pecas, Veldora, Rimuru, Dedalo, Icaro |
+| **Innovation** | HF `openclaw-innovation` | Sophia, Yato, Senku, Gideon, Hefestos, Rebeca |
+| **Macofel** | HF `macofel-agent` | Catalogo (instancia separada) |
+
+Mapa: `docs/MAPAS-RESIDENCIAS.md` · deploy: `docs/HF-DEPLOY-FRIDAY.md`
+
+## Cerebros (multi-agente)
+
+| Cerebro | Pasta | Funcao |
 |---------|-------|--------|
-| Orquestrador | `agents/orchestrator/` | Coordena e pede aprova뿯½뿯½o |
-| Macofel | `agents/macofel/` | Cat뿯½logo e-commerce |
+| Orquestrador | `agents/orchestrator/` | Coordena e pede aprovacao |
+| Macofel | `agents/macofel/` | Catalogo e-commerce |
 | VP-Pecas | `agents/vp-pecas/` | Sites usinagem |
 | Heimdall | `agents/heimdall/` | GitHub + deploy |
 

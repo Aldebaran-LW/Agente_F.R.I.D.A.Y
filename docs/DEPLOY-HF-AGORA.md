@@ -1,26 +1,28 @@
 # Deploy HF — agora (checklist)
 
-Ordem recomendada: **demo** (monitor) → **friday-prod** (Sophia…Hefestos). Keepalive do demo é interno (`KEEPALIVE_MS`).
+Ordem: **3 perfis** (`core` → `innovation` → `macofel`) + corpus + sync Vercel.
 
 ---
 
 ## 0. Pré-requisitos (5 min)
 
-1. Token HF com permissão **Write**: [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)
-2. No `.env` da raiz do OpenClaw:
+1. Token HF com **Write**: [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)
+2. No `.env` da raiz:
 
 ```env
 HF_TOKEN=hf_...
 HF_USERNAME=Aldebaran-LW
-HF_SPACE_REPO=Aldebaran-LW/openclaw-demo
-HF_FRIDAY_SPACE_REPO=Aldebaran-LW/friday-prod
 HF_BACKUP_DATASET=Aldebaran-LW/openclaw-backup
+HF_CORPUS_DATASET=Aldebaran-LW/openclaw-backup
+HF_OPENCLAW_CORE_URL=https://aldebaran-lw-openclaw-core.hf.space
+HF_OPENCLAW_INNOVATION_URL=https://aldebaran-lw-openclaw-innovation.hf.space
+HF_MACOFEL_SPACE_URL=https://aldebaran-lw-macofel-agent.hf.space
 OPENCLAW_GATEWAY_BASE_URL=https://openclaw.lwdigitalforge.com
 OPENCLAW_AUTOMATION_TOKEN=...
 OPENROUTER_API_KEY=...
 ```
 
-3. Validar:
+3. Validar token:
 
 ```powershell
 cd "H:\Meu Drive\Projetos\OpenClaw"
@@ -31,90 +33,85 @@ node scripts/test-hf-token.mjs
 
 ## 1. Criar Spaces no Hub (se ainda não existem)
 
-| Space | Link | SDK |
-|-------|------|-----|
-| openclaw-demo | [new-space](https://huggingface.co/new-space?sdk=docker) | Docker, **Private** |
-| friday-prod | idem | Docker, **Private** |
+| Space | Repo HF | SDK |
+|-------|---------|-----|
+| OpenClaw Core | `Aldebaran-LW/openclaw-core` | Docker, **Private** |
+| OpenClaw Innovation | `Aldebaran-LW/openclaw-innovation` | Docker, **Private** |
+| Macofel Agent | `Aldebaran-LW/macofel-agent` | Docker, **Private** |
 
-Owner: **Aldebaran-LW** (org). Nomes exactos como no `.env`.
+[New Space](https://huggingface.co/new-space?sdk=docker) · Owner: **Aldebaran-LW**.
 
-Dataset (memória): [new-dataset](https://huggingface.co/new-dataset) → `openclaw-backup` (Private).
+Dataset: `Aldebaran-LW/openclaw-backup` (Private) — memória + `corpus/`.
 
 ---
 
-## 2. Deploy automático (PowerShell)
+## 2. Deploy automático
 
 ```powershell
 cd "H:\Meu Drive\Projetos\OpenClaw"
 
-# A) Monitor 4 cérebros + painel
-.\scripts\hf-deploy-space.ps1 -Space demo -ConfigureSecrets
-
-# B) Protótipo inovação (Sophia, Rebeca, Senku, Hefestos)
-.\scripts\hf-deploy-space.ps1 -Space friday-prod -ConfigureSecrets
+foreach ($p in @("core","innovation","macofel")) {
+  node scripts/generate-hf-agents-config.mjs --profile $p
+  node scripts/hf-assemble-space.mjs --profile $p
+  node scripts/hf-deploy-space.mjs --profile $p --secrets
+}
 ```
 
-O script: regenera `agents-config.yaml` (friday-prod), clona o Space, copia `hf-space/*`, `git push`, opcionalmente secrets.
-
-**Build no HF:** 5–15 min. Acompanhar em *Settings → Build logs*.
+Build no HF: 5–15 min por Space. Logs em *Settings → Build logs*.
 
 ---
 
-## 3. Deploy manual (alternativa)
+## 3. Corpus (docs → RAG)
 
 ```powershell
-git clone https://huggingface.co/spaces/Aldebaran-LW/openclaw-demo
-Copy-Item -Recurse "H:\Meu Drive\Projetos\OpenClaw\hf-space\demo\*" .\openclaw-demo\
-cd openclaw-demo
-git add .
-git commit -m "Deploy demo OpenClaw"
-git push
+node scripts/hf-ingest-corpus.mjs
 ```
-
-(Repetir para `friday-prod` com `hf-space/friday-prod/`.)
-
-No primeiro push o Git pede credenciais: **username** = conta HF, **password** = `HF_TOKEN`.
 
 ---
 
-## 4. Secrets (se não usou `-ConfigureSecrets`)
+## 4. Vercel (rotas HF)
 
 ```powershell
-node scripts/hf-configure-space.mjs
-node scripts/hf-configure-friday-prod.mjs
+node scripts/vercel-sync-hf-env.mjs
 ```
+
+Deploy gateway: **git push `main`** (não usar CLI do Google Drive). Ver `docs/GATEWAY-VERCEL.md`.
 
 ---
 
-## 5. Testar
-
-| Space | URL |
-|-------|-----|
-| demo | https://aldebaran-lw-openclaw-demo.hf.space/ |
-| demo health | …/health |
-| friday-prod | https://aldebaran-lw-friday-prod.hf.space/health |
-| Sophia | `POST …/run/sophia` body `{"task":"teste"}` |
-
-Via Friday (Vercel), com EC2/HF configurados:
+## 5. Testes
 
 ```powershell
-# precisa OPENCLAW_AUTOMATION_TOKEN no .env
-curl -H "Authorization: Bearer TOKEN" -X POST "https://openclaw.lwdigitalforge.com/openclaw/orchestrate" -d "{\"agent\":\"sophia\",\"task\":\"teste HF\"}"
+# Health dos Spaces (com HF_TOKEN)
+curl -H "Authorization: Bearer $HF_TOKEN" https://aldebaran-lw-openclaw-core.hf.space/health
+
+# Gateway + rotas
+node scripts/test-hf-spaces-routing.mjs
+
+# EC2 mínima
+.\scripts\ec2-sync-from-pc.ps1
 ```
 
----
-
-## 6. Keepalive e monitor (demo)
-
-- **Interno (já no deploy):** `KEEPALIVE_MS=240000` — refresca gateway a cada 4 min.
-- **Alerta opcional:** [cron-job.org](https://cron-job.org) ou cron na EC2 → GET `https://aldebaran-lw-openclaw-demo.hf.space/health` a cada 5 min.
-
-Ver secção 5 em [HF-DEPLOY-FRIDAY.md](./HF-DEPLOY-FRIDAY.md).
+Telegram: `/new` → `ajuda`
 
 ---
 
-## Estado actual nesta máquina
+## URLs de produção (referência)
 
-Se `test-hf-token` falhar com **HF_TOKEN definido** → preencher `.env` e repetir o passo 2.
+| Serviço | URL |
+|---------|-----|
+| Gateway | https://openclaw.lwdigitalforge.com |
+| HF core | https://aldebaran-lw-openclaw-core.hf.space |
+| HF innovation | https://aldebaran-lw-openclaw-innovation.hf.space |
+| HF macofel | https://aldebaran-lw-macofel-agent.hf.space |
 
-Guia completo: [HF-DEPLOY-FRIDAY.md](./HF-DEPLOY-FRIDAY.md) · Moradias: [MAPAS-RESIDENCIAS.md](./MAPAS-RESIDENCIAS.md)
+---
+
+## Legado
+
+| Space | Estado |
+|-------|--------|
+| `friday-prod` | Substituído — pode dormir no Hub |
+| `openclaw-demo` | Monitor legado |
+
+Guia completo: [HF-DEPLOY-FRIDAY.md](./HF-DEPLOY-FRIDAY.md)

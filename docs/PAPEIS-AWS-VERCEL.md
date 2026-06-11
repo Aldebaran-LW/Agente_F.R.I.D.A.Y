@@ -6,32 +6,42 @@ Objetivo: **nao misturar** Telegram/cerebro com cofre de APIs na mesma camada.
 
 ```mermaid
 flowchart LR
-  subgraph aws [AWS EC2 — Jarvis / OpenClaw]
+  subgraph aws [AWS EC2 minima]
     TG[Telegram]
-    OC[OpenClaw daemon]
+    OC[Jarvis orchestrator]
     TG --> OC
   end
 
-  subgraph vercel [Vercel — Gateway automacao]
-    API[API /openclaw/*]
-    JAPI[POST /jarvis opcional]
+  subgraph vercel [Vercel gateway]
+    API[/openclaw/orchestrate]
+    JAPI[/jarvis]
   end
 
-  subgraph ext [Outros projetos]
-    MAC[Macofel Vercel/Render]
+  subgraph hf [HF Spaces]
+    CORE[openclaw-core]
+    INN[openclaw-innovation]
+    HFM[macofel-agent]
+  end
+
+  subgraph ext [APIs externas]
+    MAC[Macofel Render/Vercel]
     GH[GitHub]
   end
 
-  OC -->|Bearer token| API
+  OC -->|Bearer| API
   OC --> JAPI
+  API -->|POST /run/agent| CORE
+  API --> INN
+  API --> HFM
   API --> MAC
   API --> GH
 ```
 
 | Camada | Onde | Faz o que | Nao faz |
 |--------|------|-----------|---------|
-| **Jarvis** | AWS EC2 (`openclaw`) | Telegram, aprovacoes, cron, chamar gateway, LLM quando precisar | Guardar Mongo/GitHub/Macofel secrets |
-| **Gateway** | Vercel (`gateway/`) | Secrets + rotas HTTP estaveis para Macofel/GitHub/deploy | Bot Telegram, conversa livre |
+| **Jarvis** | AWS EC2 minima (`openclaw`) | Telegram, aprovacoes, chamar gateway | 12 agentes, Ollama, Mongo |
+| **Gateway** | Vercel (`gateway/`) | Secrets + broker `/openclaw/orchestrate` | Bot Telegram, jobs longos |
+| **Agentes IA** | HF Spaces (3 perfis) | LLM, tools, RAG corpus | Deploy prod, Telegram directo |
 | **PC (dev)** | Teu `.env` local | Testar com `check-basico.js` | Producao |
 
 **Regra:** Telegram **nunca** fala com a Vercel diretamente.  
@@ -57,8 +67,13 @@ Copiar de `gateway/.env.example`. Tudo que toca Macofel, Mongo, GitHub org, heal
 | `MACOFEL_URL` | Health-check deploy |
 | `VP_PECAS_URL` | Health-check |
 | `VP_PRECISION_URL` | Health-check (opcional) |
+| `HF_OPENCLAW_CORE_URL` | Space core (Heimdall, VP, …) |
+| `HF_OPENCLAW_INNOVATION_URL` | Space innovation (Sophia, …) |
+| `HF_MACOFEL_SPACE_URL` | Space macofel-agent |
+| `HF_TOKEN` | Auth Spaces privados (orchestrate) |
+| `HF_CORPUS_DATASET` | Dataset RAG (`openclaw-backup`) |
 
-**Nao colocar na Vercel:** `TELEGRAM_*`, chaves LLM do OpenClaw (ficam na EC2 se usares).
+**Nao colocar na Vercel:** `TELEGRAM_*`, chaves LLM do Jarvis (ficam na EC2).
 
 ### AWS EC2 (`/opt/openclaw/.env` ou equivalente)
 
@@ -90,6 +105,7 @@ Igual EC2 fase 1: so `OPENCLAW_GATEWAY_BASE_URL` + `OPENCLAW_AUTOMATION_TOKEN` p
 | `GET /openclaw/github/status` | Bearer | AWS ou scripts |
 | `GET /openclaw/deploy/health` | Bearer | AWS ou scripts |
 | `GET /openclaw/office/status` | Bearer | Painel pixel, scripts |
+| `GET\|POST /openclaw/orchestrate` | Bearer | Broker → HF Spaces / EC2 |
 | `GET /office` | Publico (HTML) | Browser — token no sessionStorage |
 
 A rota `/jarvis` e uma **API de delegacao**, nao o processo Telegram. O nome no codigo pode manter-se; o papel e **gateway**.
