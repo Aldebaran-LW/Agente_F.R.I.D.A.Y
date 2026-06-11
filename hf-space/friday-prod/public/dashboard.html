@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>F.R.I.D.A.Y. — OpenClaw</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --card: #121a24;
+      --border: #243044;
+      --text: #e8eef7;
+      --muted: #8fa3bf;
+      --ok: #3dd68c;
+      --warn: #f5c542;
+      --err: #ff6b6b;
+      --idle: #6b8cae;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+    h1 { margin: 0; font-size: 1.25rem; font-weight: 600; }
+    .meta { color: var(--muted); font-size: 0.85rem; }
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .badge.ok { background: rgba(61,214,140,0.15); color: var(--ok); }
+    .badge.err { background: rgba(255,107,107,0.15); color: var(--err); }
+    .badge.warn { background: rgba(245,197,66,0.15); color: var(--warn); }
+    main { padding: 1.5rem; max-width: 1100px; margin: 0 auto; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.1rem;
+    }
+    .card h2 { margin: 0 0 0.25rem; font-size: 1rem; }
+    .card .role { color: var(--muted); font-size: 0.8rem; margin-bottom: 0.75rem; }
+    .card .detail { font-size: 0.9rem; line-height: 1.4; min-height: 2.5em; }
+    .card .alias { font-size: 0.75rem; color: var(--muted); margin-top: 0.5rem; }
+    .state-idle .state-dot { background: var(--idle); }
+    .state-thinking .state-dot { background: var(--warn); }
+    .state-working .state-dot { background: var(--ok); }
+    .state-error .state-dot { background: var(--err); }
+    .state-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+    .state-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .links { margin-top: 1.5rem; font-size: 0.85rem; }
+    .links a { color: #6eb5ff; margin-right: 1rem; }
+    footer { padding: 1rem 1.5rem; color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>F.R.I.D.A.Y. · Hugging Face</h1>
+      <p class="meta" id="subtitle">A carregar gateway…</p>
+    </div>
+    <div>
+      <span class="badge ok" id="hf-badge">HF</span>
+      <span class="badge warn" id="gw-badge">Gateway …</span>
+    </div>
+  </header>
+  <main>
+    <div class="grid" id="agents-grid"></div>
+    <p class="links">
+      <a href="/health">/health</a>
+      <a href="/api/status">/api/status</a>
+      <a href="/api/info">/api/info</a>
+      <a href="/docs">/docs</a>
+    </p>
+  </main>
+  <footer>
+    Space único friday-prod · auto-refresh 60s · keepalive 4 min · Jarvis/Telegram permanece na EC2 mínima
+  </footer>
+  <script>
+    const FORGE = { orchestrator: 'friday', heimdall: 'heimdall', 'vp-pecas': 'vp-pecas', macofel: 'macofel' };
+    const REFRESH_MS = 60000;
+
+    function el(tag, cls, text) {
+      const n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (text != null) n.textContent = text;
+      return n;
+    }
+
+    function renderAgents(agents) {
+      const grid = document.getElementById('agents-grid');
+      grid.innerHTML = '';
+      if (!agents?.length) {
+        grid.appendChild(el('p', 'meta', 'Sem dados do office — configure OPENCLAW_GATEWAY_* no Space.'));
+        return;
+      }
+      for (const a of agents) {
+        const card = el('article', 'card state-' + (a.state || 'idle'));
+        const row = el('div', 'state-row');
+        row.appendChild(el('span', 'state-dot'));
+        row.appendChild(el('span', null, (a.stateLabel || a.state || '—')));
+        card.appendChild(row);
+        card.appendChild(el('h2', null, a.name || a.id));
+        card.appendChild(el('p', 'role', a.role || ''));
+        card.appendChild(el('p', 'detail', a.detail || '—'));
+        const alias = FORGE[a.id];
+        if (alias) card.appendChild(el('p', 'alias', 'Forge: ' + alias));
+        grid.appendChild(card);
+      }
+    }
+
+    async function refresh() {
+      try {
+        const res = await fetch('/api/status');
+        const data = await res.json();
+        const at = data.at ? new Date(data.at).toLocaleString('pt-BR') : '—';
+        document.getElementById('subtitle').textContent = 'Atualizado ' + at;
+        const hf = document.getElementById('hf-badge');
+        hf.textContent = data.demo?.ok ? 'HF OK' : 'HF erro';
+        hf.className = 'badge ' + (data.demo?.ok ? 'ok' : 'err');
+        const gw = document.getElementById('gw-badge');
+        const gOk = data.gateway?.health?.ok;
+        gw.textContent = data.gatewayConfigured ? (gOk ? 'Gateway OK' : 'Gateway falha') : 'Gateway não configurado';
+        gw.className = 'badge ' + (!data.gatewayConfigured ? 'warn' : gOk ? 'ok' : 'err');
+        renderAgents(data.office?.agents);
+      } catch (e) {
+        document.getElementById('subtitle').textContent = 'Erro: ' + e.message;
+      }
+    }
+
+    refresh();
+    setInterval(refresh, REFRESH_MS);
+  </script>
+</body>
+</html>

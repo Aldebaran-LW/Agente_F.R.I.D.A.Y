@@ -1,5 +1,5 @@
 # Gerado automaticamente — nao editar a mao; use generate-hf-agents-config.mjs
-# 2026-06-01T13:27:52.883Z
+# 2026-06-08T10:55:52.480Z
 
 defaults:
   max_tokens: 4096
@@ -31,12 +31,13 @@ gideon:
   forge_alias: gideon
   role: "Predição e cenários futuros (após Senku)"
   description: "Gideon — Predição e cenários futuros (após Senku)"
-  model: "smollm2:360m"
-  model_ref: "ollama/smollm2:360m"
+  model: "mistral-small-latest"
+  model_ref: "mistral/mistral-small-latest"
   max_tokens: 4096
   temperature: 0.7
+  provider: "mistral"
+  env_key: "MISTRAL_API_KEY"
   llm_skip_openrouter: true
-  hf_inference_model: "HuggingFaceH4/zephyr-7b-beta"
   fallbacks:
     []
   skills:
@@ -192,12 +193,13 @@ senku:
   forge_alias: senku
   role: "Análise e correlação de dados (presente)"
   description: "Senku — Análise e correlação de dados (presente)"
-  model: "smollm2:360m"
-  model_ref: "ollama/smollm2:360m"
+  model: "mistral-small-latest"
+  model_ref: "mistral/mistral-small-latest"
   max_tokens: 4096
   temperature: 0.7
+  provider: "mistral"
+  env_key: "MISTRAL_API_KEY"
   llm_skip_openrouter: true
-  hf_inference_model: "HuggingFaceH4/zephyr-7b-beta"
   fallbacks:
     []
   skills:

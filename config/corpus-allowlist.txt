@@ -1,0 +1,41 @@
+# Docs e skills a sincronizar para openclaw-backup/corpus/
+# Uma linha = path relativo à raiz do repo. Linhas # = comentário.
+# Usar com: node scripts/hf-ingest-corpus.mjs [--dry-run]
+
+POLITICA-SEGURANCA.md
+AGENTS.md
+
+docs/ARQUITETURA-AGENTES.md
+docs/ARQUITETURA-INOVACAO.md
+docs/VARIAVEIS-AMBIENTE.md
+docs/INSTALACAO.md
+docs/CRON-EXEMPLOS.md
+docs/CRON-HEIMDALL-FLOW.md
+docs/TELEGRAM-UX.md
+docs/OPENCLAW-JARVIS-INTEGRACAO.md
+docs/GATEWAY-VERCEL.md
+docs/DATASET-APRENDIZADO-AGENTES.md
+docs/CREAO-REFERENCIA-COMPLETA.md
+
+skills/politica-seguranca/SKILL.md
+skills/macofel-status/SKILL.md
+skills/ecosystem-watch/SKILL.md
+skills/innovation-knowledge/SKILL.md
+skills/innovation-market/SKILL.md
+skills/innovation-analysis/SKILL.md
+skills/innovation-forecast/SKILL.md
+skills/data-schema/SKILL.md
+skills/veldora-seguranca/SKILL.md
+
+agents/orchestrator/AGENTS.md
+agents/heimdall/AGENTS.md
+agents/macofel/AGENTS.md
+agents/sophia/AGENTS.md
+agents/dedalo/AGENTS.md
+agents/dedalo/skills/design_schema.md
+
+# Excluídos de propósito (não listar):
+# - docs/Conversas/*
+# - .env*, Chaves/*
+# - skills/_creao-reference/** (arquivo; ver docs/CREAO-REFERENCIA-COMPLETA.md)
+# - gateway/node_modules/**

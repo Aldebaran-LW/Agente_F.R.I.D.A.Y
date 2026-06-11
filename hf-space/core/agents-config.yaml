@@ -1,0 +1,129 @@
+# Gerado automaticamente — nao editar a mao; use generate-hf-agents-config.mjs
+# 2026-06-10T12:00:04.431Z
+
+defaults:
+  max_tokens: 4096
+  temperature: 0.7
+  provider: openrouter
+  env_key: OPENROUTER_API_KEY
+
+dedalo:
+  id: dedalo
+  name: "Dédalo"
+  forge_alias: dedalo
+  role: "Arquitetura de dados — schemas HF Dataset e hub"
+  description: "Dédalo — Arquitetura de dados — schemas HF Dataset e hub"
+  model: "smollm2:360m"
+  model_ref: "ollama/smollm2:360m"
+  max_tokens: 4096
+  temperature: 0.7
+  fallbacks:
+    []
+  skills:
+    - "politica-seguranca"
+    - "data-schema"
+  tools:
+    - "search_openclaw_docs"
+  hub_tools: []
+
+heimdall:
+  id: heimdall
+  name: "Heimdall"
+  forge_alias: heimdall
+  role: "Observador — GitHub org + deploy + Vercel"
+  description: "Heimdall — Observador — GitHub org + deploy + Vercel"
+  model: "smollm2:360m"
+  model_ref: "ollama/smollm2:360m"
+  max_tokens: 4096
+  temperature: 0.7
+  fallbacks:
+    []
+  skills:
+    - "politica-seguranca"
+    - "github-aldebaran"
+    - "deploy-monitor"
+    - "vercel-status"
+    - "ecosystem-watch"
+  tools:
+    - "status_github"
+    - "status_deploy"
+    - "search_openclaw_docs"
+  hub_tools: []
+
+icaro:
+  id: icaro
+  name: "Ícaro"
+  forge_alias: icaro
+  role: "Testes, regressao e validacao pos-Hefestos"
+  description: "Ícaro — Testes, regressao e validacao pos-Hefestos"
+  model: "smollm2:360m"
+  model_ref: "ollama/smollm2:360m"
+  max_tokens: 4096
+  temperature: 0.7
+  fallbacks:
+    []
+  skills:
+    - "politica-seguranca"
+    - "innovation-test"
+  tools:
+    - "search_openclaw_docs"
+  hub_tools: []
+
+rimuru:
+  id: rimuru
+  name: "Rimuru Tempest"
+  forge_alias: rimuru
+  role: "Analista de Dados / Administrador de Consumo de Tokens"
+  description: "Rimuru Tempest — Analista de Dados / Administrador de Consumo de Tokens"
+  model: "smollm2:360m"
+  model_ref: "ollama/smollm2:360m"
+  max_tokens: 4096
+  temperature: 0.7
+  fallbacks:
+    []
+  skills:
+    - "politica-seguranca"
+    - "innovation-monitor"
+  tools:
+    - "search_openclaw_docs"
+  hub_tools: []
+
+veldora:
+  id: veldora
+  name: "Veldora Tempest"
+  forge_alias: veldora
+  role: "Segurança"
+  description: "Veldora Tempest — Segurança"
+  model: "smollm2:360m"
+  model_ref: "ollama/smollm2:360m"
+  max_tokens: 4096
+  temperature: 0.7
+  fallbacks:
+    []
+  skills:
+    - "politica-seguranca"
+    - "veldora-seguranca"
+    - "security-audit"
+  tools:
+    - "search_openclaw_docs"
+  hub_tools: []
+
+vp-pecas:
+  id: vp-pecas
+  name: "VP-Pecas"
+  forge_alias: vp-pecas
+  role: "Sites usinagem (VP-Pecas, vp-precision-studio)"
+  description: "VP-Pecas — Sites usinagem (VP-Pecas, vp-precision-studio)"
+  model: "smollm2:360m"
+  model_ref: "ollama/smollm2:360m"
+  max_tokens: 4096
+  temperature: 0.7
+  fallbacks:
+    []
+  skills:
+    - "politica-seguranca"
+    - "vp-pecas-health"
+  tools:
+    - "health_site_vp"
+    - "search_openclaw_docs"
+  hub_tools: []

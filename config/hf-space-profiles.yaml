@@ -1,0 +1,53 @@
+# Perfis HF Space — um Space por dominio logico.
+# Regenerar: node scripts/generate-hf-agents-config.mjs --profile <id>
+# Assemblar pasta: node scripts/hf-assemble-space.mjs --profile <id>
+
+core:
+  title: OpenClaw Core
+  emoji: "🧠"
+  repo: Aldebaran-LW/openclaw-core
+  url_env: HF_OPENCLAW_CORE_URL
+  space_profile: core
+  description: "Ops, seguranca, monitor — agente IA OpenClaw (sem Macofel)"
+  agents:
+    - heimdall
+    - vp-pecas
+    - veldora
+    - rimuru
+    - dedalo
+    - icaro
+
+innovation:
+  title: OpenClaw Innovation
+  emoji: "💡"
+  repo: Aldebaran-LW/openclaw-innovation
+  url_env: HF_OPENCLAW_INNOVATION_URL
+  space_profile: innovation
+  description: "Pipeline Sophia → Gideon + Hefestos + Rebeca"
+  agents:
+    - sophia
+    - yato
+    - senku
+    - gideon
+    - hefestos
+    - rebeca
+
+macofel:
+  title: Macofel Agent
+  emoji: "🛒"
+  repo: Aldebaran-LW/macofel-agent
+  url_env: HF_MACOFEL_SPACE_URL
+  space_profile: macofel
+  description: "Catalogo e-commerce — instancia separada do OpenClaw core"
+  agents:
+    - macofel
+
+# Legado unificado (evitar em producao nova)
+unified:
+  title: F.R.I.D.A.Y. Legacy
+  emoji: "🤖"
+  repo: Aldebaran-LW/friday-prod
+  url_env: HF_FRIDAY_PROD_URL
+  space_profile: unified
+  description: "Todos os agentes num Space — usar perfis separados"
+  agents: all

@@ -35,6 +35,7 @@ const secrets = [
 
 const variables = [
   ['HF_BACKUP_DATASET', process.env.HF_BACKUP_DATASET || 'Aldebaran-LW/openclaw-backup'],
+  ['HF_CORPUS_DATASET', process.env.HF_CORPUS_DATASET?.trim() || process.env.HF_BACKUP_DATASET || 'Aldebaran-LW/openclaw-backup'],
   ['HF_LEARNING_AUTO', process.env.HF_LEARNING_AUTO?.trim() || 'true'],
   ['KILO_GATEWAY_BASE_URL', process.env.KILO_GATEWAY_BASE_URL?.trim() || 'https://api.kilo.ai/api/gateway'],
   ['OLLAMA_API_URL', process.env.OLLAMA_API_URL?.trim()],

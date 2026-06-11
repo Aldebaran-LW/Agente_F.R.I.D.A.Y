@@ -1,0 +1,137 @@
+# Gerado automaticamente — nao editar a mao; use generate-hf-agents-config.mjs
+# 2026-06-10T12:00:22.563Z
+
+defaults:
+  max_tokens: 4096
+  temperature: 0.7
+  provider: openrouter
+  env_key: OPENROUTER_API_KEY
+
+gideon:
+  id: gideon
+  name: "Gideon"
+  forge_alias: gideon
+  role: "Predição e cenários futuros (após Senku)"
+  description: "Gideon — Predição e cenários futuros (após Senku)"
+  model: "mistral-small-latest"
+  model_ref: "mistral/mistral-small-latest"
+  max_tokens: 4096
+  temperature: 0.7
+  provider: "mistral"
+  env_key: "MISTRAL_API_KEY"
+  llm_skip_openrouter: true
+  fallbacks:
+    []
+  skills:
+    - "politica-seguranca"
+    - "innovation-forecast"
+  tools:
+    - "search_openclaw_docs"
+  hub_tools: []
+
+hefestos:
+  id: hefestos
+  name: "Hefestos"
+  forge_alias: hefestos
+  role: "Construtor (Em Geral)"
+  description: "Hefestos — Construtor (Em Geral)"
+  model: "kilo-auto/free"
+  model_ref: "kilo-auto/free"
+  max_tokens: 4096
+  temperature: 0.7
+  provider: "kilo"
+  env_key: "KILO_API_KEY"
+  kilo_model: "kilo-auto/free"
+  kilo_fallbacks:
+    - "kilo-auto/free"
+  fallbacks:
+    []
+  skills:
+    - "politica-seguranca"
+    - "innovation-build"
+  tools:
+    - "search_openclaw_docs"
+  hub_tools: []
+
+rebeca:
+  id: rebeca
+  name: "Rebeca"
+  forge_alias: rebeca
+  role: "Designer"
+  description: "Rebeca — Designer"
+  model: "smollm2:360m"
+  model_ref: "ollama/smollm2:360m"
+  max_tokens: 4096
+  temperature: 0.7
+  fallbacks:
+    []
+  skills:
+    - "politica-seguranca"
+    - "innovation-design"
+  tools:
+    - "search_openclaw_docs"
+  hub_tools: []
+
+senku:
+  id: senku
+  name: "Senku"
+  forge_alias: senku
+  role: "Análise e correlação de dados (presente)"
+  description: "Senku — Análise e correlação de dados (presente)"
+  model: "mistral-small-latest"
+  model_ref: "mistral/mistral-small-latest"
+  max_tokens: 4096
+  temperature: 0.7
+  provider: "mistral"
+  env_key: "MISTRAL_API_KEY"
+  llm_skip_openrouter: true
+  fallbacks:
+    []
+  skills:
+    - "politica-seguranca"
+    - "innovation-analysis"
+  tools:
+    - "search_openclaw_docs"
+  hub_tools: []
+
+sophia:
+  id: sophia
+  name: "Sophia"
+  forge_alias: sophia
+  role: "Pesquisa de Conhecimento — ferramentas, tecnologias, tutoriais"
+  description: "Sophia — Pesquisa de Conhecimento — ferramentas, tecnologias, tutoriais"
+  model: "smollm2:360m"
+  model_ref: "ollama/smollm2:360m"
+  max_tokens: 4096
+  temperature: 0.7
+  llm_skip_openrouter: true
+  hf_inference_model: "HuggingFaceH4/zephyr-7b-beta"
+  fallbacks:
+    []
+  skills:
+    - "politica-seguranca"
+    - "innovation-knowledge"
+  tools:
+    - "search_openclaw_docs"
+  hub_tools: []
+
+yato:
+  id: yato
+  name: "Yato"
+  forge_alias: yato
+  role: "Pesquisa de Mercado / Marketing Digital"
+  description: "Yato — Pesquisa de Mercado / Marketing Digital"
+  model: "smollm2:360m"
+  model_ref: "ollama/smollm2:360m"
+  max_tokens: 4096
+  temperature: 0.7
+  llm_skip_openrouter: true
+  hf_inference_model: "HuggingFaceH4/zephyr-7b-beta"
+  fallbacks:
+    []
+  skills:
+    - "politica-seguranca"
+    - "innovation-market"
+  tools:
+    - "search_openclaw_docs"
+  hub_tools: []

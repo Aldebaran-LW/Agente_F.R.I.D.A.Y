@@ -7,14 +7,20 @@ import { writeFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { loadAllAgentConfigs, modelRef } from './lib/parse-agent-yaml.mjs';
+import { profileAgentSet } from './lib/hf-space-profiles.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
-const defaultOut = resolve(root, 'hf-space', 'friday-prod', 'agents-config.yaml');
+
+const profileId = process.argv.find((a) => a.startsWith('--profile='))?.slice(10)
+  || (process.argv.includes('--profile') ? process.argv[process.argv.indexOf('--profile') + 1] : 'unified');
 
 const outArg = process.argv.find((a) => a.startsWith('--out='))?.slice(6)
   || (process.argv.includes('--out') ? process.argv[process.argv.indexOf('--out') + 1] : null);
+const defaultOut = resolve(root, 'hf-space', profileId === 'unified' ? 'friday-prod' : profileId, 'agents-config.yaml');
 const outPath = outArg ? resolve(process.cwd(), outArg) : defaultOut;
+
+const profileFilter = profileAgentSet(profileId);
 
 const FORGE_ALIAS = {
   orchestrator: 'friday',
@@ -53,15 +59,19 @@ const HF_TOOLS = {
   gideon: [],
 };
 
-const agents = loadAllAgentConfigs(resolve(root, 'agents'));
+let agents = loadAllAgentConfigs(resolve(root, 'agents'));
+if (profileFilter) {
+  agents = agents.filter((cfg) => profileFilter.has(cfg.id));
+}
 if (!agents.length) {
-  console.error('Nenhum agents/*/config.yaml encontrado');
+  console.error('Nenhum agents/*/config.yaml para profile', profileId);
   process.exit(1);
 }
 
 const doc = {
   _generated: new Date().toISOString(),
-  _source: 'agents/*/config.yaml — regen: node scripts/generate-hf-agents-config.mjs',
+  _profile: profileId,
+  _source: 'agents/*/config.yaml — regen: node scripts/generate-hf-agents-config.mjs --profile ' + profileId,
   defaults: {
     max_tokens: 4096,
     temperature: 0.7,
@@ -91,7 +101,12 @@ for (const cfg of agents) {
     doc[id].kilo_model = cfg.model || 'kilo-auto/free';
     doc[id].kilo_fallbacks = cfg.fallbacks?.length ? cfg.fallbacks : ['kilo-auto/free'];
   }
-  if (INNOVATION_SKIP_OPENROUTER.has(id)) {
+  if (cfg.provider === 'mistral') {
+    doc[id].provider = 'mistral';
+    doc[id].env_key = 'MISTRAL_API_KEY';
+    doc[id].llm_skip_openrouter = true;
+  }
+  if (INNOVATION_SKIP_OPENROUTER.has(id) && cfg.provider !== 'mistral') {
     doc[id].llm_skip_openrouter = true;
     doc[id].hf_inference_model = 'HuggingFaceH4/zephyr-7b-beta';
   }
@@ -137,10 +152,11 @@ for (const cfg of agents) {
   yaml.push('  skills:');
   for (const s of a.skills) yaml.push(`    - ${JSON.stringify(s)}`);
   yaml.push('  tools:');
-  for (const t of a.tools) yaml.push(`    - ${JSON.stringify(t)}`);
+  const toolList = [...new Set([...(a.tools || []), 'search_openclaw_docs'])];
+  for (const t of toolList) yaml.push(`    - ${JSON.stringify(t)}`);
   yaml.push('  hub_tools: []');
   yaml.push('');
 }
 
 writeFileSync(outPath, yaml.join('\n'), 'utf8');
-console.log('[OK] ' + agents.length + ' agentes -> ' + outPath);
+console.log('[OK] profile=' + profileId + ' | ' + agents.length + ' agentes -> ' + outPath);

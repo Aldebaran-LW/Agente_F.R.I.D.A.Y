@@ -7,7 +7,7 @@ COPY lib ./lib
 COPY tools ./tools
 COPY public ./public
 ENV PORT=7860
-ENV SPACE_PROFILE=unified
+ENV SPACE_PROFILE=core
 ENV KEEPALIVE_MS=240000
 EXPOSE 7860
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "7860"]
