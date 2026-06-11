@@ -2,7 +2,7 @@
 
 > Ideia: comitar **documentação e artefactos curados** num Dataset HF para os agentes aprenderem melhor hoje (RAG/memória) e, no futuro, alimentar modelos **menos dependentes de APIs** de chat.
 
-**Estado:** corpus ingest implementado (`scripts/hf-ingest-corpus.mjs`) · RAG no Space (`GET /corpus/search`, tool `search_openclaw_docs`).
+**Estado:** corpus em produção (`corpus/` no Hub, ~28 ficheiros / 36 chunks) · ingest `scripts/hf-ingest-corpus.mjs` · RAG nos 3 Spaces HF (`GET /corpus/search`, tool `search_openclaw_docs`).
 
 ---
 
@@ -32,9 +32,8 @@ O dataset serve sobretudo ao **(1)** e ao histórico do **(2)**.
 | Aprendizagem episódica | `learnings/{agent}/{date}/*.jsonl` via `scripts/hf-ingest-learning.mjs` |
 | Schema | `agents/dedalo/skills/design_schema.md` |
 | Saídas locais | `data/innovation/`, `data/design/` → candidatas a ingest |
-| Space | `hf-space/friday-prod/lib/dataset_client.py` |
-
-Falta um ramo explícito: **`corpus/`** (documentação estável do OpenClaw).
+| Spaces HF | `openclaw-core`, `openclaw-innovation`, `macofel-agent` (`lib/corpus_client.py`) |
+| Corpus estável | `corpus/` no Dataset (allowlist `config/corpus-allowlist.txt`) |
 
 ---
 
@@ -115,8 +114,63 @@ flowchart LR
 
 **Quando correr:**
 
-- Após merge na `main` do `Agente_OpenClaw` (GitHub Action com `HF_TOKEN` secret).
-- Ou manual: `node scripts/hf-ingest-corpus.mjs` antes de sessão longa de inovação.
+- Após merge na `main` com alterações em docs/skills da allowlist.
+- Manual (recomendado hoje): `node scripts/hf-ingest-corpus.mjs`
+- Dry-run: `node scripts/hf-ingest-corpus.mjs --dry-run`
+- Ficheiro único: `node scripts/hf-ingest-corpus.mjs --file docs/GATEWAY-VERCEL.md`
+
+Variáveis: `HF_TOKEN`, `HF_CORPUS_DATASET` (default `Aldebaran-LW/openclaw-backup`).
+
+---
+
+## HF Jobs (ingest na nuvem) vs local
+
+[HF Jobs](https://huggingface.co/docs/huggingface_hub/en/guides/jobs) corre tarefas batch na infra HF (estilo `docker run`), com cobrança **por segundo** — útil para ingest pesado, fine-tune (Fase B) e cron sem depender do PC.
+
+| Modo | Quando | Comando |
+|------|--------|---------|
+| **Local** | Default; Dataset API com `HF_TOKEN` | `node scripts/hf-ingest-corpus.mjs` |
+| **HF Jobs** | PC offline, batch grande, cron na nuvem | `hf jobs run …` (requer créditos) |
+
+### CLI HF (Windows)
+
+```powershell
+# Instalar (se faltar)
+powershell -ExecutionPolicy ByPass -c "irm https://hf.co/cli/install.ps1 | iex"
+# ou: uv tool install hf
+
+# Login (token do .env — não colar no chat)
+hf auth login --token $env:HF_TOKEN
+hf auth whoami
+```
+
+### Erro 402 em Jobs
+
+Se `hf jobs run` devolver **402 Payment Required**:
+
+> *Pre-paid credit balance is insufficient*
+
+Jobs **não** entram no plano gratuito dos Spaces. Adicionar créditos em [huggingface.co/settings/billing](https://huggingface.co/settings/billing). O ingest via **Dataset API** (script local) continua a funcionar só com `HF_TOKEN`.
+
+### Exemplo: ingest num Job (após billing OK)
+
+```powershell
+hf jobs run --detach --secrets HF_TOKEN `
+  -e HF_CORPUS_DATASET=Aldebaran-LW/openclaw-backup `
+  node:22-bookworm bash -lc `
+  "apt-get update -qq && apt-get install -y -qq git && git clone --depth 1 https://github.com/Aldebaran-LW/Agente_OpenClaw.git /work && cd /work && node scripts/hf-ingest-corpus.mjs"
+```
+
+Acompanhar: `hf jobs ps` · `hf jobs logs <job_id>`.
+
+### Cron (futuro)
+
+```powershell
+# Exemplo: segunda-feira 06:00 UTC
+hf jobs scheduled run "0 6 * * 1" python:3.12 python -c "print('sync placeholder')"
+```
+
+Substituir pelo comando de clone + ingest quando Jobs estiver activo.
 
 ---
 
@@ -131,8 +185,8 @@ flowchart LR
 | Veldora | `openclaw-core/POLITICA*` | Segurança |
 | Dedalo | `manifest.json` + schema | Validar ingest |
 
-**Hoje:** Space e scripts podem passar a ler `corpus/` com `datasets` + filtro por `agent`/`tags`.  
-**Amanhã:** embedding local (sentence-transformers) ou HF Inference Embedding — índice em `corpus/index/` (parquet).
+**Hoje:** Spaces leem `corpus/` via `lib/corpus_client.py` (keyword RAG).  
+**Amanhã:** embeddings (sentence-transformers ou HF Inference) — índice em `corpus/index/` (parquet).
 
 ---
 
@@ -206,21 +260,24 @@ Treino: HF Jobs / LoRA 7B–8B por domínio — **não** substitui política de 
 
 ---
 
-## Próximos passos (quando quiseres implementar)
+## Próximos passos
 
-1. `config/corpus-allowlist.txt` — lista inicial de ~20 docs.
-2. `scripts/hf-ingest-corpus.mjs` — chunk + manifest + commit.
-3. Entrada em `agents/dedalo/skills/design_schema.md` — secção `corpus/`.
-4. Tool no `friday-prod` ou gateway: `GET /corpus/search?q=`.
-5. (Opcional) GitHub Action `sync-corpus-to-hf.yml` on push `docs/**`.
+| Feito | Pendente |
+|-------|----------|
+| `config/corpus-allowlist.txt` | GitHub Action `sync-corpus-to-hf.yml` on push `docs/**` |
+| `scripts/hf-ingest-corpus.mjs` | Créditos HF Jobs para ingest/cron na nuvem |
+| RAG nos Spaces (`search_openclaw_docs`) | Secção `corpus/` em `agents/dedalo/skills/design_schema.md` |
+| | Embeddings / `corpus/index/` |
+| | Fase B: `training/` + LoRA via HF Jobs |
 
-Pedir ao Lucas antes de: Action automática na org, aumento grande do Dataset, ou export de chats Telegram para `training/`.
+Pedir ao Lucas antes de: Action automática na org, créditos HF Jobs em produção, ou export de chats Telegram para `training/`.
 
 ---
 
 ## Referências internas
 
 - `docs/ARQUITETURA-INOVACAO.md` — pipeline inovação + Dataset
+- `docs/HF-DEPLOY-FRIDAY.md` — 3 perfis HF + deploy
 - `docs/INOVACAO-FASE-2.md` — Space + variáveis
 - `agents/dedalo/skills/design_schema.md` — JSONL learnings
 - `scripts/hf-ingest-learning.mjs` — ingest episódico
