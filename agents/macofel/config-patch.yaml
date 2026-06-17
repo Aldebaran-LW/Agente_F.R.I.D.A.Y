@@ -1,0 +1,53 @@
+# ============================================================
+# agents/macofel/config.yaml — PATCH (remover OpenRouter)
+# ============================================================
+# Referência de migração. O config ativo é config.yaml.
+# Space HF Macofel: HF Inference primário + Groq/Mistral fallback.
+# ============================================================
+
+id: macofel
+name: Macofel
+role: Catalogo e-commerce (unico cerebro com Mongo/API Macofel)
+
+llm:
+  provider: huggingface
+  model: Qwen/Qwen2.5-7B-Instruct:fastest
+  fallbacks:
+    - groq/llama-3.3-70b-versatile
+    - mistral/mistral-small-latest
+
+skills:
+  - politica-seguranca
+  - macofel-status
+  - macofel-images-sync
+
+deploy:
+  mode: hf_space
+  hf_space: Aldebaran-LW/macofel-agent
+  gateway: vercel
+  api: macofel-aws
+  note: "Instancia separada do OpenClaw core — nao partilha Space com inovacao"
+
+secrets:
+  local_or_gateway:
+    - OPENCLAW_GATEWAY_BASE_URL
+    - OPENCLAW_AUTOMATION_TOKEN
+    - MONGODB_URI
+    - MACOFEL_API_BASE
+    - MACOFEL_CATALOG_SECRET
+  optional: [HF_TOKEN, GROQ_API_KEY, MISTRAL_API_KEY]
+
+# ── Notas de migração ────────────────────────────────────────
+# Antes (OpenRouter):
+#   provider: openrouter
+#   model: google/gemma-4-26b-a4b-it:free
+#
+# Depois (HF + fallbacks):
+#   provider: huggingface
+#   model: Qwen/Qwen2.5-7B-Instruct:fastest
+#   fallbacks: [groq/llama-3.3-70b-versatile, mistral/mistral-small-latest]
+#
+# Variáveis no Space HF (Macofel):
+#   HF_TOKEN        → já deve estar configurado
+#   GROQ_API_KEY    → adicionar nas env vars do Space
+#   MISTRAL_API_KEY → opcional (fallback)

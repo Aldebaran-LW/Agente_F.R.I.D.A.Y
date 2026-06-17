@@ -4,7 +4,7 @@ import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const REPOS = ['Macofel_2.0', 'VP-Pecas', 'vp-precision-studio'];
+import { GITHUB_REPOS } from '../gateway/lib/portfolio-targets.mjs';
 
 function loadEnv() {
   const p = resolve(__dirname, '..', '.env');
@@ -32,13 +32,19 @@ async function gh(path) {
 }
 
 const out = { ok: true, owner, repos: [], at: new Date().toISOString() };
-for (const name of REPOS) {
-  const repo = await gh(`/repos/${owner}/${name}`);
-  out.repos.push({
-    name,
-    pushed_at: repo.pushed_at,
-    open_issues: repo.open_issues_count,
-    homepage: repo.homepage,
-  });
+for (const name of GITHUB_REPOS) {
+  try {
+    const repo = await gh(`/repos/${owner}/${name}`);
+    out.repos.push({
+      name,
+      pushed_at: repo.pushed_at,
+      open_issues: repo.open_issues_count,
+      homepage: repo.homepage,
+    });
+  } catch (e) {
+    const m = String(e.message || e).match(/->\s*(\d+)/);
+    out.repos.push({ name, error: m?.[1] || 'erro' });
+    out.ok = false;
+  }
 }
 console.log(JSON.stringify(out, null, 2));

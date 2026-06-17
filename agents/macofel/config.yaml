@@ -3,9 +3,11 @@ name: Macofel
 role: Catalogo e-commerce (unico cerebro com Mongo/API Macofel)
 
 llm:
-  provider: openrouter
-  model: google/gemma-4-26b-a4b-it:free
-  fallbacks: []
+  provider: huggingface
+  model: Qwen/Qwen2.5-7B-Instruct:fastest
+  fallbacks:
+    - groq/llama-3.3-70b-versatile
+    - mistral/mistral-small-latest
 
 skills:
   - politica-seguranca
@@ -26,3 +28,4 @@ secrets:
     - MONGODB_URI
     - MACOFEL_API_BASE
     - MACOFEL_CATALOG_SECRET
+  optional: [HF_TOKEN, GROQ_API_KEY, MISTRAL_API_KEY]

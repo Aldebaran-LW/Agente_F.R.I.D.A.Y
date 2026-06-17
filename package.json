@@ -1,0 +1,20 @@
+{
+  "name": "agente-openclaw",
+  "version": "1.0.0",
+  "description": "Rede multi-agente OpenClaw (F.R.I.D.A.Y. / Jarvis)",
+  "private": true,
+  "scripts": {
+    "basico": "cd scripts && npm install --silent && node check-basico.js",
+    "tests": "cd scripts && npm install --silent && node check-basico.js && node validate-agent-config.mjs",
+    "validate": "node scripts/validate-agent-config.mjs",
+    "scaffold": "node scripts/scaffold-agent.mjs",
+    "hf-ingest": "node scripts/hf-ingest-learning.mjs",
+    "sync-config": "node scripts/sync-agent-config-to-openclaw.mjs",
+    "doctor": "npm run basico && npm run validate"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["multi-agent", "jarvis", "friday", "openclaw", "telegram"],
+  "author": "Aldebaran-LW"
+}

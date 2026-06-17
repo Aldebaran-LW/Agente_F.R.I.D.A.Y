@@ -76,11 +76,23 @@ function vpPecasAgent(deploy) {
 }
 
 function heimdallAgent(github, deploy) {
-  const repoErrors = github?.repos?.filter((r) => r.error) ?? [];
+  const repos = github?.repos ?? [];
+  const repoMissing = repos.filter((r) => r.error === '404');
+  const repoErrors = repos.filter((r) => r.error && r.error !== '404');
   if (repoErrors.length > 0) {
     return agent('heimdall', 'Heimdall', 'Observador', 'error', `${repoErrors.length} repo(s) inacessível`, {
       repos: github.repos,
     });
+  }
+  if (repoMissing.length > 0) {
+    return agent(
+      'heimdall',
+      'Heimdall',
+      'Observador',
+      'thinking',
+      `${repoMissing.length} repo(s) nao encontrado(s) no GitHub`,
+      { repos: github.repos }
+    );
   }
   const issues = (github?.repos ?? []).reduce((n, r) => n + (r.open_issues ?? 0), 0);
   const deployBad = (deploy?.sites ?? []).filter((s) => !s.ok).length;

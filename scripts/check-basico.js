@@ -118,10 +118,13 @@ try {
       25000
     );
     const agents = body.agents?.length ?? 0;
+    const officeReachable = agents >= 4 && Array.isArray(body.agents);
+    const portfolioIncident = officeReachable && !body.ok;
     step(
       'GET /openclaw/office/status',
-      res.ok && agents >= 4,
-      `HTTP ${res.status} · ${agents} agentes`
+      officeReachable,
+      `HTTP ${res.status} · ${agents} agentes` +
+        (portfolioIncident ? ' · incidente no portfólio (endpoint OK)' : '')
     );
     if (body.agents?.length) {
       for (const a of body.agents) {
