@@ -23,9 +23,13 @@ if (-not $host_) { $host_ = "18.191.36.145" }
 if (-not $key -or -not (Test-Path $key)) { throw "Chave PEM nao encontrada" }
 
 $prefixes = @("TELEGRAM_", "OPENROUTER_", "OPENCLAW_", "GOOGLE_", "DEEPSEEK_", "HF_", "HUGGINGFACE_", "INFRON_", "KILO_", "GROQ_", "HEARTBEAT_", "EC2_PROFILE")
+$skipKeys = @("OPENCLAW_BRAIN_VAULT", "AWS_EC2_KEY_PATH", "OPENCLAW_EC2_HOST", "OPENCLAW_SSH_KEY")
 $lines = Get-Content $envFile -Encoding UTF8 | Where-Object {
   $line = $_.Trim()
   if (-not $line -or $line.StartsWith("#")) { return $false }
+  $key = $line.Split("=", 2)[0].Trim()
+  if ($skipKeys -contains $key) { return $false }
+  if ($line -match '[\\:][A-Za-z]:\\') { return $false }
   foreach ($p in $prefixes) { if ($line.StartsWith($p)) { return $true } }
   $false
 }
