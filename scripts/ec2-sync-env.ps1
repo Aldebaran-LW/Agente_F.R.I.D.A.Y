@@ -22,16 +22,25 @@ if (-not $key) {
 if (-not $host_) { $host_ = "18.191.36.145" }
 if (-not $key -or -not (Test-Path $key)) { throw "Chave PEM nao encontrada" }
 
-$prefixes = @("TELEGRAM_", "OPENROUTER_", "OPENCLAW_", "GOOGLE_", "DEEPSEEK_", "HF_", "HUGGINGFACE_", "INFRON_", "KILO_", "GROQ_")
+$prefixes = @("TELEGRAM_", "OPENROUTER_", "OPENCLAW_", "GOOGLE_", "DEEPSEEK_", "HF_", "HUGGINGFACE_", "INFRON_", "KILO_", "GROQ_", "HEARTBEAT_", "EC2_PROFILE")
 $lines = Get-Content $envFile -Encoding UTF8 | Where-Object {
   $line = $_.Trim()
   if (-not $line -or $line.StartsWith("#")) { return $false }
   foreach ($p in $prefixes) { if ($line.StartsWith($p)) { return $true } }
   $false
 }
+$extra = @(
+  "OPENCLAW_LLM_PRIMARY=groq",
+  "GROQ_MODEL=llama-3.3-70b-versatile",
+  "OPENCLAW_SKIP_HF_INFERENCE=1",
+  "EC2_PROFILE=minimal",
+  "HEARTBEAT_CHECK_HEIMDALL_FLOW=1",
+  "HEARTBEAT_AGENT_STALE_MIN=60"
+)
 $ec2Env = Join-Path $env:TEMP "openclaw-ec2-sync.env"
 $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-[System.IO.File]::WriteAllText($ec2Env, ($lines -join "`n") + "`n", $utf8NoBom)
+$body = (($lines + $extra) -join "`n") + "`n"
+[System.IO.File]::WriteAllText($ec2Env, $body, $utf8NoBom)
 
 $mergeSh = Join-Path $PSScriptRoot "ec2-merge-env.sh"
 Write-Host "==> Sync env LLM/Telegram para EC2"
