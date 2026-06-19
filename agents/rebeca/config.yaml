@@ -3,9 +3,11 @@ name: Rebeca
 role: Designer
 
 llm:
-  provider: ollama
-  model: smollm2:360m
-  fallbacks: []
+  provider: huggingface
+  model: Qwen/Qwen2.5-7B-Instruct:fastest
+  fallbacks:
+    - groq/llama-3.3-70b-versatile
+  # MIGRADO: ollama/smollm2:360m → HF (Ollama não existe no HF Space)
 
 skills:
   - politica-seguranca

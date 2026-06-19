@@ -3,9 +3,11 @@ name: Rimuru Tempest
 role: Analista de Dados / Administrador de Consumo de Tokens
 
 llm:
-  provider: ollama
-  model: smollm2:360m
-  fallbacks: []
+  provider: huggingface
+  model: Qwen/Qwen2.5-7B-Instruct:fastest
+  fallbacks:
+    - groq/llama-3.3-70b-versatile
+  # MIGRADO: ollama/smollm2:360m → HF (Ollama não existe no HF Space)
 
 skills:
   - politica-seguranca
@@ -13,18 +15,19 @@ skills:
 
 secrets:
   gateway: [OPENCLAW_GATEWAY_BASE_URL, OPENCLAW_AUTOMATION_TOKEN]
-  optional: [OPENROUTER_API_KEY, TELEGRAM_ADMIN_CHAT_ID]
+  optional: [TELEGRAM_ADMIN_CHAT_ID]
+  # REMOVIDO: OPENROUTER_API_KEY (OpenRouter descontinuado no Jarvis/EC2)
 
 providers:
-  - openrouter
   - deepseek
   - groq
   - huggingface
+  # REMOVIDO: openrouter (descontinuado)
 
 pipeline:
   watch:
     - gateway_vercel
     - hf_spaces
     - ec2_forge
-    - openrouter_usage
+    # REMOVIDO: openrouter_usage (OpenRouter descontinuado)
   alert_channel: telegram_via_jarvis
