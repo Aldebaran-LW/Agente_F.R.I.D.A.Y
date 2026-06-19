@@ -2,33 +2,32 @@
 $ErrorActionPreference = "Stop"
 $root = Resolve-Path (Join-Path $PSScriptRoot "..")
 $envFile = Join-Path $root ".env"
-$vars = @{}
-Get-Content $envFile -Encoding UTF8 | ForEach-Object {
-  $t = $_.Trim()
-  if ($t -and -not $t.StartsWith("#") -and $t.Contains("=")) {
-    $i = $t.IndexOf("=")
-    $vars[$t.Substring(0, $i).Trim()] = $t.Substring($i + 1).Trim().Trim('"').Trim("'")
+$host_ = $null
+$user = "ubuntu"
+$sshKey = $null
+
+if (Test-Path $envFile) {
+  Get-Content $envFile | ForEach-Object {
+    if ($_ -match '^\s*AWS_EC2_HOST\s*=\s*(.+)\s*$' -and $_ -notmatch '^\s*#') { $host_ = $Matches[1].Trim().Trim('"') }
+    if ($_ -match '^\s*AWS_EC2_USER\s*=\s*(.+)\s*$' -and $_ -notmatch '^\s*#') { $user = $Matches[1].Trim().Trim('"') }
+    if ($_ -match '^\s*AWS_EC2_KEY_PATH\s*=\s*(.+)\s*$' -and $_ -notmatch '^\s*#') { $sshKey = $Matches[1].Trim().Trim('"') }
   }
 }
-$host_ = $vars.AWS_EC2_HOST
-if (-not $host_) { $host_ = $vars.OPENCLAW_EC2_HOST }
-$user = if ($vars.AWS_EC2_USER) { $vars.AWS_EC2_USER } elseif ($vars.OPENCLAW_EC2_USER) { $vars.OPENCLAW_EC2_USER } else { "ubuntu" }
-$key = $vars.AWS_EC2_KEY_PATH
-if (-not $key) { $key = $vars.OPENCLAW_EC2_KEY_PATH }
-if (-not $key) {
-  $defaultKey = Join-Path $root "Chaves\OpenClaw.pem"
-  if (Test-Path $defaultKey) { $key = $defaultKey }
-}
+
 if (-not $host_) { $host_ = "18.191.36.145" }
-if (-not $key -or -not (Test-Path $key)) { throw "Chave PEM nao encontrada" }
+if (-not $sshKey) {
+  $defaultKey = Join-Path $root "Chaves\OpenClaw.pem"
+  if (Test-Path $defaultKey) { $sshKey = $defaultKey }
+}
+if (-not $sshKey -or -not (Test-Path $sshKey)) { throw "Chave PEM nao encontrada" }
 
 $prefixes = @("TELEGRAM_", "OPENROUTER_", "OPENCLAW_", "GOOGLE_", "DEEPSEEK_", "HF_", "HUGGINGFACE_", "INFRON_", "KILO_", "GROQ_", "HEARTBEAT_", "EC2_PROFILE")
 $skipKeys = @("OPENCLAW_BRAIN_VAULT", "AWS_EC2_KEY_PATH", "OPENCLAW_EC2_HOST", "OPENCLAW_SSH_KEY")
 $lines = Get-Content $envFile -Encoding UTF8 | Where-Object {
   $line = $_.Trim()
   if (-not $line -or $line.StartsWith("#")) { return $false }
-  $key = $line.Split("=", 2)[0].Trim()
-  if ($skipKeys -contains $key) { return $false }
+  $envKey = $line.Split("=", 2)[0].Trim()
+  if ($skipKeys -contains $envKey) { return $false }
   if ($line -match '[\\:][A-Za-z]:\\') { return $false }
   foreach ($p in $prefixes) { if ($line.StartsWith($p)) { return $true } }
   $false
@@ -48,7 +47,7 @@ $body = (($lines + $extra) -join "`n") + "`n"
 
 $mergeSh = Join-Path $PSScriptRoot "ec2-merge-env.sh"
 Write-Host "==> Sync env LLM/Telegram para EC2"
-scp -i $key -o StrictHostKeyChecking=accept-new $ec2Env "${user}@${host_}:/tmp/openclaw-sync.env"
-scp -i $key -o StrictHostKeyChecking=accept-new $mergeSh "${user}@${host_}:/tmp/ec2-merge-env.sh"
-ssh -i $key -o StrictHostKeyChecking=accept-new "${user}@${host_}" "sed -i 's/\r$//' /tmp/ec2-merge-env.sh && chmod +x /tmp/ec2-merge-env.sh && bash /tmp/ec2-merge-env.sh"
+scp -i $sshKey -o StrictHostKeyChecking=accept-new $ec2Env "${user}@${host_}:/tmp/openclaw-sync.env"
+scp -i $sshKey -o StrictHostKeyChecking=accept-new $mergeSh "${user}@${host_}:/tmp/ec2-merge-env.sh"
+ssh -i $sshKey -o StrictHostKeyChecking=accept-new "${user}@${host_}" "sed -i 's/\r$//' /tmp/ec2-merge-env.sh && chmod +x /tmp/ec2-merge-env.sh && bash /tmp/ec2-merge-env.sh && sudo systemctl restart openclaw-gateway && sleep 2 && sudo systemctl is-active openclaw-gateway"
 Remove-Item $ec2Env -Force -ErrorAction SilentlyContinue
