@@ -1,11 +1,11 @@
 # Gerado automaticamente — nao editar a mao; use generate-hf-agents-config.mjs
-# 2026-06-11T10:46:56.408Z
+# 2026-06-19T11:15:54.193Z
 
 defaults:
   max_tokens: 4096
   temperature: 0.7
-  provider: openrouter
-  env_key: OPENROUTER_API_KEY
+  provider: huggingface
+  env_key: HF_TOKEN
 
 macofel:
   id: macofel
@@ -13,12 +13,17 @@ macofel:
   forge_alias: macofel
   role: "Catalogo e-commerce (unico cerebro com Mongo/API Macofel)"
   description: "Macofel — Catalogo e-commerce (unico cerebro com Mongo/API Macofel)"
-  model: "google/gemma-4-26b-a4b-it:free"
-  model_ref: "google/gemma-4-26b-a4b-it:free"
+  model: "Qwen/Qwen2.5-7B-Instruct:fastest"
+  model_ref: "huggingface/Qwen/Qwen2.5-7B-Instruct:fastest"
   max_tokens: 4096
   temperature: 0.7
+  provider: "huggingface"
+  env_key: "HF_TOKEN"
+  llm_skip_openrouter: true
+  hf_inference_model: "Qwen/Qwen2.5-7B-Instruct:fastest"
   fallbacks:
-    []
+    - "groq/llama-3.3-70b-versatile"
+    - "mistral/mistral-small-latest"
   skills:
     - "politica-seguranca"
     - "macofel-status"

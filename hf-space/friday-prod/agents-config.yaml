@@ -1,11 +1,11 @@
 # Gerado automaticamente — nao editar a mao; use generate-hf-agents-config.mjs
-# 2026-06-08T10:55:52.480Z
+# 2026-06-19T11:15:54.365Z
 
 defaults:
   max_tokens: 4096
   temperature: 0.7
-  provider: openrouter
-  env_key: OPENROUTER_API_KEY
+  provider: huggingface
+  env_key: HF_TOKEN
 
 dedalo:
   id: dedalo
@@ -13,16 +13,21 @@ dedalo:
   forge_alias: dedalo
   role: "Arquitetura de dados — schemas HF Dataset e hub"
   description: "Dédalo — Arquitetura de dados — schemas HF Dataset e hub"
-  model: "smollm2:360m"
-  model_ref: "ollama/smollm2:360m"
+  model: "Qwen/Qwen2.5-7B-Instruct:fastest"
+  model_ref: "huggingface/Qwen/Qwen2.5-7B-Instruct:fastest"
   max_tokens: 4096
   temperature: 0.7
+  provider: "huggingface"
+  env_key: "HF_TOKEN"
+  llm_skip_openrouter: true
+  hf_inference_model: "Qwen/Qwen2.5-7B-Instruct:fastest"
   fallbacks:
-    []
+    - "groq/llama-3.3-70b-versatile"
   skills:
     - "politica-seguranca"
     - "data-schema"
   tools:
+    - "search_openclaw_docs"
   hub_tools: []
 
 gideon:
@@ -44,6 +49,7 @@ gideon:
     - "politica-seguranca"
     - "innovation-forecast"
   tools:
+    - "search_openclaw_docs"
   hub_tools: []
 
 hefestos:
@@ -67,6 +73,7 @@ hefestos:
     - "politica-seguranca"
     - "innovation-build"
   tools:
+    - "search_openclaw_docs"
   hub_tools: []
 
 heimdall:
@@ -90,6 +97,7 @@ heimdall:
   tools:
     - "status_github"
     - "status_deploy"
+    - "search_openclaw_docs"
   hub_tools: []
 
 icaro:
@@ -98,16 +106,21 @@ icaro:
   forge_alias: icaro
   role: "Testes, regressao e validacao pos-Hefestos"
   description: "Ícaro — Testes, regressao e validacao pos-Hefestos"
-  model: "smollm2:360m"
-  model_ref: "ollama/smollm2:360m"
+  model: "Qwen/Qwen2.5-7B-Instruct:fastest"
+  model_ref: "huggingface/Qwen/Qwen2.5-7B-Instruct:fastest"
   max_tokens: 4096
   temperature: 0.7
+  provider: "huggingface"
+  env_key: "HF_TOKEN"
+  llm_skip_openrouter: true
+  hf_inference_model: "Qwen/Qwen2.5-7B-Instruct:fastest"
   fallbacks:
-    []
+    - "groq/llama-3.3-70b-versatile"
   skills:
     - "politica-seguranca"
     - "innovation-test"
   tools:
+    - "search_openclaw_docs"
   hub_tools: []
 
 macofel:
@@ -116,12 +129,17 @@ macofel:
   forge_alias: macofel
   role: "Catalogo e-commerce (unico cerebro com Mongo/API Macofel)"
   description: "Macofel — Catalogo e-commerce (unico cerebro com Mongo/API Macofel)"
-  model: "smollm2:360m"
-  model_ref: "ollama/smollm2:360m"
+  model: "Qwen/Qwen2.5-7B-Instruct:fastest"
+  model_ref: "huggingface/Qwen/Qwen2.5-7B-Instruct:fastest"
   max_tokens: 4096
   temperature: 0.7
+  provider: "huggingface"
+  env_key: "HF_TOKEN"
+  llm_skip_openrouter: true
+  hf_inference_model: "Qwen/Qwen2.5-7B-Instruct:fastest"
   fallbacks:
-    []
+    - "groq/llama-3.3-70b-versatile"
+    - "mistral/mistral-small-latest"
   skills:
     - "politica-seguranca"
     - "macofel-status"
@@ -129,6 +147,7 @@ macofel:
   tools:
     - "buscar_peca"
     - "listar_categorias"
+    - "search_openclaw_docs"
   hub_tools: []
 
 orchestrator:
@@ -141,6 +160,10 @@ orchestrator:
   model_ref: "huggingface/Qwen/Qwen2.5-7B-Instruct:fastest"
   max_tokens: 4096
   temperature: 0.7
+  provider: "huggingface"
+  env_key: "HF_TOKEN"
+  llm_skip_openrouter: true
+  hf_inference_model: "Qwen/Qwen2.5-7B-Instruct:fastest"
   fallbacks:
     - "groq/llama-3.3-70b-versatile"
     - "infron/deepseek/deepseek-v3.2"
@@ -149,6 +172,7 @@ orchestrator:
     - "politica-seguranca"
     - "openclaw-jarvis"
   tools:
+    - "search_openclaw_docs"
   hub_tools: []
 
 rebeca:
@@ -157,16 +181,21 @@ rebeca:
   forge_alias: rebeca
   role: "Designer"
   description: "Rebeca — Designer"
-  model: "smollm2:360m"
-  model_ref: "ollama/smollm2:360m"
+  model: "Qwen/Qwen2.5-7B-Instruct:fastest"
+  model_ref: "huggingface/Qwen/Qwen2.5-7B-Instruct:fastest"
   max_tokens: 4096
   temperature: 0.7
+  provider: "huggingface"
+  env_key: "HF_TOKEN"
+  llm_skip_openrouter: true
+  hf_inference_model: "Qwen/Qwen2.5-7B-Instruct:fastest"
   fallbacks:
-    []
+    - "groq/llama-3.3-70b-versatile"
   skills:
     - "politica-seguranca"
     - "innovation-design"
   tools:
+    - "search_openclaw_docs"
   hub_tools: []
 
 rimuru:
@@ -175,16 +204,21 @@ rimuru:
   forge_alias: rimuru
   role: "Analista de Dados / Administrador de Consumo de Tokens"
   description: "Rimuru Tempest — Analista de Dados / Administrador de Consumo de Tokens"
-  model: "smollm2:360m"
-  model_ref: "ollama/smollm2:360m"
+  model: "Qwen/Qwen2.5-7B-Instruct:fastest"
+  model_ref: "huggingface/Qwen/Qwen2.5-7B-Instruct:fastest"
   max_tokens: 4096
   temperature: 0.7
+  provider: "huggingface"
+  env_key: "HF_TOKEN"
+  llm_skip_openrouter: true
+  hf_inference_model: "Qwen/Qwen2.5-7B-Instruct:fastest"
   fallbacks:
-    []
+    - "groq/llama-3.3-70b-versatile"
   skills:
     - "politica-seguranca"
     - "innovation-monitor"
   tools:
+    - "search_openclaw_docs"
   hub_tools: []
 
 senku:
@@ -206,6 +240,7 @@ senku:
     - "politica-seguranca"
     - "innovation-analysis"
   tools:
+    - "search_openclaw_docs"
   hub_tools: []
 
 sophia:
@@ -214,18 +249,21 @@ sophia:
   forge_alias: sophia
   role: "Pesquisa de Conhecimento — ferramentas, tecnologias, tutoriais"
   description: "Sophia — Pesquisa de Conhecimento — ferramentas, tecnologias, tutoriais"
-  model: "smollm2:360m"
-  model_ref: "ollama/smollm2:360m"
+  model: "Qwen/Qwen2.5-7B-Instruct:fastest"
+  model_ref: "huggingface/Qwen/Qwen2.5-7B-Instruct:fastest"
   max_tokens: 4096
   temperature: 0.7
+  provider: "huggingface"
+  env_key: "HF_TOKEN"
   llm_skip_openrouter: true
-  hf_inference_model: "HuggingFaceH4/zephyr-7b-beta"
+  hf_inference_model: "Qwen/Qwen2.5-7B-Instruct:fastest"
   fallbacks:
-    []
+    - "groq/llama-3.3-70b-versatile"
   skills:
     - "politica-seguranca"
     - "innovation-knowledge"
   tools:
+    - "search_openclaw_docs"
   hub_tools: []
 
 veldora:
@@ -234,17 +272,22 @@ veldora:
   forge_alias: veldora
   role: "Segurança"
   description: "Veldora Tempest — Segurança"
-  model: "smollm2:360m"
-  model_ref: "ollama/smollm2:360m"
+  model: "Qwen/Qwen2.5-7B-Instruct:fastest"
+  model_ref: "huggingface/Qwen/Qwen2.5-7B-Instruct:fastest"
   max_tokens: 4096
   temperature: 0.7
+  provider: "huggingface"
+  env_key: "HF_TOKEN"
+  llm_skip_openrouter: true
+  hf_inference_model: "Qwen/Qwen2.5-7B-Instruct:fastest"
   fallbacks:
-    []
+    - "groq/llama-3.3-70b-versatile"
   skills:
     - "politica-seguranca"
     - "veldora-seguranca"
     - "security-audit"
   tools:
+    - "search_openclaw_docs"
   hub_tools: []
 
 vp-pecas:
@@ -253,17 +296,22 @@ vp-pecas:
   forge_alias: vp-pecas
   role: "Sites usinagem (VP-Pecas, vp-precision-studio)"
   description: "VP-Pecas — Sites usinagem (VP-Pecas, vp-precision-studio)"
-  model: "smollm2:360m"
-  model_ref: "ollama/smollm2:360m"
+  model: "Qwen/Qwen2.5-7B-Instruct:fastest"
+  model_ref: "huggingface/Qwen/Qwen2.5-7B-Instruct:fastest"
   max_tokens: 4096
   temperature: 0.7
+  provider: "huggingface"
+  env_key: "HF_TOKEN"
+  llm_skip_openrouter: true
+  hf_inference_model: "Qwen/Qwen2.5-7B-Instruct:fastest"
   fallbacks:
-    []
+    - "groq/llama-3.3-70b-versatile"
   skills:
     - "politica-seguranca"
     - "vp-pecas-health"
   tools:
     - "health_site_vp"
+    - "search_openclaw_docs"
   hub_tools: []
 
 yato:
@@ -272,16 +320,19 @@ yato:
   forge_alias: yato
   role: "Pesquisa de Mercado / Marketing Digital"
   description: "Yato — Pesquisa de Mercado / Marketing Digital"
-  model: "smollm2:360m"
-  model_ref: "ollama/smollm2:360m"
+  model: "Qwen/Qwen2.5-7B-Instruct:fastest"
+  model_ref: "huggingface/Qwen/Qwen2.5-7B-Instruct:fastest"
   max_tokens: 4096
   temperature: 0.7
+  provider: "huggingface"
+  env_key: "HF_TOKEN"
   llm_skip_openrouter: true
-  hf_inference_model: "HuggingFaceH4/zephyr-7b-beta"
+  hf_inference_model: "Qwen/Qwen2.5-7B-Instruct:fastest"
   fallbacks:
-    []
+    - "groq/llama-3.3-70b-versatile"
   skills:
     - "politica-seguranca"
     - "innovation-market"
   tools:
+    - "search_openclaw_docs"
   hub_tools: []

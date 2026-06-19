@@ -1,11 +1,11 @@
 # Gerado automaticamente — nao editar a mao; use generate-hf-agents-config.mjs
-# 2026-06-10T12:00:22.563Z
+# 2026-06-19T11:15:54.008Z
 
 defaults:
   max_tokens: 4096
   temperature: 0.7
-  provider: openrouter
-  env_key: OPENROUTER_API_KEY
+  provider: huggingface
+  env_key: HF_TOKEN
 
 gideon:
   id: gideon
@@ -59,12 +59,16 @@ rebeca:
   forge_alias: rebeca
   role: "Designer"
   description: "Rebeca — Designer"
-  model: "smollm2:360m"
-  model_ref: "ollama/smollm2:360m"
+  model: "Qwen/Qwen2.5-7B-Instruct:fastest"
+  model_ref: "huggingface/Qwen/Qwen2.5-7B-Instruct:fastest"
   max_tokens: 4096
   temperature: 0.7
+  provider: "huggingface"
+  env_key: "HF_TOKEN"
+  llm_skip_openrouter: true
+  hf_inference_model: "Qwen/Qwen2.5-7B-Instruct:fastest"
   fallbacks:
-    []
+    - "groq/llama-3.3-70b-versatile"
   skills:
     - "politica-seguranca"
     - "innovation-design"
@@ -100,14 +104,16 @@ sophia:
   forge_alias: sophia
   role: "Pesquisa de Conhecimento — ferramentas, tecnologias, tutoriais"
   description: "Sophia — Pesquisa de Conhecimento — ferramentas, tecnologias, tutoriais"
-  model: "smollm2:360m"
-  model_ref: "ollama/smollm2:360m"
+  model: "Qwen/Qwen2.5-7B-Instruct:fastest"
+  model_ref: "huggingface/Qwen/Qwen2.5-7B-Instruct:fastest"
   max_tokens: 4096
   temperature: 0.7
+  provider: "huggingface"
+  env_key: "HF_TOKEN"
   llm_skip_openrouter: true
-  hf_inference_model: "HuggingFaceH4/zephyr-7b-beta"
+  hf_inference_model: "Qwen/Qwen2.5-7B-Instruct:fastest"
   fallbacks:
-    []
+    - "groq/llama-3.3-70b-versatile"
   skills:
     - "politica-seguranca"
     - "innovation-knowledge"
@@ -121,14 +127,16 @@ yato:
   forge_alias: yato
   role: "Pesquisa de Mercado / Marketing Digital"
   description: "Yato — Pesquisa de Mercado / Marketing Digital"
-  model: "smollm2:360m"
-  model_ref: "ollama/smollm2:360m"
+  model: "Qwen/Qwen2.5-7B-Instruct:fastest"
+  model_ref: "huggingface/Qwen/Qwen2.5-7B-Instruct:fastest"
   max_tokens: 4096
   temperature: 0.7
+  provider: "huggingface"
+  env_key: "HF_TOKEN"
   llm_skip_openrouter: true
-  hf_inference_model: "HuggingFaceH4/zephyr-7b-beta"
+  hf_inference_model: "Qwen/Qwen2.5-7B-Instruct:fastest"
   fallbacks:
-    []
+    - "groq/llama-3.3-70b-versatile"
   skills:
     - "politica-seguranca"
     - "innovation-market"

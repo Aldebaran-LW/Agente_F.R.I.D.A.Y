@@ -1,11 +1,11 @@
 # Gerado automaticamente — nao editar a mao; use generate-hf-agents-config.mjs
-# 2026-06-10T12:00:04.431Z
+# 2026-06-19T11:15:53.773Z
 
 defaults:
   max_tokens: 4096
   temperature: 0.7
-  provider: openrouter
-  env_key: OPENROUTER_API_KEY
+  provider: huggingface
+  env_key: HF_TOKEN
 
 dedalo:
   id: dedalo
@@ -13,12 +13,16 @@ dedalo:
   forge_alias: dedalo
   role: "Arquitetura de dados — schemas HF Dataset e hub"
   description: "Dédalo — Arquitetura de dados — schemas HF Dataset e hub"
-  model: "smollm2:360m"
-  model_ref: "ollama/smollm2:360m"
+  model: "Qwen/Qwen2.5-7B-Instruct:fastest"
+  model_ref: "huggingface/Qwen/Qwen2.5-7B-Instruct:fastest"
   max_tokens: 4096
   temperature: 0.7
+  provider: "huggingface"
+  env_key: "HF_TOKEN"
+  llm_skip_openrouter: true
+  hf_inference_model: "Qwen/Qwen2.5-7B-Instruct:fastest"
   fallbacks:
-    []
+    - "groq/llama-3.3-70b-versatile"
   skills:
     - "politica-seguranca"
     - "data-schema"
@@ -56,12 +60,16 @@ icaro:
   forge_alias: icaro
   role: "Testes, regressao e validacao pos-Hefestos"
   description: "Ícaro — Testes, regressao e validacao pos-Hefestos"
-  model: "smollm2:360m"
-  model_ref: "ollama/smollm2:360m"
+  model: "Qwen/Qwen2.5-7B-Instruct:fastest"
+  model_ref: "huggingface/Qwen/Qwen2.5-7B-Instruct:fastest"
   max_tokens: 4096
   temperature: 0.7
+  provider: "huggingface"
+  env_key: "HF_TOKEN"
+  llm_skip_openrouter: true
+  hf_inference_model: "Qwen/Qwen2.5-7B-Instruct:fastest"
   fallbacks:
-    []
+    - "groq/llama-3.3-70b-versatile"
   skills:
     - "politica-seguranca"
     - "innovation-test"
@@ -75,12 +83,16 @@ rimuru:
   forge_alias: rimuru
   role: "Analista de Dados / Administrador de Consumo de Tokens"
   description: "Rimuru Tempest — Analista de Dados / Administrador de Consumo de Tokens"
-  model: "smollm2:360m"
-  model_ref: "ollama/smollm2:360m"
+  model: "Qwen/Qwen2.5-7B-Instruct:fastest"
+  model_ref: "huggingface/Qwen/Qwen2.5-7B-Instruct:fastest"
   max_tokens: 4096
   temperature: 0.7
+  provider: "huggingface"
+  env_key: "HF_TOKEN"
+  llm_skip_openrouter: true
+  hf_inference_model: "Qwen/Qwen2.5-7B-Instruct:fastest"
   fallbacks:
-    []
+    - "groq/llama-3.3-70b-versatile"
   skills:
     - "politica-seguranca"
     - "innovation-monitor"
@@ -94,12 +106,16 @@ veldora:
   forge_alias: veldora
   role: "Segurança"
   description: "Veldora Tempest — Segurança"
-  model: "smollm2:360m"
-  model_ref: "ollama/smollm2:360m"
+  model: "Qwen/Qwen2.5-7B-Instruct:fastest"
+  model_ref: "huggingface/Qwen/Qwen2.5-7B-Instruct:fastest"
   max_tokens: 4096
   temperature: 0.7
+  provider: "huggingface"
+  env_key: "HF_TOKEN"
+  llm_skip_openrouter: true
+  hf_inference_model: "Qwen/Qwen2.5-7B-Instruct:fastest"
   fallbacks:
-    []
+    - "groq/llama-3.3-70b-versatile"
   skills:
     - "politica-seguranca"
     - "veldora-seguranca"
@@ -114,12 +130,16 @@ vp-pecas:
   forge_alias: vp-pecas
   role: "Sites usinagem (VP-Pecas, vp-precision-studio)"
   description: "VP-Pecas — Sites usinagem (VP-Pecas, vp-precision-studio)"
-  model: "smollm2:360m"
-  model_ref: "ollama/smollm2:360m"
+  model: "Qwen/Qwen2.5-7B-Instruct:fastest"
+  model_ref: "huggingface/Qwen/Qwen2.5-7B-Instruct:fastest"
   max_tokens: 4096
   temperature: 0.7
+  provider: "huggingface"
+  env_key: "HF_TOKEN"
+  llm_skip_openrouter: true
+  hf_inference_model: "Qwen/Qwen2.5-7B-Instruct:fastest"
   fallbacks:
-    []
+    - "groq/llama-3.3-70b-versatile"
   skills:
     - "politica-seguranca"
     - "vp-pecas-health"

@@ -8,8 +8,8 @@ Referencia para humanos e para futura integracao com `openclaw config`.
 | Campo | Descricao |
 |-------|-----------|
 | `id` | Igual ao id em `openclaw.json.example` |
-| `llm.provider` | `openrouter`, `ollama`, `google`, etc. |
-| `llm.env_key` | Variavel no `.env` (fase 1: uma `OPENROUTER_API_KEY` para todos) |
+| `llm.provider` | `openrouter`, `ollama`, `google`, `mistral`, etc. |
+| `llm.env_key` | Variavel no `.env` (ex.: `MISTRAL_API_KEY` para Senku/Gideon) |
 | `llm.model` | ID OpenRouter free recomendado |
 | `llm.fallbacks` | Modelos reserva |
 | `skills` | Skills OpenClaw permitidas |

@@ -75,8 +75,8 @@ const doc = {
   defaults: {
     max_tokens: 4096,
     temperature: 0.7,
-    provider: 'openrouter',
-    env_key: 'OPENROUTER_API_KEY',
+    provider: 'huggingface',
+    env_key: 'HF_TOKEN',
   },
 };
 
@@ -95,6 +95,13 @@ for (const cfg of agents) {
     tools: HF_TOOLS[id] || [],
     hub_tools: [],
   };
+  if (cfg.provider === 'huggingface') {
+    doc[id].provider = 'huggingface';
+    doc[id].env_key = 'HF_TOKEN';
+    doc[id].llm_skip_openrouter = true;
+    const mid = String(cfg.model || 'Qwen/Qwen2.5-7B-Instruct:fastest').replace(/^huggingface\//, '');
+    doc[id].hf_inference_model = mid;
+  }
   if (cfg.provider === 'kilo') {
     doc[id].provider = 'kilo';
     doc[id].env_key = 'KILO_API_KEY';
@@ -106,7 +113,7 @@ for (const cfg of agents) {
     doc[id].env_key = 'MISTRAL_API_KEY';
     doc[id].llm_skip_openrouter = true;
   }
-  if (INNOVATION_SKIP_OPENROUTER.has(id) && cfg.provider !== 'mistral') {
+  if (INNOVATION_SKIP_OPENROUTER.has(id) && cfg.provider !== 'mistral' && cfg.provider !== 'huggingface') {
     doc[id].llm_skip_openrouter = true;
     doc[id].hf_inference_model = 'HuggingFaceH4/zephyr-7b-beta';
   }
