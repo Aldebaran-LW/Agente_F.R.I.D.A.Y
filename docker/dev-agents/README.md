@@ -11,10 +11,20 @@ Ambiente isolado para agentes de codigo, sem instalar no Windows.
 
 ## Uso
 
+Preferir `.cmd` no Google Drive (evita encoding UTF-16 nos `.ps1`):
+
+```cmd
+scripts\start-dev-agents-docker.cmd
+scripts\claude-docker.cmd --version
+scripts\kilo-docker.cmd --help
+```
+
+Alternativa PowerShell (UTF-8 BOM):
+
 ```powershell
-.\scripts\start-dev-agents-docker.ps1          # shell interactivo
-.\scripts\claude-docker.ps1 --version          # Claude Code
-.\scripts\kilo-docker.ps1 --help               # Kilo Code CLI
+.\scripts\start-dev-agents-docker.ps1
+.\scripts\claude-docker.ps1 --version
+.\scripts\kilo-docker.ps1 --help
 ```
 
 Dentro do container:
