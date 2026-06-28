@@ -1,0 +1,33 @@
+name: openclaw-dev-agents
+
+services:
+  dev-agents:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: openclaw-dev-agents:latest
+    container_name: openclaw-dev-agents
+    stdin_open: true
+    tty: true
+    env_file:
+      - path: ../../.env
+        required: false
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      KILO_API_KEY: ${KILO_API_KEY:-}
+      KILO_GATEWAY_BASE_URL: ${KILO_GATEWAY_BASE_URL:-https://api.kilo.ai/api/gateway}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+    volumes:
+      - type: bind
+        source: ${OPENCLAW_HOST_WORKSPACE:-G:/Meu Drive/Projetos}
+        target: /workspace
+      - claude_config:/root/.claude
+      - kilo_config:/root/.kilocode
+    working_dir: /workspace/OpenClaw
+
+volumes:
+  claude_config:
+    name: openclaw_claude_config
+  kilo_config:
+    name: openclaw_kilo_config

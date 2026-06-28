@@ -3,7 +3,7 @@
   "hooks": {
     "sessionStart": [
       {
-        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"H:\\Meu Drive\\Projetos\\OpenClaw\\scripts\\brain-session-start.ps1\""
+        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"G:\\Meu Drive\\Projetos\\OpenClaw\\scripts\\brain-session-start.ps1\""
       }
     ]
   }

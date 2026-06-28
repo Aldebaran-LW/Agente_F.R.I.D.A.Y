@@ -10,7 +10,7 @@ Este workspace integra com o vault Obsidian **Celebro LW** (não usar comandos `
 ## Início de sessão
 
 1. Ler contexto: `node scripts/brain.mjs standup` (ou `brain/North Star.md` no vault).
-2. Vault: variável `OPENCLAW_BRAIN_VAULT` → default `H:\Meu Drive\Projetos\Celebro LW`.
+2. Vault: variável `OPENCLAW_BRAIN_VAULT` → default `G:\Meu Drive\Projetos\Celebro LW`.
 
 ## Durante o trabalho
 
