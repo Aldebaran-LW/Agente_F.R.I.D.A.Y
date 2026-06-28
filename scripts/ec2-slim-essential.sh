@@ -24,9 +24,8 @@ if [[ -d /home/ubuntu/macofel/.venv-macofel-agent ]]; then
 fi
 find /home/ubuntu -maxdepth 3 -name node_modules -type d -exec rm -rf {} + 2>/dev/null || true
 
-# --- serviços opcionais (não duplicar Telegram) ---
+# --- serviços opcionais ---
 for u in \
-  openclaw-telegram-jarvis-bridge \
   openclaw-clawmetry \
   ollama; do
   if systemctl is-enabled "$u" &>/dev/null; then

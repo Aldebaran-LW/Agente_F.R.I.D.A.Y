@@ -81,16 +81,29 @@ if [[ -z "${OPENCLAW_AUTOMATION_TOKEN:-}" ]]; then
   echo ""
 fi
 
-# --- agentes + SOUL Jarvis PT ---
-if [[ -x scripts/ec2-apply-agent-config.sh ]]; then
-  echo "==> ec2-apply-agent-config"
-  bash scripts/ec2-apply-agent-config.sh
-elif [[ -f scripts/sync-agent-config-to-openclaw.mjs ]]; then
-  node scripts/sync-agent-config-to-openclaw.mjs --apply
+# --- agentes + SOUL Jarvis PT (minimal: não reactivar HF via config.yaml) ---
+if [[ "${EC2_PROFILE:-minimal}" != "minimal" ]]; then
+  if [[ -x scripts/ec2-apply-agent-config.sh ]]; then
+    echo "==> ec2-apply-agent-config"
+    bash scripts/ec2-apply-agent-config.sh
+  elif [[ -f scripts/sync-agent-config-to-openclaw.mjs ]]; then
+    node scripts/sync-agent-config-to-openclaw.mjs --apply
+  fi
+else
+  SOUL_SRC="$OPENCLAW_ROOT/agents/_shared/SOUL-TELEGRAM-JARVIS.md"
+  WORKSPACE_DIR="$(dirname "$OPENCLAW_CONFIG")/workspace"
+  if [[ -f "$SOUL_SRC" ]]; then
+    mkdir -p "$WORKSPACE_DIR"
+    cp "$SOUL_SRC" "$WORKSPACE_DIR/SOUL.md"
+    echo "==> SOUL Jarvis PT (minimal, sem sync-agent-config HF)"
+  fi
 fi
 
 # --- perfil mínimo (default; EC2_PROFILE=full para legado) ---
-if [[ "${EC2_PROFILE:-minimal}" == "minimal" && -f scripts/ec2-slim-essential.sh ]]; then
+if [[ "${EC2_PROFILE:-minimal}" == "minimal" && -f scripts/ec2-apply-local-first.sh ]]; then
+  echo "==> ec2-apply-local-first (EC2_PROFILE=minimal)"
+  bash scripts/ec2-apply-local-first.sh
+elif [[ "${EC2_PROFILE:-minimal}" == "minimal" && -f scripts/ec2-slim-essential.sh ]]; then
   echo "==> ec2-slim-essential (EC2_PROFILE=minimal)"
   bash scripts/ec2-slim-essential.sh
 elif [[ -f scripts/ec2-fix-telegram-models.sh ]]; then

@@ -15,6 +15,7 @@ import {
   ec2BackgroundModel,
   orchestratorComplexFallbacks,
   orchestratorPrimaryModel,
+  skipHfInference,
 } from './lib/hf-inference-config.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -116,6 +117,9 @@ doc.models = doc.models || {};
 doc.models.providers = doc.models.providers || {};
 delete doc.models.providers.openrouter;
 applyProviderContextWindows(doc, runtimeEnv);
+if (skipHfInference(runtimeEnv)) {
+  delete doc.models.providers.huggingface;
+}
 
 doc.agents.defaults.compaction = doc.agents.defaults.compaction || {};
 doc.agents.defaults.compaction.reserveTokensFloor = 20000;
