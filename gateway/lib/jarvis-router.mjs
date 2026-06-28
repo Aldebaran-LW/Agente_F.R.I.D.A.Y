@@ -108,7 +108,7 @@ export const RULES = [
       /cancelar\s+(?:agendamento\s+)?whatsapp/i,
     ],
   },
-  { agent: "jarvis", skill: "help", patterns: [/^(ajuda|help|menu|comandos|agentes)$/i, /ola|jarvis|quem e voce/i] },
+  { agent: "jarvis", skill: "help", patterns: [/^(ajuda|help|menu|comandos|agentes)$/i, /\boi\b|\bol[aá]\b|jarvis|quem e voce/i] },
 ];
 
 export function routeMessage(message = "") {

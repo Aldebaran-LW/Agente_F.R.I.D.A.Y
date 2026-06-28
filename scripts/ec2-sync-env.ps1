@@ -38,8 +38,8 @@ $lines = Get-Content $envFile -Encoding UTF8 | Where-Object {
 }
 $extra = @(
   "OPENCLAW_LLM_PRIMARY=groq",
-  "GROQ_MODEL=llama-3.1-8b-instant",
-  "OPENCLAW_SKIP_HF_INFERENCE=0",
+  "GROQ_MODEL=llama-3.3-70b-versatile",
+  "OPENCLAW_SKIP_HF_INFERENCE=1",
   "EC2_PROFILE=minimal",
   "HEARTBEAT_CHECK_HEIMDALL_FLOW=1",
   "HEARTBEAT_AGENT_STALE_MIN=60"

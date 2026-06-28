@@ -57,9 +57,22 @@ ensure_env() {
   echo "  + .env ${key}"
 }
 
+force_env() {
+  local key="$1" val="$2"
+  if [[ -f .env ]] && grep -q "^${key}=" .env 2>/dev/null; then
+    sed -i "s|^${key}=.*|${key}=${val}|" .env
+  else
+    echo "${key}=${val}" >> .env
+  fi
+  echo "  = .env ${key}"
+}
+
 ensure_env "OPENCLAW_GATEWAY_BASE_URL" "https://openclaw.lwdigitalforge.com"
 ensure_env "HEARTBEAT_CHECK_HEIMDALL_FLOW" "1"
 ensure_env "HEARTBEAT_AGENT_STALE_MIN" "60"
+force_env "OPENCLAW_SKIP_HF_INFERENCE" "1"
+force_env "OPENCLAW_LLM_PRIMARY" "groq"
+force_env "GROQ_MODEL" "llama-3.3-70b-versatile"
 
 if [[ -z "${OPENCLAW_AUTOMATION_TOKEN:-}" ]]; then
   echo ""
