@@ -9,6 +9,7 @@ import { resolve, dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { spawnSync } from 'child_process';
 import { loadAllAgentConfigs } from './lib/parse-agent-yaml.mjs';
+import { callAgentLlm, hasInnovationLlm, agentUsesMistral } from './lib/agent-llm.mjs';
 import { FILE_PREFIXES, findLatestOne } from './lib/innovation-io.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -60,7 +61,7 @@ function runScript(name, extra = []) {
 
 const topic = argValue('--topic') || 'ferramentas IA gratuitas para OpenClaw';
 const dryRun = process.argv.includes('--dry-run');
-const deterministic = process.argv.includes('--deterministic') || dryRun || !process.env.OPENROUTER_API_KEY;
+const deterministic = process.argv.includes('--deterministic') || dryRun || !hasInnovationLlm();
 const stage = normStage(argValue('--stage'));
 const GIDEON_THRESHOLD = Number(
   process.env.GIDEON_THRESHOLD || process.env.SENKU_THRESHOLD || 70,
@@ -199,13 +200,23 @@ async function runRebeca(contextPath) {
 }
 
 async function runSenku() {
-  if (deterministic) {
-    runScript('senku-process.mjs');
-    return findLatestOne(todayDir(), 'senku', '.json');
-  }
-  console.log('[Senku] Use --deterministic ou OPENROUTER stage futuro');
   runScript('senku-process.mjs');
-  return findLatestOne(todayDir(), 'senku', '.json');
+  const jsonPath = findLatestOne(todayDir(), 'senku', '.json');
+  if (deterministic || dryRun || !agentUsesMistral('senku')) {
+    return jsonPath;
+  }
+  const context = jsonPath && existsSync(jsonPath) ? readFileSync(jsonPath, 'utf8').slice(0, 5000) : '';
+  const system = `Tu es Senku — ANALISE e correlacao (presente). Cruza conhecimento (Sophia) e mercado (Yato).
+Portugues. YAML ou texto estruturado: correlacoes[], resumo, solicitacoes_pesquisa[], proximo_passo: gideon.`;
+  const raw = await callAgentLlm('senku', system, context || `Topico: ${topic}`);
+  if (raw && jsonPath) {
+    const body = JSON.parse(readFileSync(jsonPath, 'utf8'));
+    body.raw_llm = raw;
+    body.llm_provider = 'mistral';
+    writeFileSync(jsonPath, JSON.stringify(body, null, 2) + '\n', 'utf8');
+    console.log('[Senku Mistral] enriquecido ->', jsonPath);
+  }
+  return jsonPath;
 }
 
 async function runGideon() {
@@ -220,12 +231,12 @@ async function runGideon() {
   const system = `Tu es Gideon — PREDICAO e cenarios futuros a partir da analise Senku. NAO correlacionas dados (isso e Senku).
 YAML: gideon_id, cenarios[], confianca_score 0-100, recomendacao (hefestos|arquivar|mais_pesquisa), justificativa.`;
   let body;
-  if (dryRun || !process.env.OPENROUTER_API_KEY) {
+  if (dryRun || (!process.env.OPENROUTER_API_KEY && !agentUsesMistral('gideon'))) {
     runScript('gideon-predict.mjs');
     return findLatestOne(todayDir(), 'gideon', '.json');
   }
-  const raw = await callOpenRouter('gideon', system, context);
-  body = { gideon_id: gideonId, raw_llm: raw };
+  const raw = await callAgentLlm('gideon', system, context);
+  body = { gideon_id: gideonId, raw_llm: raw, llm_provider: agentUsesMistral('gideon') ? 'mistral' : 'openrouter' };
   writeYaml(outPath, body);
   console.log('[Gideon LLM] ->', outPath);
   return outPath;

@@ -18,6 +18,7 @@ import { runWhatsAppContacts } from './whatsapp-contacts.mjs';
 import { runWhatsAppSendContact } from './whatsapp-send-contact.mjs';
 import { runUserPreferences } from './user-preferences.mjs';
 import { runProposals } from './proposals.mjs';
+import { runInnovationTest } from './icaro.mjs';
 
 /** Skills sem executor local — delegam via orchestrate (HF / EC2). */
 const ORCHESTRATE_SKILLS = new Set([
@@ -28,7 +29,6 @@ const ORCHESTRATE_SKILLS = new Set([
   'innovation-research',
   'innovation-viability',
   'innovation-build',
-  'innovation-test',
 ]);
 
 function buildExecutors(params = {}) {
@@ -65,6 +65,7 @@ function buildExecutors(params = {}) {
     'user-preferences': () =>
       runUserPreferences({ message: params.message }),
     'proposals-pipeline': () => runProposals({ message: params.message }),
+    'innovation-test': () => runInnovationTest({ message: params.message }),
   };
 }
 

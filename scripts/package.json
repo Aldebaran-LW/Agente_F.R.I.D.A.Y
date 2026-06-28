@@ -9,7 +9,11 @@
     "jarvis": "node jarvis-ask.js",
     "basico": "node check-basico.js",
     "forge": "node forge-ws-server.mjs",
-    "forge-push": "node forge-push.mjs"
+    "forge-push": "node forge-push.mjs",
+    "brain:standup": "node brain.mjs standup",
+    "brain:dump": "node brain.mjs dump",
+    "brain:wrap": "node brain.mjs wrap-up",
+    "brain:weekly": "node brain.mjs weekly"
   },
   "dependencies": {
     "mongodb": "^6.12.0"

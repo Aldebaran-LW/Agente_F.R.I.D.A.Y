@@ -12,6 +12,7 @@ import { fileURLToPath } from 'url';
 import { homedir } from 'os';
 import { loadAllAgentConfigs, modelRef } from './lib/parse-agent-yaml.mjs';
 import { applyProviderContextWindows, orchestratorComplexFallbacks } from './lib/hf-inference-config.mjs';
+import { applyMistralProvider } from './lib/mistral-config.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
@@ -45,7 +46,7 @@ if (!agents.length) {
 function fallbackRefs(cfg) {
   if (cfg.id === 'orchestrator') return orchestratorComplexFallbacks();
   return (cfg.fallbacks || []).map((m) => {
-    if (m.startsWith('ollama/') || m.startsWith('deepseek/') || m.startsWith('google/') || m.startsWith('huggingface/')) return m;
+    if (m.startsWith('ollama/') || m.startsWith('deepseek/') || m.startsWith('google/') || m.startsWith('huggingface/') || m.startsWith('mistral/')) return m;
     if (m.startsWith('openrouter/')) return m.replace(/^openrouter\//, 'ollama/');
     return `ollama/${m}`;
   });
@@ -79,6 +80,10 @@ if (emitSh) {
   if (process.env.HF_TOKEN || process.env.HUGGINGFACE_HUB_TOKEN) {
     console.log('openclaw config set models.providers.huggingface.apiKey "$HF_TOKEN" 2>/dev/null || true');
     console.log('openclaw config set models.providers.huggingface.baseUrl "https://router.huggingface.co/v1" 2>/dev/null || true');
+  }
+  if (process.env.MISTRAL_API_KEY) {
+    console.log('openclaw config set models.providers.mistral.apiKey "$MISTRAL_API_KEY" 2>/dev/null || true');
+    console.log('openclaw config set models.providers.mistral.baseUrl "https://api.mistral.ai/v1" 2>/dev/null || true');
   }
   for (const p of patch) {
     console.log(`openclaw config set agents.list.${p.id}.model.primary "${p.model.primary}" 2>/dev/null || true`);
@@ -125,6 +130,7 @@ if (process.env.GOOGLE_API_KEY) {
   doc.models.providers.google = doc.models.providers.google || {};
   doc.models.providers.google.apiKey = process.env.GOOGLE_API_KEY;
 }
+applyMistralProvider(doc, process.env);
 applyProviderContextWindows(doc);
 
 if (dryRun) {

@@ -6,9 +6,9 @@ Arquitetura: `docs/ARQUITETURA-INOVACAO.md`
 
 ## Escopo
 
-- `node scripts/validate-agent-config.mjs`
-- `scripts/run-tests.ps1` (se existir)
-- `node scripts/check-basico.js` quando aplicável
+- `node scripts/icaro-test-suite.mjs` (validate + rotas Jarvis)
+- `node scripts/icaro-test-suite.mjs --all` (com gateway live; precisa `.env`)
+- `node scripts/validate-agent-config.mjs` (isolado)
 - Relatório pass/fail em `data/innovation/`
 
 ## Gatilho

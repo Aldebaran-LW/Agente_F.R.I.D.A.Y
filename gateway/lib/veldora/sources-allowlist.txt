@@ -1,0 +1,37 @@
+# Fontes confiáveis para pesquisa (Yato / Gideon / inovação)
+# Apenas URLs que começam com estes prefixos são autorizadas (HTTPS).
+# Editar aqui; validação: agents/veldora/validate-sources.mjs
+
+https://huggingface.co/
+https://github.com/
+https://arxiv.org/
+https://scholar.google.com/
+https://openrouter.ai/
+https://platform.deepseek.com/
+https://api-docs.deepseek.com/
+https://openclaw.ai/
+https://docs.openclaw.ai/
+https://vercel.com/docs/
+https://aws.amazon.com/documentation/
+https://docs.aws.amazon.com/
+https://nodejs.org/
+https://developer.mozilla.org/
+https://www.npmjs.com/
+https://pypi.org/
+https://paperswithcode.com/
+https://www.google.com/search?
+https://www.bing.com/search?
+https://duckduckgo.com/
+https://penpot.app/
+https://www.figma.com/
+https://www.gimp.org/
+https://inkscape.org/
+https://www.blender.org/
+https://threejs.org/
+https://docs.pmnd.rs/
+https://www.blackmagicdesign.com/
+https://krita.org/
+https://spline.design/
+https://dribbble.com/
+https://www.behance.net/
+https://www.awwwards.com/

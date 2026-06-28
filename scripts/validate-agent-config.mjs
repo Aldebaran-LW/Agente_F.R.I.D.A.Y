@@ -39,6 +39,7 @@ const SKILLS_REQUIRE_DOC = new Set([
   'security-audit',
   'innovation-monitor',
   'innovation-design',
+  'innovation-test',
   'ecosystem-watch',
 ]);
 
@@ -53,6 +54,7 @@ const GATEWAY_EXECUTORS = new Set([
   'security-audit',
   'innovation-monitor',
   'innovation-design',
+  'innovation-test',
   'ecosystem-watch',
 ]);
 

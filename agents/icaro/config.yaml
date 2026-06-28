@@ -19,5 +19,5 @@ secrets:
 pipeline:
   triggers: [hefestos_complete]
   commands:
-    - node scripts/validate-agent-config.mjs
-    - powershell scripts/run-tests.ps1
+    - node scripts/icaro-test-suite.mjs
+    - node scripts/icaro-test-suite.mjs --all

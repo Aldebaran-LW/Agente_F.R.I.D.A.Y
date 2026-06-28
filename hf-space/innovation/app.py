@@ -87,12 +87,17 @@ def _resolve_tools(names: list[str]) -> list:
     return out
 
 
+HF_OPENROUTER_FALLBACK = "google/gemma-4-26b-a4b-it:free"
+
+
 def _normalize_openrouter_model_id(model_id: str) -> str:
     """OpenRouter API espera id cru (ex. google/gemma-…:free), sem prefixo openrouter/."""
     mid = (model_id or "").strip()
     if mid.startswith("openrouter/"):
         mid = mid[len("openrouter/") :]
-    return mid
+    if mid.startswith("ollama/") or (":" in mid and "/" not in mid):
+        return HF_OPENROUTER_FALLBACK
+    return mid or HF_OPENROUTER_FALLBACK
 
 
 def _agent_code_name(agent_id: str, cfg: dict[str, Any]) -> str:
@@ -250,6 +255,59 @@ def _run_hf_inference_chat(task: str, cfg: dict[str, Any]) -> str:
     raise RuntimeError(f"{model_id}: resposta vazia")
 
 
+def _groq_model_id(cfg: dict[str, Any]) -> str:
+    default = (os.environ.get("GROQ_MODEL") or "llama-3.3-70b-versatile").strip()
+
+    def _normalize(mid: str) -> str | None:
+        s = str(mid).strip()
+        if not s or s.startswith("ollama") or "smollm" in s or s.startswith("kilo-"):
+            return None
+        if s.startswith("groq/"):
+            return s.split("/", 1)[1]
+        if "/" in s and not s.startswith("llama"):
+            return None
+        return s
+
+    for mid in [*(cfg.get("fallbacks") or []), default]:
+        norm = _normalize(mid)
+        if norm:
+            return norm
+    return default
+
+
+def _run_groq_chat(task: str, cfg: dict[str, Any]) -> str:
+    """Chat via Groq API (GROQ_API_KEY) — preferido quando HF 402 ou OpenRouter off."""
+    import httpx
+
+    key = os.environ.get("GROQ_API_KEY", "").strip()
+    if not key:
+        raise ValueError("GROQ_API_KEY em falta")
+
+    model_id = _groq_model_id(cfg)
+    system = cfg.get("description") or cfg.get("role") or "Assistente OpenClaw"
+    r = httpx.post(
+        "https://api.groq.com/openai/v1/chat/completions",
+        headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+        json={
+            "model": model_id,
+            "messages": [
+                {"role": "system", "content": system},
+                {"role": "user", "content": task},
+            ],
+            "max_tokens": min(int(cfg.get("max_tokens") or 2048), 4096),
+            "temperature": float(cfg.get("temperature") or 0.7),
+        },
+        timeout=90.0,
+    )
+    if r.status_code >= 400:
+        raise RuntimeError(f"groq/{model_id}: HTTP {r.status_code} {r.text[:200]}")
+    data = r.json()
+    content = (data.get("choices") or [{}])[0].get("message", {}).get("content")
+    if content:
+        return str(content).strip()
+    raise RuntimeError(f"groq/{model_id}: resposta vazia")
+
+
 def _kilo_base_url() -> str:
     return (os.environ.get("KILO_GATEWAY_BASE_URL") or KILO_GATEWAY_BASE_DEFAULT).rstrip("/")
 
@@ -322,6 +380,7 @@ def _build_smol_agent(agent_id: str, cfg: dict[str, Any]):
     openrouter_key = os.environ.get("OPENROUTER_API_KEY", "").strip()
     hf_token = os.environ.get("HF_TOKEN", "").strip()
     kilo_key = os.environ.get("KILO_API_KEY", "").strip()
+    groq_key = os.environ.get("GROQ_API_KEY", "").strip()
 
     skip_or = bool(cfg.get("llm_skip_openrouter")) or _openrouter_disabled()
     hf_model = (cfg.get("hf_inference_model") or DEFAULT_HF_INFERENCE_MODEL).strip()
@@ -332,6 +391,15 @@ def _build_smol_agent(agent_id: str, cfg: dict[str, Any]):
             model_id=model_id,
             api_base=_kilo_base_url(),
             api_key=kilo_key,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            flatten_messages_as_text=True,
+        )
+    elif groq_key and (skip_or or not openrouter_key):
+        model = OpenAIModel(
+            model_id=_groq_model_id(cfg),
+            api_base="https://api.groq.com/openai/v1",
+            api_key=groq_key,
             max_tokens=max_tokens,
             temperature=temperature,
             flatten_messages_as_text=True,
@@ -495,9 +563,27 @@ class Orquestrador:
 
         if not tool_names:
             hf_token = os.environ.get("HF_TOKEN", "").strip()
+            groq_key = os.environ.get("GROQ_API_KEY", "").strip()
             skip_or = bool(cfg.get("llm_skip_openrouter")) or _openrouter_disabled()
             or_key = os.environ.get("OPENROUTER_API_KEY", "").strip()
             ollama_url = _ollama_api_base()
+
+            def _finish_groq(prior: str) -> dict[str, Any] | None:
+                if not groq_key:
+                    return None
+                try:
+                    result = _run_groq_chat(task, cfg)
+                    out = {
+                        "ok": True,
+                        "mode": "groq-chat",
+                        "agent_id": target,
+                        "result": result,
+                        "fallback_from": prior,
+                    }
+                    _persist_learning(target, task, result, "groq-chat")
+                    return out
+                except Exception:
+                    return None
 
             def _finish_ollama(prior: str) -> dict[str, Any] | None:
                 if not ollama_url:
@@ -516,6 +602,11 @@ class Orquestrador:
                 except Exception:
                     return None
 
+            if skip_or and groq_key:
+                groq_out = _finish_groq("primary")
+                if groq_out:
+                    return groq_out
+
             if skip_or and hf_token:
                 try:
                     result = _run_hf_inference_chat(task, cfg)
@@ -523,6 +614,9 @@ class Orquestrador:
                     _persist_learning(target, task, result, "hf-inference-chat")
                     return out
                 except Exception as e:
+                    groq_out = _finish_groq("hf-inference")
+                    if groq_out:
+                        return groq_out
                     ollama_out = _finish_ollama("hf-inference")
                     if ollama_out:
                         return ollama_out
@@ -549,6 +643,9 @@ class Orquestrador:
                             _persist_learning(target, task, result, "hf-inference-chat")
                             return out
                         except Exception as hf_e:
+                            groq_out = _finish_groq("openrouter+hf")
+                            if groq_out:
+                                return groq_out
                             ollama_out = _finish_ollama("openrouter+hf")
                             if ollama_out:
                                 return ollama_out
@@ -557,6 +654,9 @@ class Orquestrador:
                                 "agent_id": target,
                                 "error": f"openrouter: {err}; hf: {hf_e}",
                             }
+                    groq_out = _finish_groq("openrouter")
+                    if groq_out:
+                        return groq_out
                     ollama_out = _finish_ollama("openrouter")
                     if ollama_out:
                         return ollama_out
@@ -569,10 +669,18 @@ class Orquestrador:
                     _persist_learning(target, task, result, "hf-inference-chat")
                     return out
                 except Exception as e:
+                    groq_out = _finish_groq("hf-inference")
+                    if groq_out:
+                        return groq_out
                     ollama_out = _finish_ollama("hf-inference")
                     if ollama_out:
                         return ollama_out
                     return {"ok": False, "agent_id": target, "error": str(e)}
+
+            if groq_key and not or_key:
+                groq_out = _finish_groq("direct")
+                if groq_out:
+                    return groq_out
 
             if ollama_url:
                 ollama_out = _finish_ollama("direct")

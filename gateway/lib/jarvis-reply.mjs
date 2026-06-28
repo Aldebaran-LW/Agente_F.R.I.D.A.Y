@@ -50,6 +50,9 @@ export function buildReply(route, payload, { approvalBlocked = false } = {}) {
   if (route.skill === 'ecosystem-watch' && payload?.reply) {
     return payload.reply;
   }
+  if (route.skill === 'innovation-test' && payload?.reply) {
+    return payload.reply;
+  }
   if (route.skill === 'schedule-whatsapp' && payload?.reply) {
     return payload.reply;
   }
@@ -90,7 +93,7 @@ export function buildReply(route, payload, { approvalBlocked = false } = {}) {
       'Operacao: /status (Macofel) · /office (agentes) · repos github · sites no ar · resumo portfolio',
       'Quotas LLM: /quotas ou rimuru status',
       'Inovacao: previsao de vendas (Yato→Gideon) · pesquisa mercado · viabilidade · design (Rebeca)',
-      'Suporte: seguranca (Veldora)',
+      'Suporte: seguranca (Veldora) · testar agentes (Ícaro)',
       'WhatsApp: agendar whatsapp: data hora — texto · enviar joao "msg" amanhã 19h · contato adicionar nome +55… tipo',
       'Contactos: contato listar · lista agendamentos whatsapp',
       'Preferencias: preferencia listar · preferencia set quietHours 22:00-09:00',

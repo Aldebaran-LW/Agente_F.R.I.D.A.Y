@@ -1,0 +1,14 @@
+[Unit]
+Description=OpenClaw Telegram Jarvis bridge (inline buttons + POST /jarvis)
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/openclaw
+EnvironmentFile=/opt/openclaw/.env
+ExecStart=/usr/bin/node scripts/telegram-jarvis-bridge.mjs --poll
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

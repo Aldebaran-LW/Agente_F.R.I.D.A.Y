@@ -1,0 +1,28 @@
+---
+description: Segundo cérebro OpenClaw — vault Celebro LW, standup/dump/wrap-up
+alwaysApply: true
+---
+
+# OpenClaw Brain (segundo cérebro)
+
+Este workspace integra com o vault Obsidian **Celebro LW** (não usar comandos `/om-*` do Claude — usar scripts OpenClaw).
+
+## Início de sessão
+
+1. Ler contexto: `node scripts/brain.mjs standup` (ou `brain/North Star.md` no vault).
+2. Vault: variável `OPENCLAW_BRAIN_VAULT` → default `H:\Meu Drive\Projetos\Celebro LW`.
+
+## Durante o trabalho
+
+- Decisões, reuniões, ideias → `node scripts/brain.mjs dump "..."` e notas linkadas em `projects/`, `people/`.
+- Execução técnica no repo `OpenClaw`; memória no vault.
+
+## Fim de sessão
+
+- `node scripts/brain.mjs wrap-up`
+- Notas maduras → promover para `docs/` + `config/corpus-allowlist.txt`.
+
+## Segurança
+
+- Nunca escrever secrets ou `.env` no vault.
+- Ações com impacto: `POLITICA-SEGURANCA.md` + aprovação Telegram.

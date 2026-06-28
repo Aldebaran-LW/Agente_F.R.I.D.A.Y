@@ -54,6 +54,10 @@ export function modelRef(cfg) {
     if (model.startsWith('infron/')) return model;
     return `infron/${model}`;
   }
+  if (provider === 'mistral') {
+    if (model.startsWith('mistral/')) return model;
+    return `mistral/${model}`;
+  }
   if (provider === 'kilo') return model;
   return model;
 }

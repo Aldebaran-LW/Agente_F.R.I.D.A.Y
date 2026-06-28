@@ -24,6 +24,12 @@ find /tmp -type f -atime +2 -delete 2>/dev/null || true
 if id ubuntu &>/dev/null; then
   sudo -u ubuntu npm cache clean --force 2>/dev/null || true
 fi
+rm -rf /root/.npm/_cacache 2>/dev/null || true
+npm cache clean --force 2>/dev/null || true
+
+echo "==> apt lists (re-download no proximo apt update)"
+rm -rf /var/lib/apt/lists/* 2>/dev/null || true
+rm -rf /var/cache/apt/archives/* 2>/dev/null || true
 
 echo "==> logs OpenClaw"
 for d in /opt/openclaw/logs /root/.openclaw/logs; do

@@ -1,4 +1,49 @@
 {
   "version": 1,
-  "proposals": []
+  "proposals": [
+    {
+      "id": "prop_mpyd0hyl_8578",
+      "type": "manutencao",
+      "title": "Manutenção: Agente_OpenClaw",
+      "description": "Issues antigas (?), dependências ou deploy degradado. Revisar e fechar/atualizar.",
+      "effort": "medium",
+      "risk": "low",
+      "proposedAction": "create_github_issue",
+      "context": {
+        "detail": "repo teste",
+        "repo": "Agente_OpenClaw"
+      },
+      "createdAt": "2026-06-03T17:47:56.781Z",
+      "status": "approved",
+      "approvedAt": "2026-06-03T17:47:56.844Z",
+      "githubResult": {
+        "ok": true,
+        "simulated": true,
+        "issueUrl": "https://github.com/Aldebaran-LW/Agente_OpenClaw/issues/0-stub",
+        "number": 0
+      }
+    },
+    {
+      "id": "prop_mpydnafk_301b",
+      "type": "manutencao",
+      "title": "Manutenção: Agente_OpenClaw",
+      "description": "Issues antigas (?), dependências ou deploy degradado. Revisar e fechar/atualizar.",
+      "effort": "medium",
+      "risk": "low",
+      "proposedAction": "create_github_issue",
+      "context": {
+        "detail": "repo teste",
+        "repo": "Agente_OpenClaw"
+      },
+      "createdAt": "2026-06-03T18:05:40.113Z",
+      "status": "approved",
+      "approvedAt": "2026-06-03T18:05:40.179Z",
+      "githubResult": {
+        "ok": true,
+        "simulated": true,
+        "issueUrl": "https://github.com/Aldebaran-LW/Agente_OpenClaw/issues/0-stub",
+        "number": 0
+      }
+    }
+  ]
 }

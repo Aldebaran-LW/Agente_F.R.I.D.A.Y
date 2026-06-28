@@ -10,7 +10,7 @@
   },
   "scripts": {
     "prepare": "node scripts/prepare-vercel.mjs",
-    "vercel-build": "node scripts/prepare-vercel.mjs",
+    "vercel-build": "node scripts/prepare-vercel.mjs && node scripts/validate-vercel-bundle.mjs",
     "test": "node --test lib/planner.test.mjs"
   }
 }

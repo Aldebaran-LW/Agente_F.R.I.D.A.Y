@@ -18,6 +18,7 @@ import { fetchVpPecasHealth } from './vp-pecas.mjs';
 import { runInnovationMonitor } from './rimuru.mjs';
 import { runEcosystemWatch } from './heimdall-flow.mjs';
 import { fetchInnovationStatus } from './innovation-status.mjs';
+import { MCP_READ_TOOLS, callMcpReadTool } from './mcp-tools.mjs';
 
 const HUB_INGEST_TYPES = new Set([
   'workflow_run',
@@ -265,6 +266,42 @@ async function handleVpPecasHealth(req, res) {
   return res.status(data.ok ? 200 : 503).json(data);
 }
 
+async function handleMcpTools(req, res) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ ok: false, error: 'method not allowed' });
+  }
+  if (!requireAuth(req, res)) return;
+  return res.status(200).json({
+    ok: true,
+    mode: 'read-only',
+    tools: MCP_READ_TOOLS,
+    hint: 'POST /openclaw/mcp/call com { name, arguments }',
+  });
+}
+
+async function handleMcpCall(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ ok: false, error: 'method not allowed' });
+  }
+  if (!requireAuth(req, res)) return;
+  const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};
+  const name = body.name;
+  const args = body.arguments ?? {};
+  if (!name || !MCP_READ_TOOLS.some((t) => t.name === name)) {
+    return res.status(400).json({
+      ok: false,
+      error: 'tool invalida',
+      allowed: MCP_READ_TOOLS.map((t) => t.name),
+    });
+  }
+  try {
+    const result = await callMcpReadTool(name, args);
+    return res.status(200).json({ ok: true, name, result });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+}
+
 export const OPENCLAW_ROUTES = {
   'deploy/health': handleDeployHealth,
   'github/status': handleGithubStatus,
@@ -280,6 +317,8 @@ export const OPENCLAW_ROUTES = {
   'innovation/status': handleInnovationStatus,
   'vercel/status': handleVercelStatus,
   'vp-pecas/health': handleVpPecasHealth,
+  'mcp/tools': handleMcpTools,
+  'mcp/call': handleMcpCall,
 };
 
 export async function dispatchOpenclaw(route, req, res) {

@@ -1,0 +1,11 @@
+# Legado duplicado (UTF-16) — nunca deployar
+gateway/
+
+# Artefactos locais
+node_modules/
+.vercel/
+lib/repo-scripts/
+
+# Windows / Drive
+**/desktop.ini
+**/*.tmp

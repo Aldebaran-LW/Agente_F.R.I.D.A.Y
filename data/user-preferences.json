@@ -25,6 +25,24 @@
         "type": "manutencao"
       },
       "at": "2026-06-03T14:29:40.857Z"
+    },
+    {
+      "type": "proposal",
+      "outcome": "accepted",
+      "meta": {
+        "id": "prop_mpyd0hyl_8578",
+        "type": "manutencao"
+      },
+      "at": "2026-06-03T17:47:56.887Z"
+    },
+    {
+      "type": "proposal",
+      "outcome": "accepted",
+      "meta": {
+        "id": "prop_mpydnafk_301b",
+        "type": "manutencao"
+      },
+      "at": "2026-06-03T18:05:40.226Z"
     }
   ]
 }
