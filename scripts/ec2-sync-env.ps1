@@ -15,11 +15,15 @@ if (Test-Path $envFile) {
 }
 
 if (-not $host_) { $host_ = "18.191.36.145" }
+if ($sshKey -and -not (Test-Path $sshKey)) {
+  Write-Host "[AVISO] AWS_EC2_KEY_PATH inexistente: $sshKey" -ForegroundColor Yellow
+  $sshKey = $null
+}
 if (-not $sshKey) {
   $defaultKey = Join-Path $root "Chaves\OpenClaw.pem"
   if (Test-Path $defaultKey) { $sshKey = $defaultKey }
 }
-if (-not $sshKey -or -not (Test-Path $sshKey)) { throw "Chave PEM nao encontrada" }
+if (-not $sshKey -or -not (Test-Path $sshKey)) { throw "Chave PEM nao encontrada (Chaves\OpenClaw.pem)" }
 
 $prefixes = @("TELEGRAM_", "OPENROUTER_", "OPENCLAW_", "GOOGLE_", "DEEPSEEK_", "HF_", "HUGGINGFACE_", "INFRON_", "KILO_", "GROQ_", "HEARTBEAT_", "EC2_PROFILE")
 $skipKeys = @("OPENCLAW_BRAIN_VAULT", "AWS_EC2_KEY_PATH", "OPENCLAW_EC2_HOST", "OPENCLAW_SSH_KEY")

@@ -16,7 +16,15 @@ if (Test-Path $envFile) {
 }
 
 if (-not $host_) { Write-Host "Defina AWS_EC2_HOST no .env" -ForegroundColor Red; exit 1 }
-if (-not $key -or -not (Test-Path $key)) { Write-Host "Defina AWS_EC2_KEY_PATH (.pem) no .env" -ForegroundColor Red; exit 1 }
+if ($key -and -not (Test-Path $key)) {
+  Write-Host "[AVISO] AWS_EC2_KEY_PATH inexistente: $key" -ForegroundColor Yellow
+  $key = $null
+}
+if (-not $key) {
+  $defaultKey = Join-Path $root "Chaves\OpenClaw.pem"
+  if (Test-Path $defaultKey) { $key = $defaultKey }
+}
+if (-not $key -or -not (Test-Path $key)) { Write-Host "Chave PEM nao encontrada (Chaves\OpenClaw.pem)" -ForegroundColor Red; exit 1 }
 
 $script = Join-Path $root "scripts\ec2-sync-now.sh"
 $remote = "/tmp/ec2-sync-now.sh"
