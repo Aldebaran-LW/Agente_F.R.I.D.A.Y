@@ -27,6 +27,7 @@ if (!token) {
 
 const secrets = [
   ['OPENROUTER_API_KEY', process.env.OPENROUTER_API_KEY?.trim()],
+  ['GROQ_API_KEY', process.env.GROQ_API_KEY?.trim()],
   ['KILO_API_KEY', process.env.KILO_API_KEY?.trim()],
   ['HF_TOKEN', token],
   ['OPENCLAW_GATEWAY_BASE_URL', process.env.OPENCLAW_GATEWAY_BASE_URL?.trim()],
@@ -38,9 +39,10 @@ const variables = [
   ['HF_CORPUS_DATASET', process.env.HF_CORPUS_DATASET?.trim() || process.env.HF_BACKUP_DATASET || 'Aldebaran-LW/openclaw-backup'],
   ['HF_LEARNING_AUTO', process.env.HF_LEARNING_AUTO?.trim() || 'true'],
   ['KILO_GATEWAY_BASE_URL', process.env.KILO_GATEWAY_BASE_URL?.trim() || 'https://api.kilo.ai/api/gateway'],
+  ['GROQ_MODEL', process.env.GROQ_MODEL?.trim() || 'llama-3.3-70b-versatile'],
   ['OLLAMA_API_URL', process.env.OLLAMA_API_URL?.trim()],
   ['OLLAMA_MODEL', process.env.OLLAMA_MODEL?.trim() || 'smollm2:360m'],
-  ['FRIDAY_DISABLE_OPENROUTER', process.env.FRIDAY_DISABLE_OPENROUTER?.trim()],
+  ['FRIDAY_DISABLE_OPENROUTER', process.env.FRIDAY_DISABLE_OPENROUTER?.trim() || '1'],
 ];
 
 console.log('Space', SPACE);

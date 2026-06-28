@@ -43,7 +43,15 @@ function copyDir(src, dst) {
 }
 
 if (profileId !== 'unified' && existsSync(dest)) {
-  rmSync(dest, { recursive: true, force: true });
+  try {
+    rmSync(dest, { recursive: true, force: true });
+  } catch (e) {
+    if (e?.code === 'EBUSY') {
+      console.warn('[AVISO] pasta bloqueada (Drive/Docker) — sobrescrever ficheiros in-place:', dest);
+    } else {
+      throw e;
+    }
+  }
 }
 if (profileId !== 'unified') {
   copyDir(template, dest);
