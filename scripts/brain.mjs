@@ -7,6 +7,7 @@
  *   node scripts/brain.mjs dump "reunião com X, decidimos Y"
  *   node scripts/brain.mjs wrap-up
  *   node scripts/brain.mjs weekly
+ *   node scripts/brain.mjs search "rimuru gate"
  */
 import {
   appendToDaily,
@@ -19,6 +20,7 @@ import {
   vaultPaths,
   yesterdayIso,
 } from './lib/brain-vault.mjs';
+import { searchLocalCorpus } from './corpus-search-local.mjs';
 
 const [cmd, ...rest] = process.argv.slice(2);
 const text = rest.join(' ').trim();
@@ -142,8 +144,33 @@ function weekly() {
   console.log('\n---\nRevisar: o que avançou? o que evitaste? prioridade próxima semana?');
 }
 
+function searchCorpus() {
+  if (!text) {
+    console.error('Uso: node scripts/brain.mjs search "termos" [--agent=heimdall via segundo arg]');
+    process.exit(1);
+  }
+  const agentMatch = text.match(/--agent=(\w[\w-]*)/);
+  const agent = agentMatch ? agentMatch[1] : null;
+  const query = text.replace(/--agent=\S+/g, '').trim();
+  const report = searchLocalCorpus(query, { agent, limit: 5 });
+  printHeader(`Corpus local — «${query}»`);
+  if (!report.ok) {
+    console.error(report.error);
+    process.exit(1);
+  }
+  if (!report.hits.length) {
+    console.log('Nenhum hit. Adiciona doc a config/corpus-allowlist.txt');
+    return;
+  }
+  for (const h of report.hits) {
+    console.log(`\n## ${h.path} (score ${h.score}, agent=${h.agent})\n`);
+    console.log(h.text.slice(0, 600));
+  }
+  console.log('\n---\nIngest HF: node scripts/hf-ingest-corpus.mjs --dry-run');
+}
+
 function usage() {
-  console.log(`Uso: node scripts/brain.mjs <standup|dump|wrap-up|weekly> [texto]
+  console.log(`Uso: node scripts/brain.mjs <standup|dump|wrap-up|weekly|search> [texto]
 
 Variável: OPENCLAW_BRAIN_VAULT (default: H:\\Meu Drive\\Projetos\\Celebro LW)`);
 }
@@ -162,6 +189,9 @@ try {
       break;
     case 'weekly':
       weekly();
+      break;
+    case 'search':
+      searchCorpus();
       break;
     default:
       usage();

@@ -74,6 +74,9 @@ Aí entram:
 | `DEEPSEEK_API_KEY` | API direta DeepSeek — ver [DEEPSEEK-API.md](./DEEPSEEK-API.md) |
 | `ANTHROPIC_API_KEY` | Claude (opcional) |
 | `GITHUB_TOKEN` | Repos Aldebaran-LW |
+| `CURSOR_API_KEY` | [Cursor Cloud Agents API](https://cursor.com/docs/cloud-agent/api/endpoints) — `node scripts/cursor-agent.mjs` (EC2) |
+| `CURSOR_DEFAULT_REPO` | Alias default ao criar agente (`macofel`, `openclaw`, …) |
+| `CURSOR_AGENT_APPROVED` | `1` só na sessão EC2 após `sim` no Telegram — gate de escrita Git |
 | `MONGODB_URI` | Agente Macofel (catálogo) |
 | `MACOFEL_CATALOG_SECRET` | API sync imagens Macofel |
 | `HEARTBEAT_ALERT_COOLDOWN_SEC` | Intervalo mínimo entre alertas (default 3600) |
@@ -84,6 +87,10 @@ Aí entram:
 | `TWILIO_WHATSAPP_FROM` | Remetente sandbox/produção (`whatsapp:+…`) |
 | `TWILIO_WHATSAPP_TO` | Teu número (só lembretes para ti) |
 | `SCHEDULED_WHATSAPP_ENABLED` | `1`/`0` — dispatcher no heartbeat (default `1`) |
+| `RIMURU_DAILY_TOKEN_BUDGET` | Cota local diária; gate LLM no gateway (default 500000) |
+| `RIMURU_GATE_DISABLED` | `1` desactiva bloqueio Rimuru (debug) |
+| `HEARTBEAT_TASKS_ENABLED` | `1`/`0` — tarefas autónomas no heartbeat (default `1`) |
+| `OPENCLAW_GATEWAY_BASE_URL` | URL produção para health check autónomo |
 
 Ver `docs/HEARTBEAT.md` para o script `scripts/heartbeat.py`.  
 Lembretes: `skills/scheduled-whatsapp/SKILL.md`.

@@ -238,6 +238,41 @@ def agent_transition_alerts(
     return msgs
 
 
+def check_autonomous_tasks() -> tuple[CheckResult, list[str]]:
+    """Tarefas read-only agendadas (Rimuru, gateway prod, GitHub semanal)."""
+    if not env_bool("HEARTBEAT_TASKS_ENABLED", True):
+        return CheckResult("autonomous_tasks", True, "desativado"), []
+    script = SCRIPT_DIR / "heartbeat-tasks.mjs"
+    if not script.is_file():
+        return CheckResult("autonomous_tasks", False, "heartbeat-tasks.mjs ausente"), []
+    node = shutil.which("node") or "node"
+    try:
+        proc = subprocess.run(
+            [node, str(script), "--json"],
+            cwd=str(WORKSPACE),
+            capture_output=True,
+            text=True,
+            timeout=env_int("HEARTBEAT_TASKS_TIMEOUT_SEC", 120),
+            check=False,
+            env=os.environ.copy(),
+        )
+        raw = (proc.stdout or "").strip()
+        if not raw:
+            return CheckResult(
+                "autonomous_tasks",
+                False,
+                (proc.stderr or "sem stdout")[:200],
+            ), []
+        payload = json.loads(raw)
+        alerts = [str(a) for a in (payload.get("alerts") or [])]
+        detail = f"ok={payload.get('ok')} alertas={len(alerts)}"
+        return CheckResult("autonomous_tasks", bool(payload.get("ok")), detail), alerts
+    except subprocess.TimeoutExpired:
+        return CheckResult("autonomous_tasks", False, "timeout"), []
+    except (json.JSONDecodeError, OSError) as exc:
+        return CheckResult("autonomous_tasks", False, str(exc)[:200]), []
+
+
 def run_checks() -> tuple[list[CheckResult], dict[str, str], list[str]]:
     results: list[CheckResult] = []
     agent_states: dict[str, str] = {}
@@ -253,6 +288,9 @@ def run_checks() -> tuple[list[CheckResult], dict[str, str], list[str]]:
     results.append(check_host_resources())
     flow_check, agent_states, _ = check_heimdall_flow()
     results.append(flow_check)
+    tasks_check, task_alerts = check_autonomous_tasks()
+    results.append(tasks_check)
+    extra_alerts.extend(task_alerts)
     return results, agent_states, extra_alerts
 
 
@@ -374,7 +412,7 @@ def main() -> int:
     load_env(Path(args.env))
     dry_run = env_bool("HEARTBEAT_DRY_RUN", False) or args.dry_run
     cooldown = env_int("HEARTBEAT_ALERT_COOLDOWN_SEC", 3600)
-    results, agent_states, _ = run_checks()
+    results, agent_states, extra_alerts = run_checks()
     state = load_state(Path(args.state))
     prev_agents: dict[str, str] = state.get("agents", {})
     transition_msgs = agent_transition_alerts(prev_agents, agent_states)
@@ -387,10 +425,17 @@ def main() -> int:
         "last_run_at": datetime.now(timezone.utc).isoformat(),
     }
     if alert_fail:
-        if send_telegram(format_message(results, False), dry_run):
+        msg = format_message(results, False)
+        if extra_alerts:
+            msg += "\n\n[Tarefas autónomas]\n" + "\n".join(f"• {a}" for a in extra_alerts[:5])
+        if send_telegram(msg, dry_run):
             new_state["last_alert_at"] = datetime.now(timezone.utc).isoformat()
     elif alert_recover:
         send_telegram(format_message(results, True), dry_run)
+    elif extra_alerts and cooldown_ok_transition(state, cooldown):
+        text = "[OpenClaw tarefas]\n" + "\n".join(extra_alerts[:5])
+        if send_telegram(text, dry_run):
+            new_state["last_task_alert_at"] = datetime.now(timezone.utc).isoformat()
     elif transition_msgs and cooldown_ok_transition(state, cooldown):
         text = "[Heimdall fluxo]\n" + "\n".join(transition_msgs)
         if send_telegram(text, dry_run):

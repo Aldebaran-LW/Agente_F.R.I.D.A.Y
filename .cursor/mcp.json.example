@@ -4,7 +4,7 @@
       "command": "node",
       "args": ["scripts/openclaw-mcp-server.mjs"],
       "env": {
-        "OPENCLAW_GATEWAY_BASE_URL": "https://agente-open-claw.vercel.app",
+        "OPENCLAW_GATEWAY_BASE_URL": "https://openclaw.lwdigitalforge.com",
         "OPENCLAW_AUTOMATION_TOKEN": "COPIAR_DO_ENV"
       }
     }

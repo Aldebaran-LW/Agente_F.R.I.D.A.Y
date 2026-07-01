@@ -5,6 +5,7 @@
 import { cpSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
+import { spawnSync } from 'child_process';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const gatewayDir = resolve(__dirname, '..');
@@ -22,6 +23,8 @@ const FILES = [
   'scheduled-whatsapp-core.mjs',
   'whatsapp-contacts.mjs',
   'preferences-memory.mjs',
+  'cursor-api.mjs',
+  'cursor-agent-core.mjs',
 ];
 
 mkdirSync(dest, { recursive: true });
@@ -112,3 +115,12 @@ for (const [rel, destName] of HF_BUNDLE) {
 }
 
 console.log('[prepare-vercel] lib/repo-scripts + agents/heimdall/watch-agents.json');
+
+const idx = spawnSync('node', [resolve(repoRoot, 'scripts', 'build-corpus-index.mjs')], {
+  cwd: repoRoot,
+  encoding: 'utf8',
+});
+if (idx.status !== 0) {
+  console.error(idx.stderr || idx.stdout);
+  process.exit(idx.status || 1);
+}

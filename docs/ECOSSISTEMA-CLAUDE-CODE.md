@@ -25,6 +25,8 @@ Ver também: [MCP-CURSOR-OPENCLAW.md](./MCP-CURSOR-OPENCLAW.md) · [MATRIZ-AGENT
 | code-review (Command Suite / wshobson) | `openclaw-code-review` | `.cursor/skills/openclaw-code-review/` |
 | testgen pattern | Ícaro executor | `scripts/icaro-test-suite.mjs`, `gateway/lib/icaro.mjs` |
 | MCP tools | Gateway read-only | `gateway/lib/mcp-tools.mjs`, `scripts/openclaw-mcp-server.mjs` |
+| ruflo-cost-tracker | Rimuru gate | `gateway/lib/rimuru-gate.mjs` |
+| wshobson feature-dev | `openclaw-feature-dev` | `.cursor/skills/openclaw-feature-dev/` |
 
 ---
 
@@ -45,10 +47,11 @@ Ver também: [MCP-CURSOR-OPENCLAW.md](./MCP-CURSOR-OPENCLAW.md) · [MATRIZ-AGENT
 
 | Recurso | Skill/comando | Prioridade |
 |---------|---------------|------------|
-| wshobson | `/workflows:feature-dev` | média |
+| wshobson | `/workflows:feature-dev` | ✅ `openclaw-feature-dev` |
 | Command Suite | `/test:generate-test-cases` | média (expandir Ícaro) |
-| ruflo-cost-tracker | quotas Rimuru | baixa |
 | npm audit CI | CVE read-only | baixa |
+
+Plano completo: [ESTRATEGIA-CONSCIENCIA-AUTONOMA.md](./ESTRATEGIA-CONSCIENCIA-AUTONOMA.md)
 
 ---
 

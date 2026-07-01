@@ -83,6 +83,20 @@ export function buildReply(route, payload, { approvalBlocked = false } = {}) {
     }
     return `Sync falhou: ${payload?.error || 'erro desconhecido'}`;
   }
+  if (route.skill === 'cursor-cloud-agent') {
+    if (payload?.blockedBy === 'rimuru' && payload?.reply) return payload.reply;
+    if (payload?.needsApproval && payload?.preview) {
+      return `Cursor Cloud Agent — aprovação necessária.\n\n${payload.preview}\n\nResponda sim, confirmar ou ok.`;
+    }
+    if (payload?.reply) return payload.reply;
+    if (payload?.agentUrl) {
+      return `Cursor: ${payload.agentUrl}`;
+    }
+    if (payload?.error) return `Cursor: ${payload.error}`;
+  }
+  if (payload?.blockedBy === 'rimuru' && payload?.reply) {
+    return payload.reply;
+  }
   if (ORCHESTRATE_REPLY_AGENTS.has(route.agent) && payload) {
     return formatOrchestrateReply(route.agent, payload);
   }
@@ -98,6 +112,7 @@ export function buildReply(route, payload, { approvalBlocked = false } = {}) {
       'Contactos: contato listar · lista agendamentos whatsapp',
       'Preferencias: preferencia listar · preferencia set quietHours 22:00-09:00',
       'Propostas: propostas · gerar proposta manutenção · aprovar proposta <id>',
+      'Cursor: cursor: <tarefa> repo macofel — coding na nuvem (pede sim)',
     ].join('\n');
   }
   return 'Reformule o pedido. Ex.: status macofel, pesquisa mercado, tokens openrouter, resumo portfolio.';
@@ -112,6 +127,9 @@ function formatOrchestrateSection(agentId, payload) {
 }
 
 function formatOrchestrateReply(agentId, payload) {
+  if (payload?.blockedBy === 'rimuru' && payload?.reply) {
+    return payload.reply;
+  }
   if (payload.ok === false) {
     if (payload.blockedBy === 'veldora' || payload.status === 403) {
       return `Veldora bloqueou ${agentId}: ${payload.error || payload.veldora?.reason || 'fonte nao autorizada'}`;

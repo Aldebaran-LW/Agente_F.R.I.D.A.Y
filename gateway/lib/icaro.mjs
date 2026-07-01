@@ -35,6 +35,9 @@ const ORCHESTRATE_ONLY = new Set([
   'innovation-build',
 ]);
 
+/** Skills com executor só na EC2 (scripts longos). */
+const EC2_ONLY = new Set(['cursor-cloud-agent']);
+
 function loadManifest() {
   const p = join(__dir, '../skills/manifest.json');
   const raw = readFileSync(p, 'utf8');
@@ -52,11 +55,12 @@ function validateManifestExecutors(manifestSkills) {
     }
     const hasLocal = GATEWAY_LOCAL_EXECUTORS.has(skill);
     const orchestrates = ORCHESTRATE_ONLY.has(skill);
-    if (hasLocal || orchestrates) {
+    const ec2Only = EC2_ONLY.has(skill);
+    if (hasLocal || orchestrates || ec2Only) {
       checks.push({
         name: `executor:${skill}`,
         ok: true,
-        detail: hasLocal ? 'gateway' : 'orchestrate',
+        detail: hasLocal ? 'gateway' : ec2Only ? 'ec2' : 'orchestrate',
       });
     } else {
       checks.push({

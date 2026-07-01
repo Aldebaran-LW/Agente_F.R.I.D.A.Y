@@ -1,4 +1,4 @@
-import { assertSkillAllowed, skillTimeoutMs } from './skill-registry.mjs';
+import { assertSkillAllowed, skillTimeoutMs, getSkill } from './skill-registry.mjs';
 import { fetchMacofelStatus } from './macofel.mjs';
 import { syncMacofelImages } from './macofel-sync.mjs';
 import { fetchGithubStatus } from './github.mjs';
@@ -19,6 +19,15 @@ import { runWhatsAppSendContact } from './whatsapp-send-contact.mjs';
 import { runUserPreferences } from './user-preferences.mjs';
 import { runProposals } from './proposals.mjs';
 import { runInnovationTest } from './icaro.mjs';
+import {
+  runCursorCloudAgent,
+  tryConfirmCursorPendingOnly,
+} from './cursor-agent.mjs';
+import {
+  checkRimuruGate,
+  formatGateBlockReply,
+  isLlmSkill,
+} from './rimuru-gate.mjs';
 
 /** Skills sem executor local — delegam via orchestrate (HF / EC2). */
 const ORCHESTRATE_SKILLS = new Set([
@@ -66,6 +75,11 @@ function buildExecutors(params = {}) {
       runUserPreferences({ message: params.message }),
     'proposals-pipeline': () => runProposals({ message: params.message }),
     'innovation-test': () => runInnovationTest({ message: params.message }),
+    'cursor-cloud-agent': () =>
+      runCursorCloudAgent({
+        message: params.message ?? '',
+        approved: Boolean(params.approved),
+      }),
   };
 }
 
@@ -124,8 +138,9 @@ export async function executePlan(plan, { message = '', approved = false, params
 
 async function executeSingle(plan, { message, approved, params }) {
   const { route, approvalRequired } = plan;
+  const userApproved = approved || isApprovalMessage(message);
   const blocked =
-    approvalRequired && !approved && !isApprovalMessage(message);
+    approvalRequired && !userApproved && route.skill !== 'cursor-cloud-agent';
 
   const taskRuns = [];
   let data = null;
@@ -147,6 +162,24 @@ async function executeSingle(plan, { message, approved, params }) {
     };
   }
 
+  const pendingCursor = await tryConfirmCursorPendingOnly(message);
+  if (pendingCursor.handled) {
+    taskRuns.push({
+      id: 'single',
+      skill: 'cursor-cloud-agent',
+      status: pendingCursor.ok === false ? 'failed' : 'done',
+      ms: 0,
+      data: pendingCursor,
+    });
+    return {
+      route: { agent: 'heimdall', skill: 'cursor-cloud-agent', intent: 'confirm' },
+      approvalBlocked: false,
+      taskRuns,
+      data: pendingCursor,
+      results: { 'cursor-cloud-agent': pendingCursor },
+    };
+  }
+
   // Ajuda e respostas estaticas — sem executor externo
   if (route.skill === 'help') {
     taskRuns.push({
@@ -164,9 +197,10 @@ async function executeSingle(plan, { message, approved, params }) {
     };
   }
 
-  if (!blocked) {
+  if (!blocked || route.skill === 'cursor-cloud-agent') {
+    const skillMeta = getSkill(route.skill);
     const allowed = assertSkillAllowed(route.skill, {
-      write: route.skill?.includes('sync'),
+      write: skillMeta?.mode === 'write',
     });
     if (!allowed.ok) {
       taskRuns.push({
@@ -178,30 +212,49 @@ async function executeSingle(plan, { message, approved, params }) {
       });
     } else {
       const t0 = Date.now();
-      try {
-        const run = ORCHESTRATE_SKILLS.has(route.skill)
-          ? () => forwardTask(route.agent, message)
-          : () =>
-              executeSkill(route.skill, {
-                ...params,
-                message: params.message ?? message,
-              });
-        data = await runWithTimeout(run(), skillTimeoutMs(route.skill));
+      const rimuruGate = isLlmSkill(route.skill) ? checkRimuruGate(route.skill) : null;
+      if (rimuruGate && !rimuruGate.allowed) {
+        data = {
+          ok: false,
+          blockedBy: 'rimuru',
+          rimuru: rimuruGate,
+          reply: formatGateBlockReply(rimuruGate),
+        };
         taskRuns.push({
           id: 'single',
           skill: route.skill,
-          status: data?.ok === false ? 'failed' : 'done',
-          ms: Date.now() - t0,
+          status: 'blocked',
+          ms: 0,
           data,
+          error: rimuruGate.reason,
         });
-      } catch (err) {
-        taskRuns.push({
-          id: 'single',
-          skill: route.skill,
-          status: 'failed',
-          ms: Date.now() - t0,
-          error: String(err.message || err),
-        });
+      } else {
+        try {
+          const run = ORCHESTRATE_SKILLS.has(route.skill)
+            ? () => forwardTask(route.agent, message, { skill: route.skill })
+            : () =>
+                executeSkill(route.skill, {
+                  ...params,
+                  message: params.message ?? message,
+                  approved: userApproved,
+                });
+          data = await runWithTimeout(run(), skillTimeoutMs(route.skill));
+          taskRuns.push({
+            id: 'single',
+            skill: route.skill,
+            status: data?.ok === false ? 'failed' : 'done',
+            ms: Date.now() - t0,
+            data,
+          });
+        } catch (err) {
+          taskRuns.push({
+            id: 'single',
+            skill: route.skill,
+            status: 'failed',
+            ms: Date.now() - t0,
+            error: String(err.message || err),
+          });
+        }
       }
     }
   } else {
@@ -213,9 +266,14 @@ async function executeSingle(plan, { message, approved, params }) {
     });
   }
 
+  const approvalBlocked =
+    route.skill === 'cursor-cloud-agent'
+      ? Boolean(data?.needsApproval)
+      : blocked;
+
   return {
     route,
-    approvalBlocked: blocked,
+    approvalBlocked,
     taskRuns,
     data,
     results: data ? { [route.skill]: data } : {},
@@ -262,7 +320,7 @@ async function executeWorkflow(plan, { message, approved, params }) {
     const executors = buildExecutors(params);
     const run =
       ORCHESTRATE_SKILLS.has(task.skill)
-        ? () => forwardTask(task.agent, message)
+        ? () => forwardTask(task.agent, message, { skill: task.skill })
         : executors[task.skill];
     if (!run) {
       taskRuns.push({
@@ -276,6 +334,26 @@ async function executeWorkflow(plan, { message, approved, params }) {
     }
 
     const t0 = Date.now();
+    const rimuruGate = isLlmSkill(task.skill) ? checkRimuruGate(task.skill) : null;
+    if (rimuruGate && !rimuruGate.allowed) {
+      const blocked = {
+        ok: false,
+        blockedBy: 'rimuru',
+        rimuru: rimuruGate,
+        reply: formatGateBlockReply(rimuruGate),
+      };
+      results[task.skill] = blocked;
+      taskRuns.push({
+        id: task.id,
+        skill: task.skill,
+        status: 'blocked',
+        ms: 0,
+        data: blocked,
+        error: rimuruGate.reason,
+      });
+      continue;
+    }
+
     try {
       const data = await runWithTimeout(run(), skillTimeoutMs(task.skill));
       results[task.skill] = data;

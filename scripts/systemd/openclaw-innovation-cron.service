@@ -1,0 +1,14 @@
+[Unit]
+Description=OpenClaw pipeline inovação semanal
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/openclaw
+EnvironmentFile=-/opt/openclaw/.env
+ExecStart=/usr/bin/node /opt/openclaw/scripts/innovation-cron.mjs
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

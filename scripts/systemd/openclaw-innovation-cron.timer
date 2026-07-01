@@ -1,0 +1,10 @@
+[Unit]
+Description=OpenClaw cron inovação (segunda 8h)
+
+[Timer]
+OnCalendar=Mon *-*-* 08:00:00
+Persistent=true
+Unit=openclaw-innovation-cron.service
+
+[Install]
+WantedBy=timers.target

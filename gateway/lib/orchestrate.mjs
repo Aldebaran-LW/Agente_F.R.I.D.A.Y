@@ -4,6 +4,8 @@
  */
 
 import { guardOrchestrateForward, logSecurityEvent } from './veldora-guard.mjs';
+import { formatGateBlockReply, checkLlmQuota } from './rimuru-gate.mjs';
+import { enrichTaskWithCorpus } from './corpus-context.mjs';
 
 const VERCEL_TIMEOUT_MS = Number(process.env.ORCHESTRATE_TIMEOUT_MS || 8000);
 const HF_SPACE_TIMEOUT_MS = Number(process.env.ORCHESTRATE_INNOVATION_TIMEOUT_MS || 120000);
@@ -130,7 +132,7 @@ export function resolveRoute(agentId) {
 /**
  * @param {string} agentId
  * @param {string} task
- * @param {{ async?: boolean }} [opts]
+ * @param {{ async?: boolean, skill?: string }} [opts]
  */
 export async function forwardTask(agentId, task, opts = {}) {
   const route = resolveRoute(agentId);
@@ -152,6 +154,19 @@ export async function forwardTask(agentId, task, opts = {}) {
       agent: agentId,
       blockedBy: 'veldora',
       veldora: guard,
+    };
+  }
+
+  const rimuruGate = checkLlmQuota();
+  if (!rimuruGate.allowed) {
+    return {
+      ok: false,
+      status: 429,
+      error: rimuruGate.reason,
+      agent: agentId,
+      blockedBy: 'rimuru',
+      rimuru: rimuruGate,
+      reply: formatGateBlockReply(rimuruGate),
     };
   }
 
@@ -181,11 +196,15 @@ export async function forwardTask(agentId, task, opts = {}) {
     headers.Authorization = `Bearer ${internalToken}`;
   }
 
+  const corpus = enrichTaskWithCorpus(task, { agent: agentId, skill: opts.skill });
+  const taskPayload = corpus.task;
+
   const body = JSON.stringify({
     agent: route.agent,
-    task: String(task).slice(0, 8000),
+    task: taskPayload,
     source: 'gateway-orchestrate',
     async: Boolean(opts.async),
+    corpus_context: corpus.enriched || undefined,
     context: opts.context && typeof opts.context === 'object' ? opts.context : undefined,
   });
 
@@ -211,6 +230,7 @@ export async function forwardTask(agentId, task, opts = {}) {
       ok: res.ok,
       status: res.status,
       route,
+      corpus_context: corpus.enriched || false,
       data,
     };
   } catch (e) {
