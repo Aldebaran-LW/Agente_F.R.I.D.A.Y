@@ -6,6 +6,10 @@ import { resolve, dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { randomBytes } from 'crypto';
 import { sendTelegramHtml, getTelegramConfig, loadEnv } from './telegram-jarvis-client.mjs';
+import {
+  enrichInnovationProposal,
+  isPendingStatus,
+} from '../../gateway/lib/proposal-hitl.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..', '..');
@@ -39,7 +43,7 @@ export function proposalFromGideon(gideon) {
   const topico = gideon.topico || 'openclaw';
   const score = gideon.confianca_score ?? gideon.viabilidade_score ?? 0;
   const sinais = (gideon.sinais || []).slice(0, 3).join('; ') || 'sem sinais';
-  return {
+  const base = {
     id,
     type: 'innovation',
     title: `Gideon ${score}% — ${topico}`,
@@ -62,8 +66,8 @@ export function proposalFromGideon(gideon) {
       saved_json: gideon.saved_json,
     },
     createdAt: new Date().toISOString(),
-    status: 'pending',
   };
+  return enrichInnovationProposal(base);
 }
 
 export function registerGideonProposal(gideon) {
@@ -73,7 +77,7 @@ export function registerGideonProposal(gideon) {
     (p) =>
       p.context?.gideon_id &&
       p.context.gideon_id === gideon.gideon_id &&
-      p.status === 'pending',
+      isPendingStatus(p.status),
   );
   if (dup) return { ok: true, proposal: dup, duplicate: true };
   pending.push(proposal);

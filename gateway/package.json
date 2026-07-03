@@ -12,6 +12,6 @@
     "prepare": "node scripts/prepare-vercel.mjs",
     "vercel-build": "node scripts/prepare-vercel.mjs && node scripts/validate-vercel-bundle.mjs",
     "build-corpus-index": "node ../scripts/build-corpus-index.mjs",
-    "test": "node --test lib/planner.test.mjs lib/rimuru-gate.test.mjs lib/corpus-context.test.mjs"
+    "test": "node --test lib/planner.test.mjs lib/rimuru-gate.test.mjs lib/corpus-context.test.mjs lib/workflow-waves.test.mjs lib/proposal-hitl.test.mjs"
   }
 }

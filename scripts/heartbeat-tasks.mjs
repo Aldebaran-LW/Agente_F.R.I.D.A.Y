@@ -111,6 +111,24 @@ async function checkGithubWeekly() {
   }
 }
 
+async function checkCorpusStale() {
+  const { checkCorpusStaleness } = await import('./lib/corpus-staleness-core.mjs');
+  const r = checkCorpusStaleness(root);
+  const alerts = r.ok
+    ? []
+    : [
+        `Corpus desatualizado: ${r.stale.length} ficheiro(s). Correr: node scripts/build-corpus-index.mjs`,
+      ];
+  return {
+    name: 'corpus_stale',
+    ok: r.ok,
+    detail: r.summary,
+    stale_count: r.stale?.length ?? 0,
+    built_at: r.built_at,
+    alerts,
+  };
+}
+
 async function main() {
   loadEnv();
   const jsonOut = process.argv.includes('--json');
@@ -119,6 +137,7 @@ async function main() {
   if (envBool('HEARTBEAT_TASK_RIMURU', true)) tasks.push(checkRimuruQuota);
   if (envBool('HEARTBEAT_TASK_GATEWAY_PROD', true)) tasks.push(checkDeployRemote);
   if (envBool('HEARTBEAT_TASK_GITHUB_WEEKLY', true)) tasks.push(checkGithubWeekly);
+  if (envBool('HEARTBEAT_TASK_CORPUS_STALE', true)) tasks.push(checkCorpusStale);
 
   const results = [];
   const alerts = [];

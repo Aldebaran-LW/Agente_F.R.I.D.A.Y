@@ -1,0 +1,27 @@
+{
+  "id": "innovation-pipeline",
+  "version": "1.0.0",
+  "description": "Pipeline semanal Sophia→Yato→Senku→Gideon; HITL Telegram antes de Hefestos",
+  "triggers": {
+    "patterns": []
+  },
+  "requiresApproval": true,
+  "hitl": {
+    "interrupt_after": "gideon",
+    "resume_skill": "innovation-build",
+    "resume_agent": "hefestos"
+  },
+  "tasks": [
+    { "id": "sophia", "skill": "innovation-knowledge", "agent": "sophia", "deps": [] },
+    { "id": "yato", "skill": "innovation-market", "agent": "yato", "deps": ["sophia"] },
+    { "id": "senku", "skill": "innovation-analysis", "agent": "senku", "deps": ["yato"] },
+    { "id": "gideon", "skill": "innovation-forecast", "agent": "gideon", "deps": ["senku"] },
+    {
+      "id": "hefestos",
+      "skill": "innovation-build",
+      "agent": "hefestos",
+      "deps": ["gideon"],
+      "requiresApproval": true
+    }
+  ]
+}

@@ -6,6 +6,12 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { executeProposedAction } from './github-executor.mjs';
 import { recordOutcome } from './preferences-memory.mjs';
+import {
+  isPendingStatus,
+  enqueueHitlResume,
+  formatResumeReply,
+  enrichInnovationProposal,
+} from '../proposal-hitl.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
@@ -47,14 +53,18 @@ export function saveProposal(proposal) {
   if (store.proposals.some((p) => p.id === proposal.id)) {
     return { ok: false, error: 'Proposta já existe' };
   }
-  store.proposals.push({ ...proposal, status: 'pending' });
+  const enriched =
+    proposal.type === 'innovation' && !proposal.hitl
+      ? enrichInnovationProposal(proposal)
+      : { ...proposal, status: proposal.status || 'pending' };
+  store.proposals.push(enriched);
   saveStore(path, 'proposals', store.proposals);
-  return { ok: true, proposal };
+  return { ok: true, proposal: enriched };
 }
 
 export function listPending() {
   const store = loadStore(filePending(), 'proposals');
-  return store.proposals.filter((p) => p.status === 'pending');
+  return store.proposals.filter((p) => isPendingStatus(p.status));
 }
 
 export function getProposal(id) {
@@ -71,6 +81,16 @@ export async function approveProposal(id) {
   const proposal = store.proposals.splice(idx, 1)[0];
   proposal.status = 'approved';
   proposal.approvedAt = new Date().toISOString();
+  if (proposal.hitl) {
+    proposal.hitl = {
+      ...proposal.hitl,
+      resumed: true,
+      resumed_at: proposal.approvedAt,
+    };
+  }
+
+  const resume = enqueueHitlResume(proposal, { dataRoot: proposalsDataRoot() });
+  proposal.hitlResume = resume;
 
   const gh = await executeProposedAction(proposal);
   proposal.githubResult = gh;
@@ -143,7 +163,7 @@ export async function handleProposalCommand(message) {
     }
     const lines = items.map(
       (p) =>
-        `• <b>${p.id}</b> [${p.type}] ${p.title}\n  ${p.effort}/${p.risk} — ${p.description.slice(0, 80)}…`
+        `• <b>${p.id}</b> [${p.status || 'pending'}] [${p.type}] ${p.title}\n  ${p.effort}/${p.risk} — ${p.description.slice(0, 80)}…`
     );
     return {
       ok: true,
@@ -177,9 +197,10 @@ export async function handleProposalCommand(message) {
     const r = await approveProposal(parsed.id);
     if (!r.ok) return { ok: false, reply: r.error };
     const sim = r.github?.simulated ? ' (GitHub simulado — console)' : '';
+    const resumeHint = formatResumeReply(r.proposal, r.proposal.hitlResume);
     return {
       ok: true,
-      reply: `Aprovada ${r.proposal.id}${sim}. ${r.github?.issueUrl || ''}`,
+      reply: `Aprovada ${r.proposal.id}${sim}. ${r.github?.issueUrl || ''}${resumeHint}`,
       proposal: r.proposal,
     };
   }
