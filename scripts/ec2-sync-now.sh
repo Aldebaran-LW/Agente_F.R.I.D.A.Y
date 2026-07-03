@@ -34,10 +34,20 @@ fi
 # --- git ---
 if [[ -d .git ]]; then
   git fetch origin main 2>/dev/null || git fetch origin 2>/dev/null || true
-  git pull --ff-only origin main 2>/dev/null || git pull --ff-only 2>/dev/null || {
-    echo "AVISO: git pull falhou — continua com codigo local"
-  }
+  if ! git pull --ff-only origin main 2>/dev/null && ! git pull --ff-only 2>/dev/null; then
+    echo "AVISO: git pull como ubuntu falhou — tentar sudo reset"
+    sudo git fetch origin main 2>/dev/null || sudo git fetch origin 2>/dev/null || true
+    sudo git reset --hard origin/main 2>/dev/null || true
+    sudo chown -R "$(whoami):$(whoami)" .git .cursor 2>/dev/null || true
+  fi
   echo "HEAD: $(git rev-parse --short HEAD 2>/dev/null || echo '?') $(git log -1 --oneline 2>/dev/null || true)"
+fi
+
+# --- CRLF em scripts .sh (Google Drive / Windows) ---
+if command -v sed >/dev/null; then
+  find scripts -maxdepth 2 -name '*.sh' -type f 2>/dev/null | while read -r f; do
+    sed -i 's/\r$//' "$f" 2>/dev/null || true
+  done
 fi
 
 # --- .env minimo ---
@@ -70,6 +80,12 @@ force_env() {
 ensure_env "OPENCLAW_GATEWAY_BASE_URL" "https://openclaw.lwdigitalforge.com"
 ensure_env "HEARTBEAT_CHECK_HEIMDALL_FLOW" "1"
 ensure_env "HEARTBEAT_AGENT_STALE_MIN" "60"
+ensure_env "HEARTBEAT_TASKS_ENABLED" "1"
+ensure_env "HEARTBEAT_TASK_RIMURU" "1"
+ensure_env "HEARTBEAT_TASK_GATEWAY_PROD" "1"
+ensure_env "HEARTBEAT_TASK_GITHUB_WEEKLY" "1"
+ensure_env "INNOVATION_CRON_NOTIFY" "1"
+ensure_env "GIDEON_THRESHOLD" "70"
 force_env "OPENCLAW_SKIP_HF_INFERENCE" "1"
 force_env "OPENCLAW_LLM_PRIMARY" "groq"
 force_env "GROQ_MODEL" "llama-3.3-70b-versatile"
@@ -125,8 +141,23 @@ if [[ -f scripts/systemd/openclaw-heartbeat.service ]]; then
     sudo systemctl enable --now openclaw-heartbeat.timer 2>/dev/null || true
 fi
 
+# --- innovation cron timer (segunda 8h, Fase C) ---
+if [[ -f scripts/systemd/openclaw-innovation-cron.service ]]; then
+  cp -f scripts/systemd/openclaw-innovation-cron.service /etc/systemd/system/ 2>/dev/null || \
+    sudo cp -f scripts/systemd/openclaw-innovation-cron.service /etc/systemd/system/
+  cp -f scripts/systemd/openclaw-innovation-cron.timer /etc/systemd/system/ 2>/dev/null || \
+    sudo cp -f scripts/systemd/openclaw-innovation-cron.timer /etc/systemd/system/
+  systemctl daemon-reload 2>/dev/null || sudo systemctl daemon-reload
+  systemctl enable --now openclaw-innovation-cron.timer 2>/dev/null || \
+    sudo systemctl enable --now openclaw-innovation-cron.timer 2>/dev/null || true
+fi
+
 # --- testes locais ---
 echo "==> Testes"
+if command -v node >/dev/null && [[ -f scripts/heartbeat-tasks.mjs ]]; then
+  node scripts/heartbeat-tasks.mjs --json 2>/dev/null | head -c 350 || echo "  heartbeat-tasks: skip"
+  echo ""
+fi
 if command -v node >/dev/null && [[ -f scripts/heimdall-flow-monitor.mjs ]]; then
   node scripts/heimdall-flow-monitor.mjs --json 2>/dev/null | head -c 400 || echo "  heimdall-flow: skip"
   echo ""
@@ -146,7 +177,7 @@ fi
 
 echo ""
 echo "==> Servicos"
-for u in openclaw-gateway openclaw-heartbeat.timer; do
+for u in openclaw-gateway openclaw-heartbeat.timer openclaw-innovation-cron.timer; do
   systemctl is-active "$u" 2>/dev/null && echo "  $u: active" || echo "  $u: (nao activo)"
 done
 

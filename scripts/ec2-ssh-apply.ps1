@@ -22,7 +22,7 @@ if (-not $key) {
 if (-not $host_) { throw "AWS_EC2_HOST ou OPENCLAW_EC2_HOST vazio no .env" }
 if (-not $key -or -not (Test-Path $key)) { throw "AWS_EC2_KEY_PATH invalido: $key" }
 
-$cmd = "set -e; cd /opt/openclaw; git pull origin main || git pull; sudo bash scripts/ec2-fix-telegram-models.sh"
+$cmd = "set -e; cd /opt/openclaw; git pull origin main || git pull; sudo bash scripts/ec2-sync-now.sh"
 
 Write-Host "==> SSH ${user}@${host_}"
 ssh -i $key -o StrictHostKeyChecking=accept-new "${user}@${host_}" $cmd

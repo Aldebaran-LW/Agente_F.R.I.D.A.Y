@@ -1,13 +1,14 @@
 # EC2 — disco quase cheio (heartbeat CRITICO)
 
-## Estado (após cleanup 2026-06-01)
+## Estado actual (2026-07-03)
 
-| Antes | Depois |
-|-------|--------|
-| **0,7% livre** (~44 MB) | **~11% livre** (~751 MB) |
-| Uso **100%** | Uso **89%** |
+| Métrica | Valor |
+|---------|--------|
+| Volume | ~8 GB EBS |
+| Uso típico pós-cleanup | **~89–96%** |
+| Instância | `18.191.36.145` (AWS) |
 
-OpenClaw e heartbeat **activos**. Alerta CRITICO deve cessar se livre ≥10%.
+**Ação recomendada:** aumentar EBS para **16 GB** (secção abaixo). Com <10% livre o heartbeat alerta CRITICO.
 
 ---
 
@@ -19,13 +20,26 @@ ssh -i "H:\Meu Drive\Projetos\OpenClaw\Chaves\OpenClaw.pem" ubuntu@18.191.36.145
 
 ```bash
 cd /opt/openclaw
-sudo git pull origin main
+sudo git fetch origin main && sudo git reset --hard origin/main
 sudo bash scripts/ec2-disk-cleanup.sh
 sudo systemctl restart openclaw-heartbeat.timer
 df -h /
 ```
 
 **Do PC (automático):** `.\scripts\ec2-sync-from-pc.ps1`
+
+Se `git pull` falhar com **Permission denied** em `.cursor/`, usar sempre `sudo git reset --hard origin/main`.
+
+---
+
+## Estado histórico (após cleanup 2026-06-01)
+
+| Antes | Depois |
+|-------|--------|
+| **0,7% livre** (~44 MB) | **~11% livre** (~751 MB) |
+| Uso **100%** | Uso **89%** |
+
+OpenClaw e heartbeat **activos**. Alerta CRITICO deve cessar se livre ≥10%.
 
 ---
 
