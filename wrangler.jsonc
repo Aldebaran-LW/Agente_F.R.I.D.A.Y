@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "agente-openclaw",
+  "compatibility_date": "2026-07-21",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "landing-page"
+  },
+  "compatibility_flags": [
+    "nodejs_compat"
+  ]
+}
