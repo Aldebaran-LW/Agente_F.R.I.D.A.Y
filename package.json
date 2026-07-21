@@ -10,11 +10,22 @@
     "scaffold": "node scripts/scaffold-agent.mjs",
     "hf-ingest": "node scripts/hf-ingest-learning.mjs",
     "sync-config": "node scripts/sync-agent-config-to-openclaw.mjs",
-    "doctor": "npm run basico && npm run validate"
+    "doctor": "npm run basico && npm run validate",
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev"
   },
   "engines": {
     "node": ">=18.0.0"
   },
-  "keywords": ["multi-agent", "jarvis", "friday", "openclaw", "telegram"],
-  "author": "Aldebaran-LW"
+  "keywords": [
+    "multi-agent",
+    "jarvis",
+    "friday",
+    "openclaw",
+    "telegram"
+  ],
+  "author": "Aldebaran-LW",
+  "devDependencies": {
+    "wrangler": "^4.112.0"
+  }
 }
