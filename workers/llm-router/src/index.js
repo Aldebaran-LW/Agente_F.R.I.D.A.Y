@@ -3,6 +3,11 @@ import { requireAuth } from './auth.js';
 
 const PROVIDERS = [
   {
+    name: 'workers-ai',
+    type: 'cf-ai',
+    model: '@cf/meta/llama-3.2-3b-instruct',
+  },
+  {
     name: 'groq',
     envKey: 'GROQ_API_KEY',
     url: 'https://api.groq.com/openai/v1/chat/completions',
@@ -41,7 +46,7 @@ export default {
     if (!requireAuth(request, env)) return error('unauthorized', 401);
 
     if (request.method === 'GET' && (path === '/health' || path === '/')) {
-      const available = PROVIDERS.filter(p => env[p.envKey] || env[p.modelKey]).map(p => p.name);
+      const available = PROVIDERS.filter(p => isAvailable(p, env)).map(p => p.name);
       return json({ ok: true, agent: 'llm-router', version: '2.0.0', providers: available });
     }
 
@@ -63,7 +68,7 @@ async function handleChat(request, env) {
   const lastErr = [];
 
   for (const provider of PROVIDERS) {
-    if (!env[provider.envKey]) continue;
+    if (!isAvailable(provider, env)) continue;
     try {
       const result = await query(provider, messages, body, env, stream);
       if (result) return result;
@@ -73,15 +78,19 @@ async function handleChat(request, env) {
     }
   }
 
-  return json({ ok: false, error: 'all providers failed', details: lastErr }, 503);
+  return json({ ok: false, error: 'all providers failed' }, 503);
+}
+
+function prepMessages(msgs) {
+  const hasSystem = msgs.some(m => m.role === 'system');
+  if (!hasSystem) return [{ role: 'system', content: 'Agente OpenClaw. Responda em portugues de forma concisa.' }, ...msgs];
+  return msgs;
 }
 
 async function query(provider, messages, body, env, stream) {
-  const prepMessages = msgs => {
-    const hasSystem = msgs.some(m => m.role === 'system');
-    if (!hasSystem) return [{ role: 'system', content: 'Agente OpenClaw. Responda em portugues de forma concisa.' }, ...msgs];
-    return msgs;
-  };
+  if (provider.type === 'cf-ai') {
+    return cfAiQuery(provider, messages, body, env);
+  }
 
   if (provider.type === 'hf') {
     return hfQuery(provider, messages, body, env);
@@ -116,6 +125,23 @@ async function query(provider, messages, body, env, stream) {
   const reply = data.choices?.[0]?.message?.content;
   if (!reply) throw new Error('empty response');
   return json({ ok: true, reply, model: data.model || provider.name, provider: provider.name });
+}
+
+function isAvailable(provider, env) {
+  if (provider.type === 'cf-ai') return !!env.AI;
+  if (provider.envKey) return !!env[provider.envKey];
+  return true;
+}
+
+async function cfAiQuery(provider, messages, body, env) {
+  const msgs = prepMessages(messages);
+  const result = await env.AI.run(provider.model, {
+    messages: msgs,
+    max_tokens: body.max_tokens || 1024,
+  });
+  const reply = result.response;
+  if (!reply) throw new Error('empty response');
+  return json({ ok: true, reply, model: provider.model, provider: provider.name });
 }
 
 async function hfQuery(provider, messages, body, env) {

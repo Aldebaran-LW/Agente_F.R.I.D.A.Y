@@ -7,7 +7,13 @@ workers_dev = true
 name = "openclaw-llm-router-staging"
 workers_dev = true
 
+[env.staging.ai]
+binding = "AI"
+
 [env.production]
 name = "openclaw-llm-router"
 workers_dev = false
 route = "api.openclaw.lwdigitalforge.com/llm/*"
+
+[env.production.ai]
+binding = "AI"
