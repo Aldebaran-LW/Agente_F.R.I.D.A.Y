@@ -1,0 +1,20 @@
+name = "openclaw-router"
+main = "src/index.js"
+compatibility_date = "2026-07-01"
+workers_dev = true
+
+[env.staging]
+name = "openclaw-router-staging"
+workers_dev = true
+
+[env.production]
+name = "openclaw-router"
+workers_dev = false
+route = "api.openclaw.lwdigitalforge.com/*"
+
+services = [
+  { binding = "MACOFEL", service = "openclaw-macofel" },
+  { binding = "JARVIS", service = "openclaw-jarvis" },
+  { binding = "HEIMDALL", service = "openclaw-heimdall" },
+  { binding = "INNOVATION", service = "openclaw-innovation" },
+]

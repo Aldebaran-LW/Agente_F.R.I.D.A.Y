@@ -1,0 +1,13 @@
+name = "openclaw-jarvis"
+main = "src/index.js"
+compatibility_date = "2026-07-01"
+workers_dev = true
+
+[env.staging]
+name = "openclaw-jarvis-staging"
+workers_dev = true
+
+[env.production]
+name = "openclaw-jarvis"
+workers_dev = false
+route = "api.openclaw.lwdigitalforge.com/jarvis/*"

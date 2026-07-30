@@ -1,0 +1,73 @@
+services:
+
+  # ─── Ollama — inferência local ────────────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: openclaw-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      OLLAMA_HOST: "0.0.0.0"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    # GPU Nvidia — descomente se disponível:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+  # ─── Modelo inicial — baixa automaticamente na primeira execução ──────────
+  ollama-init:
+    image: curlimages/curl:latest
+    container_name: openclaw-ollama-init
+    depends_on:
+      ollama:
+        condition: service_healthy
+    # Modelo leve (0.5b) para EC2 mínima. Troque por qwen2.5:7b se tiver memória.
+    entrypoint: >
+      sh -c "curl -sf -X POST http://ollama:11434/api/pull
+        -H 'Content-Type: application/json'
+        -d '{\"name\":\"qwen2.5:0.5b\",\"stream\":false}' && echo 'Modelo pronto.'"
+    restart: "no"
+
+  # ─── Gateway Vercel (dev local) ───────────────────────────────────────────
+  # Perfil "dev" — não sobe no EC2 produção (onde o gateway fica na Vercel)
+  gateway:
+    profiles: ["dev"]
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile.dev
+    container_name: openclaw-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      OLLAMA_BASE_URL: "http://ollama:11434"
+      OLLAMA_MODEL: "${OLLAMA_MODEL:-qwen2.5:0.5b}"
+      OLLAMA_TIMEOUT_MS: "${OLLAMA_TIMEOUT_MS:-30000}"
+      OPENCLAW_AUTOMATION_TOKEN: "${OPENCLAW_AUTOMATION_TOKEN}"
+      TELEGRAM_BOT_TOKEN: "${TELEGRAM_BOT_TOKEN}"
+      TELEGRAM_ADMIN_CHAT_ID: "${TELEGRAM_ADMIN_CHAT_ID}"
+      HF_TOKEN: "${HF_TOKEN}"
+      GROQ_API_KEY: "${GROQ_API_KEY}"
+    env_file:
+      - .env
+    depends_on:
+      ollama:
+        condition: service_healthy
+    volumes:
+      - ./gateway:/app
+      - /app/node_modules
+    restart: unless-stopped
+
+volumes:
+  ollama_data:

@@ -1,0 +1,19 @@
+name = "openclaw-macofel"
+main = "src/index.js"
+compatibility_date = "2026-07-01"
+workers_dev = true
+
+[env.staging]
+name = "openclaw-macofel-staging"
+workers_dev = true
+
+[env.production]
+name = "openclaw-macofel"
+workers_dev = false
+route = "api.openclaw.lwdigitalforge.com/macofel/*"
+
+[env.staging.vars]
+MONGODB_DB_NAME = "macofel"
+
+[env.production.vars]
+MONGODB_DB_NAME = "macofel"

@@ -1,0 +1,14 @@
+[Unit]
+Description=OpenClaw Digital Forge WebSocket
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/openclaw/scripts
+Environment=OPENCLAW_FORGE_WS_PORT=8787
+ExecStart=/usr/bin/env node forge-ws-server.mjs
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

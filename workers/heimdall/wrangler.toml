@@ -1,0 +1,13 @@
+name = "openclaw-heimdall"
+main = "src/index.js"
+compatibility_date = "2026-07-01"
+workers_dev = true
+
+[env.staging]
+name = "openclaw-heimdall-staging"
+workers_dev = true
+
+[env.production]
+name = "openclaw-heimdall"
+workers_dev = false
+route = "api.openclaw.lwdigitalforge.com/heimdall/*"

@@ -1,0 +1,16 @@
+[Unit]
+Description=OpenClaw EC2 Orchestrate Webhook (Friday broker)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/openclaw/scripts
+EnvironmentFile=-/opt/openclaw/.env
+Environment=OPENCLAW_ORCHESTRATE_PORT=8790
+Environment=OPENCLAW_ORCHESTRATE_HOST=127.0.0.1
+ExecStart=/usr/bin/env node ec2-orchestrate-hook.mjs
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

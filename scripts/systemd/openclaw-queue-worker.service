@@ -1,0 +1,17 @@
+[Unit]
+Description=OpenClaw Queue Worker (processa fila do orchestrate hook)
+After=network.target openclaw-orchestrate.service
+Wants=openclaw-orchestrate.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/openclaw/scripts
+EnvironmentFile=-/opt/openclaw/.env
+Environment=EC2_QUEUE_POLL_INTERVAL_MS=10000
+Environment=EC2_QUEUE_HOOK_URL=http://127.0.0.1:8790
+ExecStart=/usr/bin/env node ec2-queue-worker.mjs
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target

@@ -1,5 +1,41 @@
 export const RULES = [
   {
+    agent: 'jarvis',
+    skill: 'graphify-knowledge',
+    patterns: [
+      /^\/graphify(?:\s|$)/i,
+      /^graphify\s+(query|path|explain|build|health)/i,
+      /^analisa[^a-z]*dependencia\b/i,
+      /^entender\s+estrutura/i,
+      /^qual\s+funcao\s+chama/i,
+      /^como\s+funciona/i,
+      /^grafo\s+de\s+conhecimento/i,
+    ],
+  },
+  {
+    agent: 'jarvis',
+    skill: 'omniroute-multi-model',
+    patterns: [
+      /^\/omniroute(?:\s|$)/i,
+      /^omniroute\s+(query|batch|stream|health)/i,
+      /^gerar\s+codigo\s+(?:com\s+)?(?:modelo|provider)/i,
+      /^modelo\s+mais\s+barato/i,
+      /^multi[-\s]?model\s+gateway/i,
+      /^fallback\s+automatico/i,
+      /^compressa?o\s+de\s+tokens/i,
+      /^290\s+providers?/i,
+    ],
+  },
+  {
+    agent: 'jarvis',
+    skill: 'ollama-local',
+    patterns: [
+      /^\/ollama(?:-modelos?)?(?:\s|$)/i,
+      /^ollama\s+(pull|modelo:|modelos?)/i,
+      /^\/?(ollama-modelos?)$/i,
+    ],
+  },
+  {
     agent: "rimuru",
     skill: "innovation-monitor",
     patterns: [/^\/quotas(?:@\w+)?$/i, /^quotas$/i, /^rimuru\s+status$/i],
@@ -8,6 +44,18 @@ export const RULES = [
     agent: "heimdall",
     skill: "ecosystem-watch",
     patterns: [/^\/office(?:@\w+)?$/i],
+  },
+  {
+    agent: 'heimdall',
+    skill: 'cursor-cloud-agent',
+    patterns: [
+      /^\/cursor(?:@\w+)?(?:\s+|$)/i,
+      /^cursor\s*:/i,
+      /^cursor\s+agent\s+/i,
+      /^implementar\s+com\s+cursor\b/i,
+      /^cloud\s+agent\s+/i,
+      /\bcursor\s+cloud\s+agent\b/i,
+    ],
   },
   { agent: "macofel", skill: "macofel-status", patterns: [/macofel|catalogo|pendente|produto/i] },
   { agent: "macofel", skill: "macofel-images-sync", patterns: [/sync imagem|sync imagens|sincronizar imagem/i] },

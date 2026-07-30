@@ -243,6 +243,24 @@
       "timeoutMs": 0,
       "telemetry": true,
       "description": "Allowlist de fontes e guard no orchestrate"
+    },
+    "graphify-knowledge": {
+      "agent": "jarvis",
+      "mode": "read",
+      "permissions": ["read:knowledge"],
+      "requiresApproval": false,
+      "timeoutMs": 30000,
+      "telemetry": true,
+      "description": "Knowledge graph queries - entender estrutura do codigo"
+    },
+    "omniroute-multi-model": {
+      "agent": "jarvis",
+      "mode": "read",
+      "permissions": ["read:models"],
+      "requiresApproval": false,
+      "timeoutMs": 35000,
+      "telemetry": true,
+      "description": "OmniRoute multi-model gateway - 290 providers com fallback automatico"
     }
   }
 }
