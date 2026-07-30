@@ -54,3 +54,5 @@ GitHub Actions em `.github/workflows/deploy.yml` faz deploy automático de todos
 | macofel | `MONGODB_URI` |
 | heimdall | `GITHUB_TOKEN`, `VERCEL_API_TOKEN` |
 | innovation | `OPENROUTER_API_KEY` |
+
+# CI/CD trigger
