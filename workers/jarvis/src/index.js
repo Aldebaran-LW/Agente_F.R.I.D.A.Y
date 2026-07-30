@@ -30,6 +30,10 @@ export default {
       return json({ ok: true, ...AGENT_INFO });
     }
 
+    if (path === '/debug/llm') {
+      return debugLlm(env);
+    }
+
     return error('not found', 404);
   },
 };
@@ -53,95 +57,45 @@ async function handleJarvisPost(request, env, ctx) {
 }
 
 async function callLlm(message, env) {
-  const providers = [];
-
-  if (env.GROQ_API_KEY) {
-    providers.push(() => groqQuery(message, env));
-  }
-  if (env.DEEPSEEK_API_KEY) {
-    providers.push(() => deepseekQuery(message, env));
-  }
-  if (env.OPENROUTER_API_KEY) {
-    providers.push(() => openrouterQuery(message, env));
-  }
-  if (env.HF_TOKEN) {
-    providers.push(() => hfQuery(message, env));
-  }
-
-  for (const provider of providers) {
+  if (env.LLM_ROUTER) {
     try {
-      const result = await provider();
-      if (result.ok) return result;
+      const res = await env.LLM_ROUTER.fetch('https://internal/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${env.OPENCLAW_AUTOMATION_TOKEN}` },
+        body: JSON.stringify({
+          messages: [{ role: 'user', content: message }],
+          max_tokens: 512,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.ok) return { ok: true, reply: data.reply, model: data.provider || 'llm-router' };
+      }
     } catch (e) {
-      console.error(`LLM provider failed:`, e.message);
+      console.error('llm-router failed:', e.message);
     }
   }
 
   return { ok: false, reply: 'Nenhum LLM disponivel.' };
 }
 
-async function groqQuery(message, env) {
-  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${env.GROQ_API_KEY}` },
-    body: JSON.stringify({
-      model: env.GROQ_MODEL || 'llama-3.3-70b-versatile',
-      messages: [{ role: 'system', content: 'Agente OpenClaw. Responda em portuguÃªs.' }, { role: 'user', content: message }],
-      max_tokens: 512,
-    }),
-    signal: AbortSignal.timeout(30000),
-  });
-  const data = await res.json();
-  return { ok: true, reply: data.choices?.[0]?.message?.content || '...', model: 'groq' };
-}
-
-async function deepseekQuery(message, env) {
-  const res = await fetch('https://api.deepseek.com/chat/completions', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${env.DEEPSEEK_API_KEY}` },
-    body: JSON.stringify({
-      model: 'deepseek-chat',
-      messages: [{ role: 'system', content: 'Agente OpenClaw. Responda em portuguÃªs.' }, { role: 'user', content: message }],
-      max_tokens: 512,
-    }),
-    signal: AbortSignal.timeout(30000),
-  });
-  const data = await res.json();
-  return { ok: true, reply: data.choices?.[0]?.message?.content || '...', model: 'deepseek' };
-}
-
-async function openrouterQuery(message, env) {
-  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json', Authorization: `Bearer ${env.OPENROUTER_API_KEY}`,
-      'HTTP-Referer': 'https://openclaw.lwdigitalforge.com',
-    },
-    body: JSON.stringify({
-      model: 'nvidia/nemotron-3-super-120b-a12b:free',
-      messages: [{ role: 'system', content: 'Agente OpenClaw. Responda em portuguÃªs.' }, { role: 'user', content: message }],
-      max_tokens: 512,
-    }),
-    signal: AbortSignal.timeout(30000),
-  });
-  const data = await res.json();
-  return { ok: true, reply: data.choices?.[0]?.message?.content || '...', model: 'openrouter' };
-}
-
-async function hfQuery(message, env) {
-  const res = await fetch(`https://api-inference.huggingface.co/models/${env.HF_INFERENCE_MODEL || 'Qwen/Qwen2.5-7B-Instruct:fastest'}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${env.HF_TOKEN}` },
-    body: JSON.stringify({ inputs: message, parameters: { max_new_tokens: 512 } }),
-    signal: AbortSignal.timeout(30000),
-  });
-  const data = await res.json();
-  const reply = Array.isArray(data) ? data[0]?.generated_text : data?.generated_text;
-  return { ok: !!reply, reply: reply || '...', model: 'huggingface' };
+async function debugLlm(env) {
+  const info = { hasBinding: !!env.LLM_ROUTER, hasToken: !!env.OPENCLAW_AUTOMATION_TOKEN };
+  if (!env.LLM_ROUTER) return json(info);
+  try {
+    const res = await env.LLM_ROUTER.fetch('https://internal/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${env.OPENCLAW_AUTOMATION_TOKEN}` },
+      body: JSON.stringify({ messages: [{ role: 'user', content: 'responda apenas: ok' }], max_tokens: 64 }),
+    });
+    info.status = res.status;
+    info.body = await res.text().catch(() => 'error');
+  } catch (e) {
+    info.error = e.message;
+  }
+  return json(info);
 }
 
 async function notifyTelegram(env, message, reply) {
   await sendTelegramMessage(env, `<b>Jarvis:</b>\n${reply.slice(0, 1000)}`);
 }
-
-
