@@ -6,12 +6,17 @@ workers_dev = true
 [env.staging]
 name = "openclaw-router-staging"
 workers_dev = true
+services = [
+  { binding = "MACOFEL", service = "openclaw-macofel-staging" },
+  { binding = "JARVIS", service = "openclaw-jarvis-staging" },
+  { binding = "HEIMDALL", service = "openclaw-heimdall-staging" },
+  { binding = "INNOVATION", service = "openclaw-innovation-staging" },
+]
 
 [env.production]
 name = "openclaw-router"
 workers_dev = false
 route = "api.openclaw.lwdigitalforge.com/*"
-
 services = [
   { binding = "MACOFEL", service = "openclaw-macofel" },
   { binding = "JARVIS", service = "openclaw-jarvis" },
