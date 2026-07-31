@@ -23,8 +23,6 @@ const FILES = [
   'scheduled-whatsapp-core.mjs',
   'whatsapp-contacts.mjs',
   'preferences-memory.mjs',
-  'cursor-api.mjs',
-  'cursor-agent-core.mjs',
 ];
 
 mkdirSync(dest, { recursive: true });
