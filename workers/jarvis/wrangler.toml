@@ -3,12 +3,18 @@ main = "src/index.js"
 compatibility_date = "2026-07-01"
 workers_dev = true
 
+[ai]
+binding = "AI"
+
 [env.staging]
 name = "openclaw-jarvis-staging"
 workers_dev = true
 services = [
   { binding = "LLM_ROUTER", service = "openclaw-llm-router-staging" },
 ]
+
+[env.staging.ai]
+binding = "AI"
 
 [env.production]
 name = "openclaw-jarvis"
@@ -17,3 +23,6 @@ route = "api.openclaw.lwdigitalforge.com/jarvis/*"
 services = [
   { binding = "LLM_ROUTER", service = "openclaw-llm-router" },
 ]
+
+[env.production.ai]
+binding = "AI"

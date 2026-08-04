@@ -16,6 +16,8 @@ export default {
     if (request.method === 'GET' && path === '/jarvis') {
       return json({ ok: true, ...AGENT_INFO, endpoints: {
         jarvis: 'POST /jarvis { "message": "..." }',
+        voice: 'POST /jarvis/voice { "audio_url": "..." }',
+        imagem: 'POST /jarvis/imagem { "prompt": "..." }',
         macofel: 'GET /macofel/status',
         github: 'GET /github/status',
         office: 'GET /office/status',
@@ -26,12 +28,16 @@ export default {
       return handleJarvisPost(request, env, ctx);
     }
 
-    if (path === '/health') {
-      return json({ ok: true, ...AGENT_INFO });
+    if (request.method === 'POST' && path === '/jarvis/voice') {
+      return handleVoice(request, env, ctx);
     }
 
-    if (path === '/debug/llm') {
-      return debugLlm(env);
+    if (request.method === 'POST' && path === '/jarvis/imagem') {
+      return handleImage(request, env, ctx);
+    }
+
+    if (path === '/health') {
+      return json({ ok: true, ...AGENT_INFO });
     }
 
     return error('not found', 404);
@@ -79,21 +85,120 @@ async function callLlm(message, env) {
   return { ok: false, reply: 'Nenhum LLM disponivel.' };
 }
 
-async function debugLlm(env) {
-  const info = { hasBinding: !!env.LLM_ROUTER, hasToken: !!env.OPENCLAW_AUTOMATION_TOKEN };
-  if (!env.LLM_ROUTER) return json(info);
+async function handleVoice(request, env, ctx) {
+  const body = await request.json().catch(() => ({}));
+  const audioUrl = body.audio_url;
+
+  if (!audioUrl) return error('audio_url required');
+
+  let audioBuffer;
   try {
-    const res = await env.LLM_ROUTER.fetch('https://internal/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${env.OPENCLAW_AUTOMATION_TOKEN}` },
-      body: JSON.stringify({ messages: [{ role: 'user', content: 'responda apenas: ok' }], max_tokens: 64 }),
-    });
-    info.status = res.status;
-    info.body = await res.text().catch(() => 'error');
+    const res = await fetch(audioUrl, { signal: AbortSignal.timeout(15000) });
+    if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
+    audioBuffer = await res.arrayBuffer();
   } catch (e) {
-    info.error = e.message;
+    return error(`failed to fetch audio: ${e.message}`, 502);
   }
-  return json(info);
+
+  if (audioBuffer.byteLength > 25 * 1024 * 1024) {
+    return error('audio too large (max 25MB)', 413);
+  }
+
+  const bytes = new Uint8Array(audioBuffer);
+  let text;
+  try {
+    const accountId = env.CLOUDFLARE_ACCOUNT_ID;
+    const apiToken = env.CLOUDFLARE_API_TOKEN;
+    if (accountId && apiToken) {
+      const audioBase64 = btoa(String.fromCharCode(...bytes));
+      const res = await fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/@cf/openai/whisper-large-v3-turbo`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiToken}`,
+        },
+        body: JSON.stringify({ audio: audioBase64 }),
+        signal: AbortSignal.timeout(60000),
+      });
+      if (!res.ok) throw new Error(`whisper API: ${res.status}`);
+      const data = await res.json();
+      text = data.result?.text;
+    } else if (env.AI) {
+      const result = await env.AI.run('@cf/openai/whisper-large-v3-turbo', {
+        audio: bytes,
+      });
+      text = result.text;
+    } else {
+      return error('AI or Cloudflare API credentials not configured', 503);
+    }
+  } catch (e) {
+    console.error('whisper failed:', e.message);
+    return error(`transcription failed: ${e.message}`, 502);
+  }
+
+  if (!text || !text.trim()) {
+    return error('empty transcription', 502);
+  }
+
+  ctx.waitUntil(notifyTelegram(env, `[Voz transcrita]\n${text.slice(0, 200)}`, ''));
+
+  return json({ ok: true, text, model: 'whisper-large-v3-turbo', provider: 'workers-ai' });
+}
+
+async function handleImage(request, env, ctx) {
+  const body = await request.json().catch(() => ({}));
+  const prompt = body.prompt;
+
+  if (!prompt) return error('prompt required');
+  if (prompt.length > 2048) return error('prompt too long (max 2048 chars)', 400);
+
+  let result;
+  try {
+    if (env.AI) {
+      result = await env.AI.run('@cf/black-forest-labs/flux-1-schnell', {
+        prompt,
+        seed: Math.floor(Math.random() * 10000),
+        steps: 4,
+      });
+    } else {
+      return error('AI binding not configured', 503);
+    }
+  } catch (e) {
+    console.error('flux failed:', e.message);
+    return error(`image generation failed: ${e.message}`, 502);
+  }
+
+  if (!result || !result.image) {
+    return error('empty image result', 502);
+  }
+
+  const base64 = result.image;
+  const dataUri = `data:image/jpeg;base64,${base64}`;
+
+  ctx.waitUntil(
+    sendTelegramImage(env, dataUri, prompt.slice(0, 200)),
+  );
+
+  return json({ ok: true, image: dataUri, prompt, model: 'flux-1-schnell', provider: 'workers-ai' });
+}
+
+async function sendTelegramImage(env, dataUri, caption) {
+  const chatId = env.TELEGRAM_ADMIN_CHAT_ID || env.TELEGRAM_CHAT_ID;
+  if (!env.TELEGRAM_BOT_TOKEN || !chatId) return;
+  try {
+    await fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendPhoto`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        photo: dataUri,
+        caption: caption ? `🖼 ${caption}` : undefined,
+        parse_mode: 'HTML',
+      }),
+    });
+  } catch (e) {
+    console.error('Telegram image error:', e.message);
+  }
 }
 
 async function notifyTelegram(env, message, reply) {
