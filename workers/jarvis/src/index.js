@@ -52,7 +52,7 @@ async function handleJarvisPost(request, env, ctx) {
 
   const context = await searchKnowledge(env, message);
   const contextStr = context?.length
-    ? '\n\nContexto relevante:\n' + context.map((h) => `- ${h.message}: ${h.reply}`).join('\n')
+    ? '\n\nContexto relevante:\n' + context.map((d) => `- ${d.title}: ${d.content?.slice(0, 200)}`).join('\n')
     : '';
 
   const llm = await callLlm(message + contextStr, env);
@@ -209,15 +209,16 @@ async function sendTelegramImage(env, dataUri, caption) {
 }
 
 async function searchKnowledge(env, query) {
-  if (!env.INTEGRATION) return null;
+  if (!env.KNOWLEDGE) return null;
   try {
-    const res = await env.INTEGRATION.fetch(`https://internal/search/indexes/conversations/search?q=${encodeURIComponent(query)}&limit=3`, {
+    const url = `https://openclaw-knowledge-staging.lwdigitalforge.workers.dev/search?q=${encodeURIComponent(query)}&limit=3`;
+    const res = await fetch(url, {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { Authorization: `Bearer ${env.OPENCLAW_AUTOMATION_TOKEN}`, 'Content-Type': 'application/json' },
     });
     if (res.ok) {
       const data = await res.json();
-      return data.hits || [];
+      return data.documents || [];
     }
   } catch (e) {
     console.error('search failed:', e.message);
@@ -226,16 +227,16 @@ async function searchKnowledge(env, query) {
 }
 
 async function indexConversation(env, message, reply) {
-  if (!env.INTEGRATION) return;
+  if (!env.KNOWLEDGE) return;
   try {
-    await env.INTEGRATION.fetch('https://internal/search/indexes/conversations/documents', {
+    await env.KNOWLEDGE.fetch('/documents', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { Authorization: `Bearer ${env.OPENCLAW_AUTOMATION_TOKEN}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         id: `msg_${Date.now()}`,
-        message: message.slice(0, 500),
-        reply: reply.slice(0, 500),
-        timestamp: new Date().toISOString(),
+        title: message.slice(0, 100),
+        content: `Pergunta: ${message.slice(0, 500)}\nResposta: ${reply.slice(0, 500)}`,
+        metadata: JSON.stringify({ type: 'conversation', timestamp: new Date().toISOString() }),
       }),
     });
   } catch (e) {
@@ -244,12 +245,12 @@ async function indexConversation(env, message, reply) {
 }
 
 async function notifyApprise(env, title, body, tag = 'openclaw') {
-  if (!env.INTEGRATION) return;
+  if (!env.KNOWLEDGE) return;
   try {
-    await env.INTEGRATION.fetch(`https://internal/notify/${tag}`, {
+    await env.KNOWLEDGE.fetch('/notify', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, body }),
+      headers: { Authorization: `Bearer ${env.OPENCLAW_AUTOMATION_TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, body, tag }),
     });
   } catch (e) {
     console.error('notify failed:', e.message);

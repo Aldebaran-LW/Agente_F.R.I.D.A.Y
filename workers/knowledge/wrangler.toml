@@ -1,0 +1,41 @@
+name = "openclaw-knowledge"
+main = "src/index.js"
+compatibility_date = "2026-07-01"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+
+[ai]
+binding = "AI"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "openclaw-knowledge"
+database_id = "f79976d7-6daf-4451-9a2a-3f0b506008c4"
+
+[[vectorize]]
+binding = "VECTORIZE"
+index_name = "openclaw-knowledge-vectors"
+
+[env.staging]
+name = "openclaw-knowledge-staging"
+workers_dev = true
+
+[env.staging.ai]
+binding = "AI"
+
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "openclaw-knowledge"
+database_id = "f79976d7-6daf-4451-9a2a-3f0b506008c4"
+
+[[env.staging.vectorize]]
+binding = "VECTORIZE"
+index_name = "openclaw-knowledge-vectors"
+
+[env.production]
+name = "openclaw-knowledge"
+workers_dev = false
+route = "api.openclaw.lwdigitalforge.com/knowledge/*"
+
+[env.production.ai]
+binding = "AI"
