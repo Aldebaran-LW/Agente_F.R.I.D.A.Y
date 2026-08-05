@@ -1,0 +1,27 @@
+name = "openclaw-integration"
+main = "src/index.js"
+compatibility_date = "2026-07-01"
+workers_dev = true
+
+[ai]
+binding = "AI"
+
+[env.staging]
+name = "openclaw-integration-staging"
+workers_dev = true
+
+[env.staging.ai]
+binding = "AI"
+
+[env.staging.vars]
+EC2_HOST = ""
+MEILI_MASTER_KEY = "openclaw-meili-key-change-me"
+
+[env.production]
+name = "openclaw-integration"
+workers_dev = false
+route = "api.openclaw.lwdigitalforge.com/integration/*"
+
+[env.production.vars]
+EC2_HOST = "http://18.191.36.145:8080"
+MEILI_MASTER_KEY = ""

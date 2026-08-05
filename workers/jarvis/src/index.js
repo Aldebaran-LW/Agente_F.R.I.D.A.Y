@@ -50,15 +50,22 @@ async function handleJarvisPost(request, env, ctx) {
 
   if (!message) return error('message required');
 
-  const llm = await callLlm(message, env);
+  const context = await searchKnowledge(env, message);
+  const contextStr = context?.length
+    ? '\n\nContexto relevante:\n' + context.map((h) => `- ${h.message}: ${h.reply}`).join('\n')
+    : '';
+
+  const llm = await callLlm(message + contextStr, env);
   const reply = llm.ok ? llm.reply : 'Desculpe, nao consegui processar agora.';
 
+  ctx.waitUntil(indexConversation(env, message, reply));
   ctx.waitUntil(notifyTelegram(env, message, reply));
 
   return json({
     ok: true, ...AGENT_INFO,
     reply, message_echo: message,
     llm: llm.ok ? llm.model : null,
+    contextUsed: !!context?.length,
   });
 }
 
@@ -198,6 +205,54 @@ async function sendTelegramImage(env, dataUri, caption) {
     });
   } catch (e) {
     console.error('Telegram image error:', e.message);
+  }
+}
+
+async function searchKnowledge(env, query) {
+  if (!env.INTEGRATION) return null;
+  try {
+    const res = await env.INTEGRATION.fetch(`https://internal/search/indexes/conversations/search?q=${encodeURIComponent(query)}&limit=3`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return data.hits || [];
+    }
+  } catch (e) {
+    console.error('search failed:', e.message);
+  }
+  return null;
+}
+
+async function indexConversation(env, message, reply) {
+  if (!env.INTEGRATION) return;
+  try {
+    await env.INTEGRATION.fetch('https://internal/search/indexes/conversations/documents', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: `msg_${Date.now()}`,
+        message: message.slice(0, 500),
+        reply: reply.slice(0, 500),
+        timestamp: new Date().toISOString(),
+      }),
+    });
+  } catch (e) {
+    console.error('index failed:', e.message);
+  }
+}
+
+async function notifyApprise(env, title, body, tag = 'openclaw') {
+  if (!env.INTEGRATION) return;
+  try {
+    await env.INTEGRATION.fetch(`https://internal/notify/${tag}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, body }),
+    });
+  } catch (e) {
+    console.error('notify failed:', e.message);
   }
 }
 

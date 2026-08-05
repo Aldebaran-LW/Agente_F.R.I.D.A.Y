@@ -11,6 +11,7 @@ name = "openclaw-jarvis-staging"
 workers_dev = true
 services = [
   { binding = "LLM_ROUTER", service = "openclaw-llm-router-staging" },
+  { binding = "INTEGRATION", service = "openclaw-integration-staging" },
 ]
 
 [env.staging.ai]
@@ -22,6 +23,7 @@ workers_dev = false
 route = "api.openclaw.lwdigitalforge.com/jarvis/*"
 services = [
   { binding = "LLM_ROUTER", service = "openclaw-llm-router" },
+  { binding = "INTEGRATION", service = "openclaw-integration" },
 ]
 
 [env.production.ai]

@@ -1,0 +1,98 @@
+version: "3.8"
+
+services:
+  meilisearch:
+    image: getmeili/meilisearch:v1.11
+    container_name: openclaw-meilisearch
+    restart: unless-stopped
+    ports:
+      - "7700:7700"
+    environment:
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-openclaw-meili-key-change-me}
+      MEILI_NO_ANALYTICS: "true"
+      MEILI_ENV: production
+    volumes:
+      - meili-data:/meili_data
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7700/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  khoj:
+    image: ghcr.io/khoj-ai/khoj:latest
+    container_name: openclaw-khoj
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      KHOJ_DEBUG: "false"
+      KHOJ_ADMIN_PASSWORD: ${KHOJ_ADMIN_PASSWORD:-openclaw-admin}
+      KHOJ_OPENAI_API_KEY: ${KHOJ_OPENAI_API_KEY:-}
+      KHOJ_OPENAI_API_BASE_URL: ${KHOJ_OPENAI_API_BASE_URL:-https://api.openai.com/v1}
+      KHOJ_DJANGO_SECRET_KEY: ${KHOJ_DJANGO_SECRET_KEY:-openclaw-khoj-secret-change-me}
+      KHOJ_CROSS_ORIGIN: "*"
+      KHOJ_TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      KHOJ_DOMAIN: ${KHOJ_DOMAIN:-http://localhost:4000}
+    volumes:
+      - khoj-data:/root/.khoj
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  apprise:
+    image: lcarlsen/apprise:latest
+    container_name: openclaw-apprise
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      APPRISE_CONFIG_DIR: /config
+      APPRISE_WORKER_COUNT: 1
+    volumes:
+      - apprise-data:/config
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.25"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  nginx:
+    image: nginx:alpine
+    container_name: openclaw-proxy
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - meilisearch
+      - khoj
+      - apprise
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+          cpus: "0.1"
+
+volumes:
+  meili-data:
+  khoj-data:
+  apprise-data:
